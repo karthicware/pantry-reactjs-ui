@@ -1,0 +1,79 @@
+{
+  "name": "pantry",
+  "version": "1.9.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.4.1",
+    "@emotion/styled": "^11.3.0",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@n8tb1t/use-scroll-position": "^2.0.3",
+    "@zeit/next-sass": "^1.0.1",
+    "animate.css": "4.1.0",
+    "axios": "^0.20.0",
+    "classnames": "2.2.6",
+    "history": "4.10.1",
+    "moment": "2.26.0",
+    "next": "^9.5.2",
+    "next-compose-plugins": "^2.2.0",
+    "next-images": "^1.4.1",
+    "nextjs-redirect": "^5.0.0",
+    "node-sass": "4.14.1",
+    "nouislider": "14.5.0",
+    "path": "^0.12.7",
+    "prop-types": "15.7.2",
+    "react": "^17.0.2",
+    "react-animate-on-scroll": "2.1.5",
+    "react-block-ui": "^1.3.3",
+    "react-datetime": "2.16.3",
+    "react-dom": "^17.0.2",
+    "react-google-maps": "9.4.5",
+    "react-image-gallery": "1.0.7",
+    "react-lazyload": "^3.0.0",
+    "react-otp-input": "^2.0.2",
+    "react-router-dom": "5.2.0",
+    "react-scripts": "3.4.1",
+    "react-slick": "^0.26.1",
+    "react-swipeable-views": "0.13.9",
+    "react-tagsinput": "3.19.0",
+    "react-text-mask": "^5.4.3",
+    "slick-carousel": "^1.8.1",
+    "smooth-scrollbar-react": "^1.0.0",
+    "webpack": "^4.44.1"
+  },
+  "scripts": {
+    "dev": "next",
+    "build": "next build && next export",
+    "deploy": "aws s3 sync out/ s3://nammanuts-ui --acl public-read",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "lint:check": "eslint . --ext=js,jsx;  exit 0",
+    "lint:fix": "eslint . --ext=js,jsx --fix;  exit 0",
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
+    "compile-sass": "node-sass src/assets/scss/material-kit-pro-react.scss src/assets/css/material-kit-pro-react.css",
+    "minify-sass": "node-sass src/assets/scss/material-kit-pro-react.scss src/assets/css/material-kit-pro-react.min.css --output-style compressed",
+    "map-sass": "node-sass src/assets/scss/material-kit-pro-react.scss src/assets/css/material-kit-pro-react.css --source-map true"
+  },
+  "devDependencies": {
+    "gulp": "4.0.2",
+    "gulp-append-prepend": "1.0.8"
+  },
+  "optionalDependencies": {
+    "@types/googlemaps": "3.39.6",
+    "@types/markerclustererplus": "2.1.33",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-plugin-prettier": "3.1.3",
+    "eslint-plugin-react": "7.20.0",
+    "prettier": "2.0.5",
+    "typescript": "3.9.3"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": []
+  }
+}

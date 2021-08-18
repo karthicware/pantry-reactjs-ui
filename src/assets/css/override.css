@@ -1,0 +1,33 @@
+#simple-popover {
+    z-index: 99;
+}
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.MuiTypography-root,
+.MuiInput-input {
+  /* color: #666 !important; */
+  text-transform: inherit;
+}
+.MuiTypography-h6,
+.MuiTypography-h5,
+.MuiTypography-h4,
+.MuiTypography-h3,
+.MuiTypography-h2,
+.MuiTypography-h1 {
+  font-family: "Roboto Slab", "Times New Roman", serif !important;
+}
+.MuiTypography-body1 {color: rgb(102, 102, 102)}
+.slick-next:before, .slick-prev:before {
+  color: #666 !important;
+  font-size: 12px;
+}
+/* .image-gallery-thumbnails-container button {
+  border: 1px solid #c2c2c2 !important;
+  width: 52px !important;
+  height: 66px !important;
+} */
