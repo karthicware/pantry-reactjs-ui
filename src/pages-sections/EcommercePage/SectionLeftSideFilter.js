@@ -1,9 +1,12 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect } from "react";
 import Router from "next/router";
+import Link from "next/link";
+
 // nodejs library that concatenates classes
 import PropTypes from "prop-types";
 import classNames from "classnames";
+
 // plugin that creates slider
 import Slider from "nouislider";
 
@@ -38,7 +41,7 @@ import Button from 'components/CustomButtons/Button.js';
 import axios from "axios";
 import Scrollbar from 'smooth-scrollbar-react';
 
-import { warningColor, infoColor } from "assets/jss/material-kit-pro-react.js";
+import { warningColor, primaryColor } from "assets/jss/material-kit-pro-react.js";
 
 
 const drawerWidth = 240;
@@ -101,49 +104,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SectionLeftSideFilter({deptDetail, categories, hideOnScroll}) {
+function SectionLeftSideFilter({ deptDetail, catgDetail, subCatgDetail, categories, hideOnScroll }) {
   const classes = useStyles();
 
-  /* React.useEffect(() => {
-    console.log(`queryString=${queryString}`);
-    const fetchData = () => {
-      let searchParams = new URLSearchParams(window.location.search);
-      axios
-        .get(`/api/v1/product/list-menu`)
-        .then(resp => {
-          setMenuData(resp.data);
-          Object.entries(resp.data).forEach((entry) => {
-            const [key, value] = entry;
-            if (key.substring(0, key.indexOf('_')) == searchParams.get('cid')) {
-              handleMenuClick(key);
-            }
-          });
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    };
-    if (queryString)
-      fetchData();
-    return function cleanup() { };
-  }, [queryString]); */
-
-  /* const handleMenuClick = (menuId) => {
-    if (selectedMenuId === menuId)
-      setSelectedMenuId(null);
-    else {
-      setSelectedMenuId(menuId);
-      console.log(menuId.substring(0, menuId.indexOf('_')));
-      console.log(menuId.substring(menuId.indexOf('_') + 1, menuId.length));
-      //props.loadProducts(menuId.substring(0, menuId.indexOf('_')), menuId.substring(menuId.indexOf('_') + 1, menuId.length));
-    }
-  }; */
-
-  /* const handleSubMenuClick = (categoryId, categoryDesc, subCategoryId, subCategoryDesc) => {
-    //props.loadProducts(categoryId, categoryDesc, subCategoryId, subCategoryDesc);
-  }; */
-
-  /* const smallScreenDrawerContent = (
+  const smallScreenDrawerContent = (
     <div style={{
       borderBottom: '10px solid #EEE', padding: 8, display: 'flex',
       flexWrap: 'wrap',
@@ -151,16 +115,15 @@ function SectionLeftSideFilter({deptDetail, categories, hideOnScroll}) {
       overflow: 'hidden',
     }}>
       <GridList className={classes.gridList} cols={2.5}>
-        {Object.entries(menuData).map((entry) => {
-          const [key, value] = entry;
+        {categories.map((catgApi, i) => {
           return (
-            <GridListTile key={key} classes={{ root: classes.gridListRoot }}>
-              <Button size="sm" color="warning" round>{key.substring(key.indexOf('_') + 1, key.length)}</Button>
+            <GridListTile key={i} classes={{ root: classes.gridListRoot }}>
+              <Button size="sm" color="primary" round>{catgApi.name}</Button>
             </GridListTile>
           )
         })}
       </GridList>
-    </div>); */
+    </div>);
 
   const bigScreenDrawerContent = (
     <div className={classes.drawerContainer}>
@@ -168,38 +131,60 @@ function SectionLeftSideFilter({deptDetail, categories, hideOnScroll}) {
         component="nav"
         aria-labelledby="nested-list-subheader"
       >
-        <ListItem button onClick={() => handleMenuClick(-1)}>
+        <ListItem button>
           <ListItemIcon classes={{
             root: classes.expandMoreIconRoot
           }}></ListItemIcon>
-          <ListItemText primary="New Launches" />
+          <ListItemText primary={<Typography style={{ fontWeight: 500 }}>{deptDetail.deptDesc}</Typography>} />
         </ListItem>
         <Divider />
         {categories && categories.map((catgApi, i) => {
           return (
             <React.Fragment key={i}>
-              <ListItem button>
-                <ListItemIcon classes={{
-                  root: classes.expandMoreIconRoot
-                }}>
-                  {deptDetail.catgId === catgApi.catgId ? <RemoveRoundedIcon style={{ color: warningColor[0] }} /> : <AddRoundedIcon style={{ color: warningColor[0] }} />}
-                </ListItemIcon>
-                <ListItemText primary={catgApi.name} />
-              </ListItem>
+              <Link
+                as={`/${deptDetail.nameUrl}/${catgApi.nameUrl}/cid/${deptDetail.deptId}/${catgApi.catgId}`}
+                href={
+                  "/[deptNameSlug]/[catgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]"
+                }
+              >
+                <a>
+                  <ListItem button>
+                    {catgApi.subCategoryApis && catgApi.subCategoryApis.length > 0 &&
+                      <ListItemIcon classes={{
+                        root: classes.expandMoreIconRoot
+                      }}>
+                        {catgDetail && catgDetail.catgId === catgApi.catgId.toString() ? <RemoveRoundedIcon style={{ color: primaryColor[0] }} /> : <AddRoundedIcon style={{ color: primaryColor[0] }} />}
+                      </ListItemIcon>
+                    }
+                    <ListItemText primary={catgApi.name} />
+                  </ListItem>
+                </a>
+              </Link>
               <Divider />
-              {catgApi.subCategories && catgApi.subCategories.length > 0 &&
-                <Collapse in={deptDetail.catgId === catgApi.catgId} timeout="auto" unmountOnExit>
+              {catgApi.subCategoryApis && catgApi.subCategoryApis.length > 0 &&
+                <Collapse in={catgDetail && catgDetail.catgId === catgApi.catgId.toString()} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
-                    {catgApi.subCategories && catgApi.subCategories.map((subCatgApi, i) => {
+                    {catgApi.subCategoryApis.map((subCatgApi, i) => {
                       return (
-                        <React.Fragment key={i}>
-                          <ListItem button className={classes.nested}>
-                            <ListItemIcon>
-                            </ListItemIcon>
-                            <ListItemText primary={subCatgApi.name} />
-                          </ListItem>
-                          <Divider variant="inset" component="li" />
-                        </React.Fragment>);
+                        <Link
+                          as={`/${deptDetail.nameUrl}/${catgApi.nameUrl}/${subCatgApi.nameUrl}/cid/${deptDetail.deptId}/${catgApi.catgId}/${subCatgApi.subCatgId}`}
+                          href={
+                            "/[deptNameSlug]/[catgNameSlug]/[subCatgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]/[subCatgIdSlug]"
+                          }
+                          key={i}
+                        >
+                          <a>
+                            <React.Fragment>
+                              <ListItem button className={classes.nested}>
+                                <ListItemIcon>
+                                </ListItemIcon>
+                                <ListItemText primary={subCatgApi.name} />
+                              </ListItem>
+                              <Divider variant="inset" component="li" />
+                            </React.Fragment>
+                          </a>
+                        </Link>
+                      );
                     })}
                   </List>
                 </Collapse>
@@ -217,7 +202,7 @@ function SectionLeftSideFilter({deptDetail, categories, hideOnScroll}) {
           className={classes.drawer}
           variant="permanent"
           classes={{
-            paper: hideOnScroll ? classes.drawerPaperRelative: classes.drawerPaperFixed,
+            paper: hideOnScroll ? classes.drawerPaperRelative : classes.drawerPaperFixed,
           }}
         >
           <Scrollbar alwaysShowTracks={true}>
@@ -237,7 +222,9 @@ function SectionLeftSideFilter({deptDetail, categories, hideOnScroll}) {
 
 SectionLeftSideFilter.propTypes = {
   categories: PropTypes.array.isRequired,
-  deptDetail: PropTypes.object,
+  deptDetail: PropTypes.object.isRequired,
+  catgDetail: PropTypes.object,
+  subCatgDetail: PropTypes.object,
   hideOnScroll: PropTypes.bool.isRequired,
 };
 

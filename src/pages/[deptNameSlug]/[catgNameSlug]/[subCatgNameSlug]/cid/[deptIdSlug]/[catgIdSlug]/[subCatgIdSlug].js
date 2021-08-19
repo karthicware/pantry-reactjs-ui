@@ -20,11 +20,15 @@ export default function ProductListingPage({
   productList,
   categories,
   deptDetail,
+  catgDetail,
+  subCatgDetail,
 }) {
   return (
     <AppHeader deptList={deptList}>
       <ProductListingBody
         deptDetail={deptDetail}
+        catgDetail={catgDetail}
+        subCatgDetail={subCatgDetail}
         productList={productList}
         categories={categories}
       />
@@ -38,6 +42,8 @@ ProductListingPage.propTypes = {
   productList: PropTypes.array.isRequired,
   categories: PropTypes.array,
   deptDetail: PropTypes.object.isRequired,
+  catgDetail: PropTypes.object.isRequired,
+  subCatgDetail: PropTypes.object.isRequired,
 };
 
 //This function gets called at build time
@@ -51,11 +57,19 @@ export async function getStaticPaths() {
   //console.log(`deptList = ${JSON.stringify(deptList)}`);
 
   deptList.map((deptApi) => {
-    paths.push({
-      params: {
-        deptNameSlug: deptApi.nameUrl,
-        deptIdSlug: deptApi.deptId.toString(),
-      },
+    deptApi.categories.map((catgApi) => {
+      catgApi.subCategoryApis.map((subCatgApi) => {
+        paths.push({
+          params: {
+            deptNameSlug: deptApi.nameUrl,
+            catgNameSlug: catgApi.nameUrl,
+            subCatgNameSlug: subCatgApi.nameUrl,
+            deptIdSlug: deptApi.deptId.toString(),
+            catgIdSlug: catgApi.catgId.toString(),
+            subCatgIdSlug: subCatgApi.subCatgId.toString(),
+          },
+        });
+      });
     });
   });
   //console.log(`paths = ${JSON.stringify(paths)}`);
@@ -70,7 +84,11 @@ export async function getStaticProps({ params }) {
   let productList = [];
   let categories = [];
   const deptId = params.deptIdSlug;
+  const catgId = params.catgIdSlug;
+  const subCatgId = params.subCatgIdSlug;
   const deptDetail = { deptId, deptDesc: null, nameUrl: null };
+  const catgDetail = { catgId, catgDesc: null, nameUrl: null };
+  const subCatgDetail = { subCatgId, subCatgDesc: null, nameUrl: null };
 
   const axiosInstance = axios.create({
     baseURL: process.env.API_BASE_URL,
@@ -80,14 +98,27 @@ export async function getStaticProps({ params }) {
   const deptList = res1.data;
   deptList.forEach((deptApi) => {
     if (deptApi.deptId.toString() === deptId) {
-      //deptDesc = deptApi.name;
       deptDetail.deptDesc = deptApi.name;
       deptDetail.nameUrl = deptApi.nameUrl;
       categories = deptApi.categories;
+      deptApi.categories.forEach((catgApi) => {
+        if (catgApi.catgId.toString() === catgId) {
+          catgDetail.catgDesc = catgApi.name;
+          catgDetail.nameUrl = catgApi.nameUrl;
+          catgApi.subCategoryApis.forEach((subCatgApi) => {
+            if (subCatgApi.subCatgId.toString() === subCatgId) {
+              subCatgDetail.subCatgDesc = subCatgApi.name;
+              subCatgDetail.nameUrl = catgApi.nameUrl;
+            }
+          });
+        }
+      });
     }
   });
   const res2 = await axiosInstance.get(
-    `/api/v1/product/list-products?deptId=${parseInt(deptId)}`
+    `/api/v1/product/list-products?deptId=${parseInt(
+      deptId
+    )}&cid=${catgId}&scid=${subCatgId}`
   );
   productList = res2.data.result.productList;
   return {
@@ -96,6 +127,8 @@ export async function getStaticProps({ params }) {
       productList,
       categories,
       deptDetail,
+      catgDetail,
+      subCatgDetail,
     },
   };
 }

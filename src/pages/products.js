@@ -8,7 +8,7 @@ import HeaderLinks from "components/Header/HeaderLinks.js";
 
 // sections of this Page
 import sectionsPageStyle from "assets/jss/material-kit-pro-react/views/sectionsPageStyle.js";
-import SectionBody from "pages-sections/EcommercePage/SectionBody.js";
+import ProductListingBody from "pages-sections/EcommercePage/ProductListingBody";
 import FooterPage from "pages-sections/FooterPage/FooterPage.js";
 
 const useStyles = makeStyles(sectionsPageStyle);
@@ -28,7 +28,7 @@ export default function SectionsPage() {
         }}
       />
       <div className={classes.main}>
-        <SectionBody />
+        <ProductListingBody />
         <FooterPage id="footer" />
       </div>
     </div>

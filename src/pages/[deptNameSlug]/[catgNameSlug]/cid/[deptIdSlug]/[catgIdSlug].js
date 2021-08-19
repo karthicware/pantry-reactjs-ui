@@ -12,26 +12,23 @@ import HeaderLinks from "components/Header/HeaderLinks.js";
 import AppHeader from "components/AppHeader/AppHeader.js";
 
 // sections of this Page
-import SectionBody from "pages-sections/EcommercePage/SectionBody.js";
+import ProductListingBody from "pages-sections/EcommercePage/ProductListingBody.js";
 import FooterPage from "pages-sections/FooterPage/FooterPage.js";
 
 export default function ProductListingPage({
   deptList,
-  deptId,
-  deptDesc,
-  cid,
-  categoryDesc,
-  scid,
-  subCategoryDesc,
   productList,
+  categories,
+  deptDetail,
+  catgDetail,
 }) {
   return (
     <AppHeader deptList={deptList}>
-      <SectionBody
-        deptId={deptId}
-        cid={cid}
-        scid={scid}
+      <ProductListingBody
+        deptDetail={deptDetail}
+        catgDetail={catgDetail}
         productList={productList}
+        categories={categories}
       />
       <FooterPage id="footer" />
     </AppHeader>
@@ -40,10 +37,10 @@ export default function ProductListingPage({
 
 ProductListingPage.propTypes = {
   deptList: PropTypes.array.isRequired,
-  deptId: PropTypes.number.isRequired,
-  cid: PropTypes.number.isRequired,
-  scid: PropTypes.number.isRequired,
   productList: PropTypes.array.isRequired,
+  categories: PropTypes.array,
+  deptDetail: PropTypes.object.isRequired,
+  catgDetail: PropTypes.object.isRequired,
 };
 
 //This function gets called at build time
@@ -54,24 +51,21 @@ export async function getStaticPaths() {
     `${process.env.API_BASE_URL}/api/v1/department/all`
   );
   const deptList = res.data;
-  console.log(`deptList = ${JSON.stringify(deptList)}`);
+  //console.log(`deptList = ${JSON.stringify(deptList)}`);
 
   deptList.map((deptApi) => {
-    deptApi.categories.map((categoryApi) => {
-      if (categoryApi.subCategories.length > 0) {
-        categoryApi.subCategories.map((subCategoryApi) => {
-          paths.push({
-            params: {
-              departmentSlug: deptApi.nameUrl,
-              categorySlug: categoryApi.nameUrl,
-              subCategorySlug: subCategoryApi.nameUrl,
-            },
-          });
-        });
-      }
+    deptApi.categories.map((catgApi) => {
+      paths.push({
+        params: {
+          deptNameSlug: deptApi.nameUrl,
+          deptIdSlug: deptApi.deptId.toString(),
+          catgNameSlug: catgApi.nameUrl,
+          catgIdSlug: catgApi.catgId.toString(),
+        },
+      });
     });
   });
-  console.log(`paths = ${JSON.stringify(paths)}`);
+  //console.log(`paths = ${JSON.stringify(paths)}`);
 
   // { fallback: false } means other routes should 404.
   return { paths, fallback: false };
@@ -81,12 +75,12 @@ export async function getStaticProps({ params }) {
   //console.log("product listing... getStaticProps()");
   //console.log(`params = ${JSON.stringify(params)}`);
   let productList = [];
+  let categories = [];
   const deptId = params.deptIdSlug;
-  let deptDesc = null;
-  const catgId = params.cidSlug;
-  let catgDesc = null;
-  const subCatgId = params.scidSlug;
-  let subCatgDesc = null;
+  const catgId = params.catgIdSlug;
+  const deptDetail = { deptId, deptDesc: null, nameUrl: null };
+  const catgDetail = { catgId, catgDesc: null, nameUrl: null };
+
   const axiosInstance = axios.create({
     baseURL: process.env.API_BASE_URL,
     responseType: "json",
@@ -95,32 +89,28 @@ export async function getStaticProps({ params }) {
   const deptList = res1.data;
   deptList.forEach((deptApi) => {
     if (deptApi.deptId.toString() === deptId) {
-      deptDesc = deptApi.name;
-      deptApi.categories.forEach((categoryApi) => {
-        if (categoryApi.catgId === catgId) {
-          catgDesc = categoryApi.name;
-          categoryApi.subCategories.map((subCategoryApi) => {
-            if (subCategoryApi.subCatgId === subCatgId)
-              subCatgDesc = subCategoryApi.name;
-          });
+      deptDetail.deptDesc = deptApi.name;
+      deptDetail.nameUrl = deptApi.nameUrl;
+      categories = deptApi.categories;
+      categories.forEach((catgApi) => {
+        if (catgApi.catgId.toString() === catgId) {
+          catgDetail.catgDesc = catgApi.name;
+          catgDetail.nameUrl = catgApi.nameUrl;
         }
       });
     }
   });
   const res2 = await axiosInstance.get(
-    `/api/v1/product/list-products?deptId=${deptId}&cid=${catgId}&scid=${subCatgId}`
+    `/api/v1/product/list-products?deptId=${parseInt(deptId)}&cid=${catgId}`
   );
   productList = res2.data.result.productList;
   return {
     props: {
       deptList,
-      deptId,
-      deptDesc,
-      catgId,
-      catgDesc,
-      subCatgId,
-      subCatgDesc,
       productList,
+      categories,
+      deptDetail,
+      catgDetail,
     },
   };
 }

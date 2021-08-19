@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import Router from "next/router";
 import Link from "next/link";
-import axios from "axios";
 
 // material core
 import { makeStyles } from "@material-ui/core/styles";
@@ -31,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function MyMenuItem({ text, categories, nameUrl, deptId }) {
+function MyMenuItem({ text, categories, deptUrl, deptId }) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -72,14 +71,7 @@ function MyMenuItem({ text, categories, nameUrl, deptId }) {
         ref={anchorRef}
         aria-controls={open ? `menu-list-grow-${text}` : undefined}
         aria-haspopup="true"
-        onClick={() =>
-          Router.push(
-            "/[deptNameSlug]/cid/[deptIdSlug]",
-            `/${nameUrl}/cid/${deptId}`,
-            { shallow: true }
-          )
-          //Router.push(`/${nameUrl}/cid/${deptId}`)
-        }
+        onClick={() => Router.push(`/${deptUrl}/cid/${deptId}`)}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
         style={{
@@ -127,15 +119,24 @@ function MyMenuItem({ text, categories, nameUrl, deptId }) {
                   id={`menu-list-grow-${text}`}
                   onKeyDown={handleListKeyDown}
                 >
-                  {categories.map((x, i) => (
-                    <MenuItem
+                  {categories.map((catgApi, i) => (
+                    <Link
                       key={i}
-                      style={{
-                        marginBottom: categories.length - 1 === i ? 0 : 10,
-                      }}
+                      as={`/${deptUrl}/${catgApi.nameUrl}/cid/${deptId}/${catgApi.catgId}`}
+                      href={
+                        "/[deptNameSlug]/[catgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]"
+                      }
                     >
-                      {x.name}
-                    </MenuItem>
+                      <a style={{ color: "#000" }}>
+                        <MenuItem
+                          style={{
+                            marginBottom: categories.length - 1 === i ? 0 : 10,
+                          }}
+                        >
+                          {catgApi.name}
+                        </MenuItem>
+                      </a>
+                    </Link>
                   ))}
                 </MenuList>
               </ClickAwayListener>
@@ -147,24 +148,14 @@ function MyMenuItem({ text, categories, nameUrl, deptId }) {
   );
 }
 
+MyMenuItem.propTypes = {
+  text: PropTypes.string.isRequired,
+  categories: PropTypes.array.isRequired,
+  deptUrl: PropTypes.string.isRequired,
+  deptId: PropTypes.string.isRequired,
+};
+
 export default function AppFatMenu({ deptList }) {
-  //const [deptList, setDeptList] = React.useState([]);
-
-  /* React.useEffect(() => {
-    const fetchData = () => {
-      axios
-        .get(`/api/v1/department/all`)
-        .then((resp) => {
-          setDeptList(resp.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-    fetchData();
-    return function cleanup() {};
-  }, []); */
-
   return (
     <div>
       <Box
@@ -195,7 +186,7 @@ export default function AppFatMenu({ deptList }) {
             key={i}
             text={deptApi.name}
             categories={deptApi.categories}
-            nameUrl={deptApi.nameUrl}
+            deptUrl={deptApi.nameUrl}
             deptId={deptApi.deptId.toString()}
           ></MyMenuItem>
         ))}

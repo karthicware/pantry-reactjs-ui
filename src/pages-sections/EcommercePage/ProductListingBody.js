@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
   containerWrapper: {
     [theme.breakpoints.up("sm")]: {
       display: "flex",
-      margin: "100px 0",
+      //margin: "100px 0",
     },
   },
   originalPrice: {
@@ -157,6 +157,10 @@ const useStyles = makeStyles((theme) => ({
       },
     }),
   }),
+  breadcrumbRoot: {
+    marginLeft: 5,
+    marginTop: 50,
+  },
   breadcrumbSeparator: {
     marginLeft: 0,
     marginRight: 0,
@@ -172,31 +176,29 @@ const useStyles = makeStyles((theme) => ({
 export default function SectionProductListing({
   deptDetail,
   categories,
-  catgId,
-  catgDesc,
-  subCatgId,
-  subCatgDesc,
+  catgDetail,
+  subCatgDetail,
   productList,
 }) {
+  console.log(`productList=${JSON.stringify(productList)}`);
   const classes = useStyles();
   const context = React.useContext(AppContext);
-  const [products, setProducts] = React.useState(productList);
+  const [products, setProducts] = React.useState([]);
+  console.log(`products=${JSON.stringify(products)}`);
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
   const [blocking, setBlocking] = React.useState(false);
   const [hideOnScroll, setHideOnScroll] = React.useState(false);
 
+  React.useEffect(() => {
+    setProducts(productList);
+    return function cleanup() {};
+  }, [productList]);
+
   const getCartQty = async (skuCode) => {
     return await axios.get(`/api/v1/cart/${skuCode}`);
   };
-
-  // const getCartQty = async (skuCode) => {
-  //   let res = await axios.get(`/api/v1/cart/${skuCode}`);
-  //   let { data } = res;
-  //   console.log(`data=${JSON.stringify(data)}`);
-  //   return data.result.cart.qty;
-  // };
 
   const handleVariantChange = (prodId, skuCode) => {
     getCartQty(skuCode).then((resp) => {
@@ -304,23 +306,30 @@ export default function SectionProductListing({
         separator={<NavigateNextIcon fontSize="small" />}
         aria-label="breadcrumb"
         style={{ paddingTop: 10, paddingBottom: 10 }}
-        classes={{ separator: classes.breadcrumbSeparator }}
+        classes={{
+          root: classes.breadcrumbRoot,
+          separator: classes.breadcrumbSeparator,
+        }}
       >
-        <FormLabel style={{ fontSize: 12 }}>Home</FormLabel>
-        <FormLabel style={{ fontSize: 12 }}>{catgDesc}</FormLabel>
-        {subCatgDesc && (
-          <FormLabel style={{ fontSize: 12 }}>{subCatgDesc}</FormLabel>
+        <Typography variant="caption">Home</Typography>
+        <Typography variant="caption">{deptDetail.deptDesc}</Typography>
+        {catgDetail && (
+          <Typography variant="caption">{catgDetail.catgDesc}</Typography>
+        )}
+        {subCatgDetail && (
+          <Typography variant="caption">{subCatgDetail.subCatgDesc}</Typography>
         )}
       </Breadcrumbs>
-      {products.length > 0 && (
-        <Typography
-          color="textPrimary"
-          style={{ textAlign: "left", marginBottom: 20 }}
-        >
-          Showing {products.length} Results for "Almond"
-        </Typography>
-      )}
     </>
+  );
+
+  const showingResultsTitle = (
+    <Typography
+      color="textPrimary"
+      style={{ textAlign: "left", marginTop: 10, marginBottom: 10 }}
+    >
+      Showing {products.length} items
+    </Typography>
   );
 
   const onLoginSuccessHandler = () => {
@@ -331,9 +340,10 @@ export default function SectionProductListing({
     <>
       <Hidden smUp>
         <div style={{ marginTop: 80, marginBottom: 10, paddingLeft: 8 }}>
-          {breadcrumbs}
+          {showingResultsTitle}
         </div>
       </Hidden>
+      {breadcrumbs}
       <div className={classes.container}>
         <Backdrop open={blocking} />
         {toggleLoginModalValue && (
@@ -348,6 +358,8 @@ export default function SectionProductListing({
             hideOnScroll={hideOnScroll}
             categories={categories}
             deptDetail={deptDetail}
+            catgDetail={catgDetail}
+            subCatgDetail={subCatgDetail}
           />
           <main style={{ flexGrow: 1 }}>
             <GridContainer style={{ marginLeft: 0, marginRight: 0 }}>
@@ -369,7 +381,7 @@ export default function SectionProductListing({
                 </GridItem>
               </Hidden>
               <GridItem>
-                <Hidden mdDown>{breadcrumbs}</Hidden>
+                <Hidden mdDown>{showingResultsTitle}</Hidden>
               </GridItem>
               <Grid container spacing={0}>
                 {products.map((p, idx) => (
@@ -601,11 +613,8 @@ export default function SectionProductListing({
 
 SectionProductListing.propTypes = {
   categories: PropTypes.array.isRequired,
-  deptDetail: PropTypes.object,
-
-  catgId: PropTypes.number,
-  catgDesc: PropTypes.string,
-  subCatgId: PropTypes.number,
-  subCatgDesc: PropTypes.string,
+  deptDetail: PropTypes.object.isRequired,
+  catgDetail: PropTypes.object,
+  subCatgDetail: PropTypes.object,
   productList: PropTypes.array.isRequired,
 };
