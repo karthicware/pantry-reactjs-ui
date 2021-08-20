@@ -9,13 +9,13 @@ import Router from "next/router";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import TextField from '@material-ui/core/TextField';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from "@material-ui/core/TextField";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import Badge from "@material-ui/core/Badge";
 import IconButton from "@material-ui/core/IconButton";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
-import Typography from '@material-ui/core/Typography';
-import MuiLink from '@material-ui/core/Link';
+import Typography from "@material-ui/core/Typography";
+import MuiLink from "@material-ui/core/Link";
 
 // @material-ui/icons
 import PersonPinIcon from "@material-ui/icons/PersonPin";
@@ -29,9 +29,7 @@ import HomeRoundedIcon from "@material-ui/icons/HomeRounded";
 import CustomDropdown from "components/CustomDropdown/CustomDropdown.js";
 import Button from "components/CustomButtons/Button.js";
 import Muted from "components/Typography/Muted.js";
-import {
-  warningColor,
-} from "assets/jss/material-kit-pro-react.js";
+import { warningColor } from "assets/jss/material-kit-pro-react.js";
 import headerLinksStyle from "assets/jss/material-kit-pro-react/components/headerLinksStyle.js";
 //import LoginModal from "pages-sections/Login/LoginModal.js";
 import SignupOrSigninModal from "pages-sections/Login/SignupOrSignin.js";
@@ -46,29 +44,29 @@ const MENU = {
   PROFILE: "My Profile",
   SAVED_ADDRESSES: "Saved Addresses",
   LOGOUT: "Logout",
-  VIEWED_PRODUCTS: "Viewed Products"
+  VIEWED_PRODUCTS: "Viewed Products",
 };
 
 const top100Films = [
-  { title: 'The Shawshank Redemption', year: 1994 },
-  { title: 'The Godfather', year: 1972 },
-  { title: 'The Godfather: Part II', year: 1974 },
-  { title: 'The Dark Knight', year: 2008 },
-  { title: '12 Angry Men', year: 1957 },
+  { title: "The Shawshank Redemption", year: 1994 },
+  { title: "The Godfather", year: 1972 },
+  { title: "The Godfather: Part II", year: 1974 },
+  { title: "The Dark Knight", year: 2008 },
+  { title: "12 Angry Men", year: 1957 },
   { title: "Schindler's List", year: 1993 },
-  { title: 'Pulp Fiction', year: 1994 },
+  { title: "Pulp Fiction", year: 1994 },
   {
-    title: 'The Lord of the Rings: The Return of the King',
+    title: "The Lord of the Rings: The Return of the King",
     year: 2003,
   },
-  { title: 'The Good, the Bad and the Ugly', year: 1966 },
-  { title: 'Fight Club', year: 1999 }
+  { title: "The Good, the Bad and the Ugly", year: 1966 },
+  { title: "Fight Club", year: 1999 },
 ];
 
 const options = top100Films.map((option) => {
   const firstLetter = option.title[0].toUpperCase();
   return {
-    firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
+    firstLetter: /[0-9]/.test(firstLetter) ? "0-9" : firstLetter,
     ...option,
   };
 });
@@ -119,12 +117,16 @@ export default function HeaderLinks(props) {
           </a>
         </Link>
       </ListItem>
-      {isAuthenticated ?
+      {isAuthenticated ? (
         <ListItem className={classes.listItem} style={{ paddingRight: 10 }}>
           <ProfileMenu mobile={mobile} />
-        </ListItem> :
-        <ListItem className={classes.listItem} onClick={() => setToggleLoginModalValue(true)}
-          style={{ marginRight: 20, cursor: 'pointer' }}>
+        </ListItem>
+      ) : (
+        <ListItem
+          className={classes.listItem}
+          onClick={() => setToggleLoginModalValue(true)}
+          style={{ marginRight: 20, cursor: "pointer" }}
+        >
           <div
             style={{
               display: "flex",
@@ -140,7 +142,7 @@ export default function HeaderLinks(props) {
                 textTransform: "capitalize",
                 fontWeight: 800,
                 color: "#FFF",
-                width: '85px'
+                width: "85px",
               }}
             >
               Login / Sign Up
@@ -156,15 +158,23 @@ export default function HeaderLinks(props) {
         >
           My Account <br />Login / Sign Up
         </Button> */}
-        </ListItem>}
-      <ListItem className={classes.listItem} style={{ borderLeft: '1px solid #EEE', paddingLeft: 20 }}>
+        </ListItem>
+      )}
+      <ListItem
+        className={classes.listItem}
+        style={{ borderLeft: "1px solid #EEE", paddingLeft: 20 }}
+      >
         <Link href="/cart">
           <a>
-            <div style={{ display: 'flex' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: "flex" }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <AppContext.Consumer>
-                  {context => (
-                    <Badge badgeContent={context.cartItems} color="primary" classes={{colorPrimary: classes.badgeRaised}}>
+                  {(context) => (
+                    <Badge
+                      badgeContent={context.cartItems}
+                      color="primary"
+                      classes={{ colorPrimary: classes.badgeRaised }}
+                    >
                       <ShoppingBasketIcon style={{ color: warningColor[0] }} />
                     </Badge>
                   )}
@@ -179,11 +189,17 @@ export default function HeaderLinks(props) {
                   }}
                 >
                   Cart
-            </p>
+                </p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 20 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  paddingLeft: 20,
+                }}
+              >
                 <AppContext.Consumer>
-                  {context => (
+                  {(context) => (
                     <span
                       style={{
                         marginBottom: 0,
@@ -204,7 +220,7 @@ export default function HeaderLinks(props) {
       </ListItem>
     </>
   );
-  const onClickMenu = menu => {
+  const onClickMenu = (menu) => {
     switch (menu) {
       case MENU.LOGOUT: {
         context.logout();
@@ -233,31 +249,35 @@ export default function HeaderLinks(props) {
         <FatMenu />
       </div>
       <Autocomplete
-  id="grouped-demo"
-  options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
-  groupBy={(option) => option.firstLetter}
-  getOptionLabel={(option) => option.title}
-  sx={{ width: 300 }}
-  renderInput={(params) => <TextField {...params} label="With categories" />}
-/>
+        id="grouped-demo"
+        options={options.sort(
+          (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
+        )}
+        groupBy={(option) => option.firstLetter}
+        getOptionLabel={(option) => option.title}
+        sx={{ width: 300 }}
+        renderInput={(params) => (
+          <TextField {...params} label="With categories" />
+        )}
+      />
 
       <List className={classes.list} style={{ width: "100%", marginLeft: 40 }}>
         <ListItem
           className={classes.listItem}
-          style={{ width: "100%", display: "flex", justifyContent: 'center' }}
+          style={{ width: "100%", display: "flex", justifyContent: "center" }}
         >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
             <Link href="/">
-              <a style={{
-                color: '#FFF', paddingLeft: 20,
-                paddingRight: 20,
-              }}
+              <a
+                style={{
+                  color: "#FFF",
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                }}
               >
                 <HomeRoundedIcon />
               </a>
             </Link>
-           
-
           </div>
           {/* {!props.register && !props.signin && wishlist} */}
         </ListItem>
@@ -268,7 +288,7 @@ export default function HeaderLinks(props) {
 }
 
 HeaderLinks.defaultProps = {
-  hoverColor: "primary"
+  hoverColor: "primary",
 };
 
 HeaderLinks.propTypes = {
@@ -279,8 +299,8 @@ HeaderLinks.propTypes = {
     "success",
     "warning",
     "danger",
-    "rose"
+    "rose",
   ]),
   register: PropTypes.bool,
-  signin: PropTypes.bool
+  signin: PropTypes.bool,
 };
