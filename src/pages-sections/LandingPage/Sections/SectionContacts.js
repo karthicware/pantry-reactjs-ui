@@ -127,7 +127,7 @@ export default function SectionContacts({ ...rest }) {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          tabIndex={-1}
+                          /* tabIndex={-1} */
                           onClick={() => handleToggle(1)}
                           checkedIcon={
                             <Check className={classes.checkedIcon} />

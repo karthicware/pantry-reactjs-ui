@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Link from "next/link";
 
+//core components
 import { alpha, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -10,7 +12,6 @@ import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
 import Fab from "@material-ui/core/Fab";
-import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import Zoom from "@material-ui/core/Zoom";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
@@ -20,6 +21,8 @@ import Menu from "@material-ui/core/Menu";
 import grey from "@material-ui/core/colors/grey";
 
 // icons
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+import PhoneIcon from "@material-ui/icons/Phone";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
@@ -28,11 +31,22 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorderOutlined";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCartOutlined";
+import ExpandMoreRoundedIcon from "@material-ui/icons/ExpandMoreRounded";
 
+//custom components
+import Button from "components/CustomButtons/Button.js";
 import ScrollTop from "components/AppHeader/ScrollTop.js";
 import AppFatMenu from "components/AppHeader/AppFatMenu";
 
-import { container, primaryColor } from "assets/jss/material-kit-pro-react.js";
+//sections
+import SignupOrSigninModal from "pages-sections/Login/SignupOrSignin.js";
+import { AppContext } from "AppContext.js";
+
+import {
+  container,
+  primaryColor,
+  successColor,
+} from "assets/jss/material-kit-pro-react.js";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -99,17 +113,42 @@ const useStyles = makeStyles((theme) => ({
       display: "none",
     },
   },
+  fabColor: {
+    backgroundColor: successColor[0],
+    color: "#FFF",
+  },
+  loginSignupBtn: {
+    textTransform: "capitalize",
+    fontWeight: 800,
+  },
 }));
 
 export default function AppHeader(props) {
   const { deptList } = props;
   const classes = useStyles();
 
+  //state definition
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
+    false
+  );
+
+  const context = React.useContext(AppContext);
+  const isAuthenticated = context.isAuthenticated;
+  const mobile = context.mobile;
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+
+  React.useEffect(() => {
+    console.log(`context.triggerLoginModal`);
+    if (context.isOpenLoginModal) {
+      console.log(`triggering context.isOpenLoginModal`);
+      setToggleLoginModalValue(true);
+      context.resetTriggerLoginModal();
+    }
+  }, [context.isOpenLoginModal]);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -185,10 +224,20 @@ export default function AppHeader(props) {
     </Menu>
   );
 
+  const onLoginSuccessHandler = () => {
+    setToggleLoginModalValue(false);
+  };
+
   return (
     <React.Fragment>
       <CssBaseline />
-      <AppBar style={{backgroundColor: primaryColor[0]}}>
+      {toggleLoginModalValue && (
+        <SignupOrSigninModal
+          onCloseModal={() => setToggleLoginModalValue(false)}
+          onLoginSuccess={onLoginSuccessHandler}
+        />
+      )}
+      <AppBar style={{ backgroundColor: primaryColor[0] }}>
         <Toolbar className={classes.container}>
           <IconButton
             edge="start"
@@ -216,26 +265,54 @@ export default function AppHeader(props) {
             />
           </div>
           <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge color="secondary">
-                <FavoriteBorderIcon />
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
+            <Link href="/wishlist">
+              <IconButton
+                aria-label="show 4 new mails"
+                color="inherit"
+                component="a"
+              >
+                <Badge color="secondary">
+                  <FavoriteBorderIcon />
+                </Badge>
+              </IconButton>
+            </Link>
+            <Link href="/cart">
+              <IconButton
+                aria-label="show 17 new notifications"
+                color="inherit"
+                component="a"
+              >
+                <AppContext.Consumer>
+                  {(context) => (
+                    <Badge badgeContent={context.cartItems} color="secondary">
+                      <ShoppingCartIcon />
+                    </Badge>
+                  )}
+                </AppContext.Consumer>
+              </IconButton>
+            </Link>
+            {isAuthenticated ? (
+              <IconButton
+                edge="end"
+                aria-label="account of current user"
+                aria-controls={menuId}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+            ) : (
+              <Button
+                color="transparent"
+                className={classes.loginSignupBtn}
+                onClick={() => setToggleLoginModalValue(true)}
+                size="sm"
+                endIcon={<AccountCircle />}
+              >
+                Login / Sign Up
+              </Button>
+            )}
           </div>
           <div className={classes.sectionMobile}>
             <IconButton
@@ -260,8 +337,13 @@ export default function AppHeader(props) {
         <Box my={2}>{props.children}</Box>
       </Container>
       <ScrollTop {...props}>
-        <Fab color="secondary" size="small" aria-label="scroll back to top">
-          <KeyboardArrowUpIcon />
+        <Fab
+          color="inherit"
+          size="small"
+          aria-label="scroll back to top"
+          classes={{ colorInherit: classes.fabColor }}
+        >
+          <PhoneIcon />
         </Fab>
       </ScrollTop>
     </React.Fragment>

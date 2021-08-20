@@ -26,6 +26,9 @@ h6,
   color: #666 !important;
   font-size: 12px;
 }
+a:hover, a:focus {
+  color: none;
+}
 /* .image-gallery-thumbnails-container button {
   border: 1px solid #c2c2c2 !important;
   width: 52px !important;

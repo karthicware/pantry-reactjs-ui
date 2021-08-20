@@ -138,7 +138,7 @@ export default function MenuListComposition({ mobile }) {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList
-                  autoFocusItem={open}
+                  /* autoFocusItem={open} */
                   id="menu-list-grow"
                   onKeyDown={handleListKeyDown}
                 >

@@ -115,28 +115,26 @@ function MyMenuItem({ text, categories, deptUrl, deptId }) {
             <Paper className={classes.paper}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList
-                  autoFocusItem={open}
+                  /* autoFocusItem={open} */
                   id={`menu-list-grow-${text}`}
                   onKeyDown={handleListKeyDown}
                 >
                   {categories.map((catgApi, i) => (
-                    <Link
+                    <MenuItem
                       key={i}
-                      as={`/${deptUrl}/${catgApi.nameUrl}/cid/${deptId}/${catgApi.catgId}`}
-                      href={
-                        "/[deptNameSlug]/[catgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]"
-                      }
+                      style={{
+                        marginBottom: categories.length - 1 === i ? 0 : 10,
+                      }}
                     >
-                      <a style={{ color: "#000" }}>
-                        <MenuItem
-                          style={{
-                            marginBottom: categories.length - 1 === i ? 0 : 10,
-                          }}
-                        >
-                          {catgApi.name}
-                        </MenuItem>
-                      </a>
-                    </Link>
+                      <Link
+                        as={`/${deptUrl}/${catgApi.nameUrl}/cid/${deptId}/${catgApi.catgId}`}
+                        href={
+                          "/[deptNameSlug]/[catgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]"
+                        }
+                      >
+                        <a style={{ color: "#000" }}>{catgApi.name}</a>
+                      </Link>
+                    </MenuItem>
                   ))}
                 </MenuList>
               </ClickAwayListener>
