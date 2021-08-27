@@ -180,11 +180,11 @@ export default function SectionProductListing({
   subCatgDetail,
   productList,
 }) {
-  //console.log(`productList=${JSON.stringify(productList)}`);
+  console.log(`productList=${JSON.stringify(productList)}`);
   const classes = useStyles();
   const context = React.useContext(AppContext);
   const [products, setProducts] = React.useState([]);
-  console.log(`products=${JSON.stringify(products)}`);
+  //console.log(`products=${JSON.stringify(products)}`);
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
@@ -193,7 +193,7 @@ export default function SectionProductListing({
 
   React.useEffect(() => {
     setProducts(productList);
-    return function cleanup() {};
+    //return function cleanup() {};
   }, [productList]);
 
   const getCartQty = async (skuCode) => {
@@ -423,7 +423,7 @@ export default function SectionProductListing({
                           />
                           <div className={classes.softRiseShadowStyle}>
                             <Link
-                              as={`/p/${p.deptNameUrl}/${p.prodNameUrl}/${p.prodId}`}
+                              as={`/p/${p.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
                               href="/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"
                             >
                               <a>

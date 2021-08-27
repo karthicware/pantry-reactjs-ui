@@ -47,19 +47,17 @@ ProductListingPage.propTypes = {
 export async function getStaticPaths() {
   //console.log(`all products... getStaticPaths()`);
   let paths = [];
-  const res = await axios.get(
-    `${process.env.API_BASE_URL}/api/v1/department/all`
-  );
-  const deptList = res.data;
+  const res = await axios.get(`${process.env.API_BASE_URL}/api/v1/department/`);
+  const deptList = res.data.result;
   //console.log(`deptList = ${JSON.stringify(deptList)}`);
 
   deptList.map((deptApi) => {
     deptApi.categories.map((catgApi) => {
       paths.push({
         params: {
-          deptNameSlug: deptApi.nameUrl,
+          deptNameSlug: deptApi.deptSeoUrl,
           deptIdSlug: deptApi.deptId.toString(),
-          catgNameSlug: catgApi.nameUrl,
+          catgNameSlug: catgApi.catgSeoUrl,
           catgIdSlug: catgApi.catgId.toString(),
         },
       });
@@ -78,24 +76,24 @@ export async function getStaticProps({ params }) {
   let categories = [];
   const deptId = params.deptIdSlug;
   const catgId = params.catgIdSlug;
-  const deptDetail = { deptId, deptDesc: null, nameUrl: null };
-  const catgDetail = { catgId, catgDesc: null, nameUrl: null };
+  const deptDetail = { deptId, deptDesc: null, deptSeoUrl: null };
+  const catgDetail = { catgId, catgDesc: null, catgSeoUrl: null };
 
   const axiosInstance = axios.create({
     baseURL: process.env.API_BASE_URL,
     responseType: "json",
   });
-  const res1 = await axiosInstance.get("/api/v1/department/all");
-  const deptList = res1.data;
+  const res1 = await axiosInstance.get("/api/v1/department/");
+  const deptList = res1.data.result;
   deptList.forEach((deptApi) => {
     if (deptApi.deptId.toString() === deptId) {
       deptDetail.deptDesc = deptApi.name;
-      deptDetail.nameUrl = deptApi.nameUrl;
+      deptDetail.deptSeoUrl = deptApi.deptSeoUrl;
       categories = deptApi.categories;
       categories.forEach((catgApi) => {
         if (catgApi.catgId.toString() === catgId) {
           catgDetail.catgDesc = catgApi.name;
-          catgDetail.nameUrl = catgApi.nameUrl;
+          catgDetail.catgSeoUrl = catgApi.catgSeoUrl;
         }
       });
     }

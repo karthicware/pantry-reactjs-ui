@@ -44,16 +44,14 @@ ProductListingPage.propTypes = {
 export async function getStaticPaths() {
   //console.log(`all products... getStaticPaths()`);
   let paths = [];
-  const res = await axios.get(
-    `${process.env.API_BASE_URL}/api/v1/department/all`
-  );
-  const deptList = res.data;
+  const res = await axios.get(`${process.env.API_BASE_URL}/api/v1/department/`);
+  const deptList = res.data.result;
   //console.log(`deptList = ${JSON.stringify(deptList)}`);
 
   deptList.map((deptApi) => {
     paths.push({
       params: {
-        deptNameSlug: deptApi.nameUrl,
+        deptNameSlug: deptApi.deptSeoUrl,
         deptIdSlug: deptApi.deptId.toString(),
       },
     });
@@ -70,19 +68,19 @@ export async function getStaticProps({ params }) {
   let productList = [];
   let categories = [];
   const deptId = params.deptIdSlug;
-  const deptDetail = { deptId, deptDesc: null, nameUrl: null };
+  const deptDetail = { deptId, deptDesc: null, deptSeoUrl: null };
 
   const axiosInstance = axios.create({
     baseURL: process.env.API_BASE_URL,
     responseType: "json",
   });
-  const res1 = await axiosInstance.get("/api/v1/department/all");
-  const deptList = res1.data;
+  const res1 = await axiosInstance.get("/api/v1/department/");
+  const deptList = res1.data.result;
   deptList.forEach((deptApi) => {
     if (deptApi.deptId.toString() === deptId) {
       //deptDesc = deptApi.name;
       deptDetail.deptDesc = deptApi.name;
-      deptDetail.nameUrl = deptApi.nameUrl;
+      deptDetail.deptSeoUrl = deptApi.deptSeoUrl;
       categories = deptApi.categories;
     }
   });

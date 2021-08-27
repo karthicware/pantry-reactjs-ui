@@ -32,8 +32,8 @@ module.exports = {
         responseType: "json",
       });
 
-      /* const res = await axiosInstance.get(`/api/v1/department/all`);
-      const deptList = res.data;
+      /* const res = await axiosInstance.get(`/api/v1/department/`);
+      const deptList = res.data.result;
       deptList.forEach((deptApi) => {
         const deptId = deptApi.deptId.toString();
         const deptName = deptApi.deptName;

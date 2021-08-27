@@ -172,8 +172,8 @@ export async function getStaticProps() {
     responseType: "json",
   });
   //console.log(`process.env.API_BASE_URL = ${process.env.API_BASE_URL}`);
-  const res = await axiosInstance.get("/api/v1/department/all");
-  const deptList = res.data;
+  const res = await axiosInstance.get("/api/v1/department/");
+  const deptList = res.data.result;
   return { props: { deptList } };
 }
 

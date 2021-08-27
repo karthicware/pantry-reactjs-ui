@@ -127,7 +127,7 @@ function MyMenuItem({ text, categories, deptUrl, deptId }) {
                       }}
                     >
                       <Link
-                        as={`/${deptUrl}/${catgApi.nameUrl}/cid/${deptId}/${catgApi.catgId}`}
+                        as={`/${deptUrl}/${catgApi.catgSeoUrl}/cid/${deptId}/${catgApi.catgId}`}
                         href={
                           "/[deptNameSlug]/[catgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]"
                         }
@@ -184,7 +184,7 @@ export default function AppFatMenu({ deptList }) {
             key={i}
             text={deptApi.name}
             categories={deptApi.categories}
-            deptUrl={deptApi.nameUrl}
+            deptUrl={deptApi.deptSeoUrl}
             deptId={deptApi.deptId.toString()}
           ></MyMenuItem>
         ))}

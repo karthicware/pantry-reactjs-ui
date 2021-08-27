@@ -140,7 +140,7 @@ function SectionLeftSideFilter({ deptDetail, catgDetail, subCatgDetail, categori
           return (
             <React.Fragment key={i}>
               <Link
-                as={`/${deptDetail.nameUrl}/${catgApi.nameUrl}/cid/${deptDetail.deptId}/${catgApi.catgId}`}
+                as={`/${deptDetail.deptSeoUrl}/${catgApi.catgSeoUrl}/cid/${deptDetail.deptId}/${catgApi.catgId}`}
                 href={
                   "/[deptNameSlug]/[catgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]"
                 }
@@ -165,7 +165,7 @@ function SectionLeftSideFilter({ deptDetail, catgDetail, subCatgDetail, categori
                     {catgApi.subCategoryApis.map((subCatgApi, i) => {
                       return (
                         <Link
-                          as={`/${deptDetail.nameUrl}/${catgApi.nameUrl}/${subCatgApi.nameUrl}/cid/${deptDetail.deptId}/${catgApi.catgId}/${subCatgApi.subCatgId}`}
+                          as={`/${deptDetail.deptSeoUrl}/${catgApi.catgSeoUrl}/${subCatgApi.subCatgSeoUrl}/cid/${deptDetail.deptId}/${catgApi.catgId}/${subCatgApi.subCatgId}`}
                           href={
                             "/[deptNameSlug]/[catgNameSlug]/[subCatgNameSlug]/cid/[deptIdSlug]/[catgIdSlug]/[subCatgIdSlug]"
                           }
