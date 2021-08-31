@@ -10,7 +10,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import { FormLabel, Typography } from "@material-ui/core";
 import Chip from '@material-ui/core/Chip';
 import MuiButton from '@material-ui/core/Button';
-import Fade from '@material-ui/core/Fade';
+//import Fade from '@material-ui/core/Fade';
+import { alpha as Fade } from "@material-ui/core/styles";
 import Hidden from '@material-ui/core/Hidden';
 
 //custom components

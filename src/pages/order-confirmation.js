@@ -19,7 +19,6 @@ import Tooltip from "@material-ui/core/Tooltip";
 import FormLabel from "@material-ui/core/FormLabel";
 import Divider from "@material-ui/core/Divider";
 import MuiButton from "@material-ui/core/Button";
-import Fade from "@material-ui/core/Fade";
 import Chip from "@material-ui/core/Chip";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";

@@ -20,9 +20,13 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import grey from "@material-ui/core/colors/grey";
 
+import SpeedDial from "@material-ui/lab/SpeedDial";
+import SpeedDialIcon from "@material-ui/lab/SpeedDialIcon";
+import SpeedDialAction from "@material-ui/lab/SpeedDialAction";
+
 // icons
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
-import PhoneIcon from "@material-ui/icons/Phone";
+import PhoneIcon from "@material-ui/icons/PhoneOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
@@ -31,11 +35,13 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorderOutlined";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCartOutlined";
-import ExpandMoreRoundedIcon from "@material-ui/icons/ExpandMoreRounded";
+import MessageIcon from "@material-ui/icons/MessageOutlined";
 
 //custom components
 import Button from "components/CustomButtons/Button.js";
 import ScrollTop from "components/AppHeader/ScrollTop.js";
+//import ProfileMenu from "components/AppHeader/ProfileMenu";
+import ProfileMenu from "components/AppHeader/ProfileMenu";
 import AppFatMenu from "components/AppHeader/AppFatMenu";
 
 //sections
@@ -121,7 +127,19 @@ const useStyles = makeStyles((theme) => ({
     textTransform: "capitalize",
     fontWeight: 800,
   },
+  speedDial: {
+    position: "fixed",
+    "&.MuiSpeedDial-directionUp": {
+      bottom: theme.spacing(2),
+      right: theme.spacing(2),
+    },
+  },
 }));
+
+const actions = [
+  { icon: <MessageIcon />, name: "Whatsapp message" },
+  { icon: <PhoneIcon />, name: "Help +91-9876543210" },
+];
 
 export default function AppHeader(props) {
   const { deptList } = props;
@@ -133,6 +151,7 @@ export default function AppHeader(props) {
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
+  const [open, setOpen] = React.useState(false);
 
   const context = React.useContext(AppContext);
   const isAuthenticated = context.isAuthenticated;
@@ -228,6 +247,14 @@ export default function AppHeader(props) {
     setToggleLoginModalValue(false);
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -292,16 +319,7 @@ export default function AppHeader(props) {
               </IconButton>
             </Link>
             {isAuthenticated ? (
-              <IconButton
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={menuId}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
+              <ProfileMenu mobile={mobile} />
             ) : (
               <Button
                 color="transparent"
@@ -327,7 +345,12 @@ export default function AppHeader(props) {
           </div>
         </Toolbar>
         <Toolbar
-          style={{ backgroundColor: "#ececed", minHeight: 40, display: "grid" }}
+          style={{
+            backgroundColor: "#ececed",
+            minHeight: 40,
+            display: "grid",
+            zIndex: -1,
+          }}
         >
           <AppFatMenu deptList={deptList} />
         </Toolbar>
@@ -336,7 +359,7 @@ export default function AppHeader(props) {
       <Container>
         <Box my={2}>{props.children}</Box>
       </Container>
-      <ScrollTop {...props}>
+      {/* <ScrollTop {...props}>
         <Fab
           color="inherit"
           size="small"
@@ -345,7 +368,25 @@ export default function AppHeader(props) {
         >
           <PhoneIcon />
         </Fab>
-      </ScrollTop>
+      </ScrollTop> */}
+      <SpeedDial
+        ariaLabel="SpeedDial example"
+        className={classes.speedDial}
+        icon={<PhoneIcon />}
+        onClose={handleClose}
+        onOpen={handleOpen}
+        open={open}
+        direction="up"
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            onClick={handleClose}
+          />
+        ))}
+      </SpeedDial>
     </React.Fragment>
   );
 }

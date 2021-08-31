@@ -180,7 +180,7 @@ export default function SectionProductListing({
   subCatgDetail,
   productList,
 }) {
-  console.log(`productList=${JSON.stringify(productList)}`);
+  //console.log(`productList=${JSON.stringify(productList)}`);
   const classes = useStyles();
   const context = React.useContext(AppContext);
   const [products, setProducts] = React.useState([]);
@@ -423,7 +423,7 @@ export default function SectionProductListing({
                           />
                           <div className={classes.softRiseShadowStyle}>
                             <Link
-                              as={`/p/${p.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
+                              as={`/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
                               href="/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"
                             >
                               <a>

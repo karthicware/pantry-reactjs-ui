@@ -52,6 +52,7 @@ import {
   whiteColor,
   container,
   successColor,
+  infoColor,
 } from "assets/jss/material-kit-pro-react.js";
 import productStyle from "assets/jss/material-kit-pro-react/views/productStyle.js";
 import { primaryColor, grayColor } from "assets/jss/material-kit-pro-react";
@@ -186,27 +187,32 @@ const useStyles = makeStyles((theme) => ({
 
 //const useStyles = makeStyles(styles);
 
-export default function ProductSpecPage({ deptList, productDetails }) {
+export default function ProductSpecPage({ deptList, productDetailsSlug }) {
   const classes = useStyles();
   const context = React.useContext(AppContext);
-  const router = useRouter();
+  //const router = useRouter();
 
   const [prodId, setProdId] = React.useState(null);
   const [prodDetails, setProdDetails] = React.useState(null);
-  const [activeVariant, setActiveVariant] = React.useState(null);
-  const [pincode, setPincode] = React.useState(null);
+  const [activeVariantIdx, setActiveVariantIdx] = React.useState(0);
+  /* const [pincode, setPincode] = React.useState(null);
   const [pincodeErrMsg, setPincodeErrMsg] = React.useState(null);
-  const [deliveryCharge, setDeliveryCharge] = React.useState(-1);
+  const [deliveryCharge, setDeliveryCharge] = React.useState(-1); */
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
+  const [
+    flagForLoadingCartDataInitially,
+    setFlagForLoadingCartDataInitially,
+  ] = React.useState(1);
   const [blocking, setBlocking] = React.useState(false);
 
   React.useEffect(() => {
-    setProdId(productDetails.prodId);
-    setProdDetails(productDetails);
-    //config carousel
-    productDetails.variants.forEach((v) => {
+    const prodDetails = { ...productDetailsSlug };
+    //console.log(`prodDetails=${JSON.stringify(prodDetails)}`);
+
+    //config images for carousel
+    prodDetails.variants.forEach((v) => {
       const images = v.images.map((img) => {
         return {
           original: img.imgUri,
@@ -215,125 +221,80 @@ export default function ProductSpecPage({ deptList, productDetails }) {
       });
       v.images = images;
     });
-    setActiveVariant({
-      ...productDetails.variants[0],
-    });
+    setProdId(prodDetails.prodId);
+    setProdDetails(prodDetails);
     return function cleanup() {};
-  }, [productDetails]);
+  }, []);
+
+  React.useEffect(() => {
+    if (prodDetails !== null && flagForLoadingCartDataInitially === 1) {
+      loadCartDataForSelectedVariant();
+      setFlagForLoadingCartDataInitially(-1);
+      return function cleanup() {};
+    }
+  }, [prodDetails]);
+
+  React.useEffect(() => {
+    //console.log(`activeVariantIdx = ${JSON.stringify(activeVariantIdx)}`);
+    if (prodDetails !== null) loadCartDataForSelectedVariant();
+    //return function cleanup() {};
+  }, [activeVariantIdx]);
 
   const onClickVariant = (idx) => {
-    setActiveVariant({
-      ...productDetails.variants[idx],
-    });
+    setActiveVariantIdx(idx);
   };
 
-  /* React.useEffect(() => {
-    const fetchData = () => {
-      axios
-        .get(`/api/v1/product/${router.query.prodId}`)
-        .then((resp) => {
-          const result = resp.data.result;
-          setProdDetails(result.productApi);
-          setProdId(router.query.prodId);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-    if (router.query.prodId) fetchData();
-    return function cleanup() {};
-  }, [router]); */
-
-  /* React.useEffect(() => {
-    const fetchData = () => {
-      setActiveVariantIdx(prodDetails.activeVariantIdx);
-    };
-    if (prodDetails !== null) fetchData();
-    return function cleanup() {};
-  }, [prodDetails]); */
-
-  //load active variant details
-  /* React.useEffect(() => {
-    const fetchData = () => {
-      axios
-        .get(
-          `/api/v1/product/variant/${prodDetails.variants[activeVariantIdx].skuCode}`
-        )
-        .then((resp) => {
-          const result = resp.data.result;
-          console.log(`result=${JSON.stringify(result)}`);
-          setActiveVariant({
-            ...prodDetails.variants[activeVariantIdx],
-            existInCart: result.variantApi.existInCart,
-            cartQty: result.variantApi.cartQty,
-            images: result.variantApi.images.map((img) => {
-              return {
-                original: img.imgUri,
-                thumbnail: img.thumbUri,
-              };
-            }),
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-    if (activeVariantIdx !== null) fetchData();
-    return function cleanup() {};
-  }, [activeVariantIdx]); */
-
-  /* const checkPincode = () => {
-    setPincodeErrMsg(null);
-    setDeliveryCharge(-1);
+  const loadCartDataForSelectedVariant = () => {
+    //console.log(`prodDetails=${JSON.stringify(prodDetails)}`);
+    const skuCode = prodDetails.variants[activeVariantIdx].skuCode;
     axios
-      .get(`api/v1/shipment/verify-pincode/${pincode}`)
+      .get(`/api/v1/cart/${skuCode}`)
       .then((resp) => {
         if (resp.data.error) {
-          setPincodeErrMsg(resp.data.error.messages[0]);
+          alert(resp.data.error.messages[0]);
         } else {
-          setDeliveryCharge(resp.data.result);
+          const cart = resp.data.result.cart;
+          /* const thisProdDetails = { ...prodDetails };
+          thisProdDetails.variants[activeVariantIdx].existInCart = cart.qty > 0;
+          thisProdDetails.variants[activeVariantIdx].cartQty = cart.qty;
+          setProdDetails(thisProdDetails); */
+          const variants = prodDetails.variants.map((v) => {
+            const variant = { ...v };
+            if (variant.skuCode === skuCode) {
+              variant.existInCart = cart.qty > 0;
+              variant.cartQty = cart.qty;
+            }
+            console.log(`variant=${JSON.stringify(variant)}`);
+            return variant;
+          });
+          console.log(`variants=${JSON.stringify(variants)}`);
+          setProdDetails({ ...prodDetails, variants });
         }
       })
       .catch((error) => {
         console.log(error);
       });
-  }; */
+  };
 
-  const handleAddItemToCart = () => {
+  const handleUpdateItemToCart = (qty) => {
     if (!context.isAuthenticated) {
       setToggleLoginModalValue(true);
       return false;
     }
     setBlocking(true);
-    axios
-      .post(`api/v1/cart/${activeVariant.skuCode}`)
-      .then((resp) => {
-        setBlocking(false);
-        context.refreshCartCount();
-        setActiveVariant({
-          ...activeVariant,
-          existInCart: resp.data.result > 0,
-          cartQty: resp.data.result,
-        });
-      })
-      .catch((error) => {
-        setBlocking(false);
-        console.log(error);
-      });
-  };
-
-  const handleUpdateItemToCart = (qty) => {
-    setBlocking(true);
+    const activeVariant = prodDetails.variants[activeVariantIdx];
     axios
       .put(`api/v1/cart/${activeVariant.skuCode}?qty=${qty}`)
       .then((resp) => {
         setBlocking(false);
         context.refreshCartCount();
-        setActiveVariant({
-          ...activeVariant,
-          existInCart: resp.data.result > 0,
-          cartQty: resp.data.result,
-        });
+        if (resp.data.error) {
+          alert(resp.data.error.messages[0]);
+        } else {
+          const cartQty = resp.data.result;
+          activeVariant.existInCart = cartQty > 0;
+          activeVariant.cartQty = cartQty;
+        }
       })
       .catch((error) => {
         setBlocking(false);
@@ -356,28 +317,41 @@ export default function ProductSpecPage({ deptList, productDetails }) {
     setToggleLoginModalValue(false);
   };
 
-  const productDetailsText = (text) => {
+  const renderDeliveryOptions = () => {
     return (
-      <GridItem md={12} style={{ paddingLeft: 0 }}>
-        <Muted>
-          <Typography variant="caption">{text}</Typography>
-        </Muted>
-      </GridItem>
+      <>
+        <h5 className={classes.titleText}>
+          Delivery Options{" "}
+          <LocalShippingOutlined className={classes.titleIcon} />
+        </h5>
+        <GridContainer spacing={3} style={{ marginLeft: 0 }}>
+          <GridItem md={12} style={{ paddingLeft: 0 }}>
+            <Alert severity="info">
+              <Typography variant="caption">
+                Currently we deliver only pincode Rajapalayam - <b>626117</b>
+              </Typography>
+              <br />
+              <Typography variant="caption">
+                Buy min 499.Rs for free delivery
+              </Typography>
+              <br />{" "}
+              <Typography variant="caption">
+                Cash on delivery is available
+              </Typography>
+              <br />{" "}
+              <Typography variant="caption">
+                Order today and get it on next day
+              </Typography>
+            </Alert>
+          </GridItem>
+        </GridContainer>
+      </>
     );
   };
 
-  if (!prodDetails || !activeVariant) return <Indicator />;
+  if (prodDetails === null) return <Indicator />;
   return (
     <AppHeader deptList={deptList}>
-      {/* <Header
-        color="warning"
-        brand="Nammanuts"
-        links={<HeaderLinks dropdownHoverColor="info" />}
-        appBarStyle={{
-          boxShadow: "none",
-          borderRadius: 0,
-        }}
-      /> */}
       <Backdrop open={blocking} />
 
       <div className={classes.root}>
@@ -410,15 +384,13 @@ export default function ProductSpecPage({ deptList, productDetails }) {
               <div className={classes.productContainer}>
                 <GridContainer spacing={5}>
                   <GridItem>
-                    {activeVariant && (
-                      <ImageGallery
-                        showFullscreenButton={false}
-                        showPlayButton={false}
-                        thumbnailPosition="left"
-                        lazyLoad={true}
-                        items={activeVariant.images}
-                      />
-                    )}
+                    <ImageGallery
+                      showFullscreenButton={false}
+                      showPlayButton={false}
+                      thumbnailPosition="left"
+                      lazyLoad={true}
+                      items={prodDetails.variants[activeVariantIdx].images}
+                    />
                   </GridItem>
                   <GridItem>
                     <MoreInfoComponent info={prodDetails.otherDetails} />
@@ -430,7 +402,9 @@ export default function ProductSpecPage({ deptList, productDetails }) {
             <Grid item md sm>
               <GridItem>
                 <Chip
-                  label={activeVariant.discPerc + " % OFF"}
+                  label={
+                    prodDetails.variants[activeVariantIdx].discPerc + " % OFF"
+                  }
                   classes={{
                     root: classes.offerTagRoot,
                     label: classes.offerTag,
@@ -447,7 +421,7 @@ export default function ProductSpecPage({ deptList, productDetails }) {
                 >
                   <span style={{ color: "#999" }}>Product MRP: </span>
                   <span className={classes.productMrp}>
-                    ₹{activeVariant.unitPrice}
+                    ₹{prodDetails.variants[activeVariantIdx].unitPrice}
                   </span>
                 </Typography>
                 <Typography
@@ -456,7 +430,7 @@ export default function ProductSpecPage({ deptList, productDetails }) {
                 >
                   <span>Selling Price: </span>
                   <span style={{ fontSize: 24, fontWeight: 500 }}>
-                    ₹{activeVariant.sellingPrice}
+                    ₹{prodDetails.variants[activeVariantIdx].sellingPrice}
                   </span>
                 </Typography>
                 <Muted>
@@ -477,11 +451,13 @@ export default function ProductSpecPage({ deptList, productDetails }) {
                       marginRight: 20,
                       textTransform: "lowercase",
                       color:
-                        activeVariant.skuCode === v.skuCode
+                        prodDetails.variants[activeVariantIdx].skuCode ===
+                        v.skuCode
                           ? "#FFF"
                           : grayColor[0],
                       backgroundColor:
-                        activeVariant.skuCode === v.skuCode
+                        prodDetails.variants[activeVariantIdx].skuCode ===
+                        v.skuCode
                           ? primaryColor[0]
                           : "#FFF",
                     }}
@@ -501,7 +477,7 @@ export default function ProductSpecPage({ deptList, productDetails }) {
                   borderBottom: "1px dashed #DDD",
                 }}
               >
-                {activeVariant && activeVariant.existInCart ? (
+                {prodDetails.variants[activeVariantIdx].existInCart ? (
                   <div
                     style={{ display: "flex", alignItems: "center", flex: 1 }}
                   >
@@ -510,27 +486,31 @@ export default function ProductSpecPage({ deptList, productDetails }) {
                       round
                       color="primary"
                       onClick={() =>
-                        handleUpdateItemToCart(activeVariant.cartQty + 1)
+                        handleUpdateItemToCart(
+                          prodDetails.variants[activeVariantIdx].cartQty - 1
+                        )
                       }
                     >
-                      <AddRoundedIcon style={{ color: "#FFFFFF" }} />
+                      <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
                     </Button>
                     <FormLabel
                       classes={{
                         root: classes.cartQtyText,
                       }}
                     >
-                      {activeVariant.cartQty}
+                      {prodDetails.variants[activeVariantIdx].cartQty}
                     </FormLabel>
                     <Button
                       justIcon
                       round
                       color="primary"
                       onClick={() =>
-                        handleUpdateItemToCart(activeVariant.cartQty - 1)
+                        handleUpdateItemToCart(
+                          prodDetails.variants[activeVariantIdx].cartQty + 1
+                        )
                       }
                     >
-                      <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
+                      <AddRoundedIcon style={{ color: "#FFFFFF" }} />
                     </Button>
                     <Button
                       round
@@ -557,7 +537,7 @@ export default function ProductSpecPage({ deptList, productDetails }) {
                       round
                       color="primary"
                       style={{ marginRight: 20 }}
-                      onClick={() => handleAddItemToCart()}
+                      onClick={() => handleUpdateItemToCart(1)}
                     >
                       <ShoppingCart /> &nbsp; Add to Cart
                     </Button>
@@ -580,46 +560,25 @@ export default function ProductSpecPage({ deptList, productDetails }) {
                 )}
               </GridItem>
               <GridItem style={{ marginTop: 20 }}>
-                <h5 className={classes.titleText}>
-                  Delivery Options{" "}
-                  <LocalShippingOutlined className={classes.titleIcon} />
-                </h5>
-                <GridContainer spacing={3} style={{ marginLeft: 0 }}>
-                  <GridItem md={12} style={{ paddingLeft: 0 }}>
-                    <Alert severity="info">
-                      <Typography variant="caption">
-                        Currently we deliver only pincode Rajapalayam -{" "}
-                        <b>626117</b>
-                      </Typography>
-                      <br />
-                      <Typography variant="caption">
-                        Buy min 499.Rs for free delivery
-                      </Typography>
-                      <br />{" "}
-                      <Typography variant="caption">
-                        Cash on delivery is available
-                      </Typography>
-                      <br />{" "}
-                      <Typography variant="caption">
-                        Order today and get it on next day
-                      </Typography>
-                    </Alert>
-                  </GridItem>
-                </GridContainer>
+                {renderDeliveryOptions()}
               </GridItem>
               <GridItem style={{ marginTop: 30 }}>
-                <h5 className={classes.titleText}>
-                  Product Details{" "}
-                  <DescriptionOutlined className={classes.titleIcon} />
-                </h5>
-                {prodDetails.countryOfOrigin &&
-                  productDetailsText(
-                    `Place of origin: ${prodDetails.countryOfOrigin}`
-                  )}
-                {productDetailsText(
-                  `Package type: ${activeVariant.packagingDesc}`
-                )}
-                {productDetailsText(`SKU: ${activeVariant.skuCode}`)}
+                <h5 className={classes.titleText}>Why Pantry?</h5>
+                <Typography variant="subtitle2" style={{ color: infoColor[0] }}>
+                  Easy returns and refunds
+                </Typography>
+                <Typography variant="caption">
+                  Return products at doorstep and get refund in seconds.
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  style={{ color: infoColor[0], marginTop: 15 }}
+                >
+                  Lowest price guaranteed
+                </Typography>
+                <Typography variant="caption">
+                  Get products at lowest price with superior quality
+                </Typography>
               </GridItem>
             </Grid>
           </Grid>
@@ -641,7 +600,7 @@ export default function ProductSpecPage({ deptList, productDetails }) {
 
 ProductSpecPage.propTypes = {
   deptList: PropTypes.array.isRequired,
-  productDetails: PropTypes.object.isRequired,
+  productDetailsSlug: PropTypes.object.isRequired,
 };
 
 //This function gets called at build time
@@ -693,7 +652,7 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       deptList,
-      productDetails,
+      productDetailsSlug: productDetails,
     },
   };
 }
