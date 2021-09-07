@@ -33,29 +33,32 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import Typography from "@material-ui/core/Typography";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
 
 // @material-ui/icons
 import AddRoundedIcon from "@material-ui/icons/AddRounded";
 import RemoveRoundedIcon from "@material-ui/icons/RemoveRounded";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import Favorite from "@material-ui/icons/Favorite";
-import DescriptionOutlined from "@material-ui/icons/DescriptionOutlined";
+import DescriptionIcon from "@material-ui/icons/DescriptionOutlined";
+import SecurityIcon from "@material-ui/icons/Security";
 import ShoppingCart from "@material-ui/icons/ShoppingCart";
-import CheckIcon from "@material-ui/icons/Check";
-import ExpandMore from "@material-ui/icons/ExpandMore";
+import KeyboardReturnIcon from "@material-ui/icons/KeyboardReturn";
+import RepeatOneIcon from "@material-ui/icons/RepeatOne";
 import ListAltOutlined from "@material-ui/icons/ListAltOutlined";
 import LocalShippingOutlined from "@material-ui/icons/LocalShippingOutlined";
 
 //custom styles
 import {
+  primaryColor,
   roseColor,
   whiteColor,
   container,
   successColor,
   infoColor,
+  grayColor,
 } from "assets/jss/material-kit-pro-react.js";
 import productStyle from "assets/jss/material-kit-pro-react/views/productStyle.js";
-import { primaryColor, grayColor } from "assets/jss/material-kit-pro-react";
 
 //custom components
 import HeaderLinks from "components/Header/HeaderLinks.js";
@@ -64,12 +67,13 @@ import AppHeader from "components/AppHeader/AppHeader.js";
 //pages section
 import FooterPage from "pages-sections/FooterPage/FooterPage.js";
 import MoreInfoComponent from "pages-sections/EcommercePage/MoreInfo.js";
-import YouMayAlsoLike from "pages-sections/EcommercePage/YouMayAlsoLike.js";
+//import YouMayAlsoLike from "pages-sections/EcommercePage/YouMayAlsoLike.js";
 import SignupOrSigninModal from "pages-sections/Login/SignupOrSignin.js";
 
 //others
 import Indicator from "utils/Indicator.js";
 import { AppContext } from "AppContext.js";
+import { ACCESS_CODE_SAREE } from "utils/constants.js";
 import { handleError } from "utils/util";
 
 const useStyles = makeStyles((theme) => ({
@@ -110,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
   },
   viewMoreLabel: {
     cursor: "pointer",
-    color: roseColor[0],
+    color: primaryColor[0],
     display: "flex",
     alignItems: "center",
     fontSize: 14,
@@ -133,17 +137,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.2rem",
   },
   offerTagRoot: {
-    width: 80,
-    height: "18px",
-    fontSize: 12,
-    fontWeight: 600,
-    padding: 10,
     backgroundColor: successColor[0],
     color: "#FFF",
-  },
-  offerTag: {
-    paddingLeft: 0,
-    paddingRight: 0,
   },
   productContainer: {
     "& .image-gallery-slide img": {
@@ -302,11 +297,23 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
       });
   };
 
-  const addItemToWishlist = () => {
+  const addProductToWishlist = () => {
     axios
-      .post(`api/v1/customer/wishlist/${prodId}`)
+      .post(`api/v1/wishlist/${prodId}`)
       .then((resp) => {
-        //setWishlisted(true);
+        setProdDetails({ ...prodDetails, wishlisted: true });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const removeProductFromWishlist = () => {
+    axios
+      .delete(`api/v1/wishlist/${prodId}`)
+      .then((resp) => {
+        if (!resp.data.error)
+          setProdDetails({ ...prodDetails, wishlisted: false });
       })
       .catch((error) => {
         console.log(error);
@@ -317,36 +324,217 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
     setToggleLoginModalValue(false);
   };
 
-  const renderDeliveryOptions = () => {
+  const renderDeliveryDetails = () => {
     return (
       <>
-        <h5 className={classes.titleText}>
-          Delivery Options{" "}
-          <LocalShippingOutlined className={classes.titleIcon} />
-        </h5>
-        <GridContainer spacing={3} style={{ marginLeft: 0 }}>
+        <h5 className={classes.titleText}>Delivery Options</h5>
+        <GridContainer
+          spacing={3}
+          style={{
+            marginTop: 10,
+            marginLeft: 0,
+            padding: 10,
+            backgroundColor: grayColor[2],
+          }}
+        >
           <GridItem md={12} style={{ paddingLeft: 0 }}>
-            <Alert severity="info">
-              <Typography variant="caption">
-                Currently we deliver only pincode Rajapalayam - <b>626117</b>
-              </Typography>
-              <br />
-              <Typography variant="caption">
-                Buy min 499.Rs for free delivery
-              </Typography>
-              <br />{" "}
-              <Typography variant="caption">
-                Cash on delivery is available
-              </Typography>
-              <br />{" "}
-              <Typography variant="caption">
-                Order today and get it on next day
-              </Typography>
-            </Alert>
+            <Box display="flex">
+              <LocalShippingOutlined
+                style={{ color: primaryColor[5], fontSize: 28 }}
+              />
+
+              <Box style={{ marginLeft: 10, marginRight: 10 }}>
+                <Typography variant="subtitle2">Free Delivery</Typography>
+                <Typography variant="caption">
+                  For all oders over Rs.499
+                </Typography>
+              </Box>
+            </Box>
+          </GridItem>
+          <GridItem md={12} style={{ paddingLeft: 0 }}>
+            <Box display="flex">
+              <RepeatOneIcon style={{ color: primaryColor[5], fontSize: 28 }} />
+              <Box style={{ marginLeft: 10, marginRight: 10 }}>
+                <Typography variant="subtitle2">One Day Delivery</Typography>
+                <Typography variant="caption">
+                  Order today and get it on next day
+                </Typography>
+              </Box>
+            </Box>
+          </GridItem>
+          <GridItem md={12} style={{ paddingLeft: 0 }}>
+            <Box display="flex">
+              <KeyboardReturnIcon
+                style={{ color: primaryColor[5], fontSize: 28 }}
+              />
+              <Box style={{ marginLeft: 10, marginRight: 10 }}>
+                <Typography variant="subtitle2">24 Hours Return</Typography>
+                <Typography variant="caption">
+                  If goods have problems
+                </Typography>
+              </Box>
+            </Box>
+          </GridItem>
+          <GridItem md={12} style={{ paddingLeft: 0 }}>
+            <Box display="flex">
+              <SecurityIcon style={{ color: primaryColor[5], fontSize: 28 }} />
+              <Box style={{ marginLeft: 10, marginRight: 10 }}>
+                <Typography variant="subtitle2">Secure Payment</Typography>
+                <Typography variant="caption">100% secure payment</Typography>
+              </Box>
+            </Box>
           </GridItem>
         </GridContainer>
       </>
     );
+  };
+
+  const renderProductDetails = () => {
+    return (
+      <GridContainer>
+        <GridItem style={{ marginTop: 30 }}>
+          <h5 className={classes.titleText}>
+            Product Details <DescriptionIcon className={classes.titleIcon} />
+          </h5>
+          <Typography variant="body2" className={classes.prodDescText}>
+            {prodDetails.prodDesc}
+          </Typography>
+        </GridItem>
+      </GridContainer>
+    );
+  };
+
+  const renderSareeSpec = () => {
+    if (ACCESS_CODE_SAREE === prodDetails.accessCode) {
+      const sareeSpec = prodDetails.variants[activeVariantIdx].sareeSpecApi;
+      return (
+        <GridContainer>
+          <GridItem style={{ marginTop: 20 }}>
+            <h5 className={classes.titleText}>
+              Specifications <ListAltOutlined className={classes.titleIcon} />
+            </h5>
+          </GridItem>
+          <GridItem>
+            <GridContainer spacing={3} style={{ marginLeft: 0 }}>
+              <GridItem md={6}>
+                <Typography variant="caption">Tradition</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.traditionDesc ? sareeSpec.traditionDesc : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Pattern Type</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.patternDesc ? sareeSpec.patternDesc : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Saree Material</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.sareeMaterialDesc
+                    ? sareeSpec.sareeMaterialDesc
+                    : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Border</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.borderDesc ? sareeSpec.borderDesc : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Ornamentation</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.ornamentation ? sareeSpec.ornamentation : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Occasion</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.occasionDesc ? sareeSpec.occasionDesc : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Weave By</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.weaveBy ? sareeSpec.weaveBy : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Fabric Care</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.fabricCare ? sareeSpec.fabricCare : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Saree Length</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.sareeLength ? sareeSpec.sareeLength : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Saree Weight</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.sareeWeight ? sareeSpec.sareeWeight : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Blouse Piece</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.blousePiece ? sareeSpec.blousePiece : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Blouse Material</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.blouseMaterial ? sareeSpec.blouseMaterial : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              <GridItem md={6}>
+                <Typography variant="caption">Blouse Length</Typography>
+                <Typography variant="body1">
+                  {sareeSpec.blouseLength ? sareeSpec.blouseLength : "-"}
+                </Typography>
+                <div className={classes.dashedLine}></div>
+              </GridItem>
+              {/* <GridItem>
+                  <FormLabel className={classes.viewMoreLabel}>
+                    <ExpandMore /> &nbsp; View more
+                  </FormLabel>
+                </GridItem>
+                <GridItem>
+                  <div className={classes.solidLine}></div>
+                </GridItem> */}
+            </GridContainer>
+          </GridItem>
+
+          <GridItem style={{ marginTop: 20 }}>
+            <h5 className={classes.titleText}>Items Included in the Package</h5>
+          </GridItem>
+          <GridItem style={{ marginTop: 20 }}>
+            <GridContainer spacing={3} style={{ marginLeft: 0 }}>
+              <GridItem>
+                <Typography variant="body2">
+                  {sareeSpec.itemsIncludedInThePackage}
+                </Typography>
+              </GridItem>
+            </GridContainer>
+          </GridItem>
+        </GridContainer>
+      );
+    }
   };
 
   if (prodDetails === null) return <Indicator />;
@@ -393,7 +581,9 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                     />
                   </GridItem>
                   <GridItem>
-                    <MoreInfoComponent info={prodDetails.otherDetails} />
+                    {/* <MoreInfoComponent info={prodDetails.otherDetails} /> */}
+                    {renderProductDetails()}
+                    {renderSareeSpec()}
                   </GridItem>
                 </GridContainer>
               </div>
@@ -407,7 +597,6 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                   }
                   classes={{
                     root: classes.offerTagRoot,
-                    label: classes.offerTag,
                   }}
                 />
                 <Typography variant="h5" className={classes.prodName}>
@@ -475,12 +664,12 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                   paddingTop: 30,
                   paddingBottom: 30,
                   borderBottom: "1px dashed #DDD",
+                  display: "flex",
+                  marginRight: 20,
                 }}
               >
                 {prodDetails.variants[activeVariantIdx].existInCart ? (
-                  <div
-                    style={{ display: "flex", alignItems: "center", flex: 1 }}
-                  >
+                  <div style={{ display: "flex", alignItems: "center" }}>
                     <Button
                       justIcon
                       round
@@ -512,55 +701,36 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                     >
                       <AddRoundedIcon style={{ color: "#FFFFFF" }} />
                     </Button>
-                    <Button
-                      round
-                      color="white"
-                      onClick={() => addItemToWishlist()}
-                      style={{ marginLeft: 30 }}
-                    >
-                      <Favorite
-                        style={{
-                          color: prodDetails.wishlisted
-                            ? "inherit"
-                            : primaryColor[0],
-                        }}
-                      />{" "}
-                      &nbsp;
-                      {prodDetails.wishlisted
-                        ? "Wishlisted"
-                        : "Add to wishlist"}
-                    </Button>
                   </div>
                 ) : (
-                  <>
-                    <Button
-                      round
-                      color="primary"
-                      style={{ marginRight: 20 }}
-                      onClick={() => handleUpdateItemToCart(1)}
-                    >
-                      <ShoppingCart /> &nbsp; Add to Cart
-                    </Button>
-                    <Button
-                      round
-                      color="white"
-                      onClick={() => addItemToWishlist()}
-                    >
-                      <Favorite
-                        style={{
-                          color: prodDetails.wishlisted ? roseColor[0] : "none",
-                        }}
-                      />{" "}
-                      &nbsp;
-                      {prodDetails.wishlisted
-                        ? "Wishlisted"
-                        : "Add to wishlist"}
-                    </Button>
-                  </>
+                  <Button
+                    round
+                    color="primary"
+                    style={{ marginRight: 20 }}
+                    onClick={() => handleUpdateItemToCart(1)}
+                  >
+                    <ShoppingCart /> &nbsp; Add to Cart
+                  </Button>
                 )}
+                <Button
+                  round
+                  color="white"
+                  onClick={() => {
+                    if (prodDetails.wishlisted) removeProductFromWishlist();
+                    else addProductToWishlist();
+                  }}
+                >
+                  <Favorite
+                    style={{
+                      color: prodDetails.wishlisted ? primaryColor[0] : "none",
+                    }}
+                  />{" "}
+                  &nbsp;
+                  {prodDetails.wishlisted ? "Wishlisted" : "Add to wishlist"}
+                </Button>
               </GridItem>
               <GridItem style={{ marginTop: 20 }}>
-                {renderDeliveryOptions()}
+                {renderDeliveryDetails()}
               </GridItem>
               <GridItem style={{ marginTop: 30 }}>
                 <h5 className={classes.titleText}>Why Pantry?</h5>
@@ -584,7 +754,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
           </Grid>
         </div>
       </div>
-      <div
+      {/*  <div
         className={classes.container}
         style={{ backgroundColor: "#EEE", marginTop: 60 }}
       >
@@ -592,7 +762,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
           categoryId={prodDetails.categoryId}
           subCategoryId={prodDetails.subCategoryId}
         />
-      </div>
+      </div> */}
       <FooterPage />
     </AppHeader>
   );
@@ -649,6 +819,7 @@ export async function getStaticProps({ params }) {
 
   const res2 = await axiosInstance.get(`/api/v1/product/${pidSlug}`);
   const productDetails = res2.data.result.productApi;
+
   return {
     props: {
       deptList,

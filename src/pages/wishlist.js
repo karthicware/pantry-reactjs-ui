@@ -109,15 +109,15 @@ export default function WhishlistPage() {
   }, []);
 
   const moveToBag = prodCode => {
-    axios
-      .post(`api/v1/customer/wishlist/${prodCode}/move-to-cart`)
+    /* axios
+      .post(`api/v1/wishlist/${prodCode}/move-to-cart`)
       .then(resp => {
         setProductList(productList.filter(p => p.prodCode !== prodCode));
         context.refreshCartCount();
       })
       .catch(error => {
         console.log(error);
-      });
+      }); */
   };
 
   const emptyCart = (
@@ -246,7 +246,7 @@ export default function WhishlistPage() {
                         color="rose"
                         onClick={() => moveToBag(ele.prodCode)}
                       >
-                        Move TO Bag
+                        Move To Bag
                       </Button>
                     </GridItem>
                   </GridContainer>

@@ -26,7 +26,7 @@ import SpeedDialAction from "@material-ui/lab/SpeedDialAction";
 
 // icons
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
-import PhoneIcon from "@material-ui/icons/PhoneOutlined";
+import WhatsappIcon from "@material-ui/icons/Whatsapp";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
@@ -57,6 +57,10 @@ import {
 const useStyles = makeStyles((theme) => ({
   container: {
     ...container,
+  },
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1,
+    backgroundColor: primaryColor[0],
   },
   grow: {
     flexGrow: 1,
@@ -137,8 +141,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const actions = [
-  { icon: <MessageIcon />, name: "Whatsapp message" },
-  { icon: <PhoneIcon />, name: "Help +91-9876543210" },
+  { icon: <MessageIcon />, name: "WhatsApp us: 80000 90000" },
+  {
+    icon: <WhatsappIcon />,
+    name: "Call us: 98765 43210 (8:00 AM to 8:00 PM, 365 days)",
+  },
 ];
 
 export default function AppHeader(props) {
@@ -256,15 +263,15 @@ export default function AppHeader(props) {
   };
 
   return (
-    <React.Fragment>
-      <CssBaseline />
+    <>
       {toggleLoginModalValue && (
         <SignupOrSigninModal
           onCloseModal={() => setToggleLoginModalValue(false)}
           onLoginSuccess={onLoginSuccessHandler}
         />
       )}
-      <AppBar style={{ backgroundColor: primaryColor[0] }}>
+      <CssBaseline />
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar className={classes.container}>
           <IconButton
             edge="start"
@@ -356,9 +363,10 @@ export default function AppHeader(props) {
         </Toolbar>
       </AppBar>
       <Toolbar id="back-to-top-anchor" />
-      <Container>
+      {/* <Container>
         <Box my={2}>{props.children}</Box>
-      </Container>
+      </Container> */}
+      {props.children}
       {/* <ScrollTop {...props}>
         <Fab
           color="inherit"
@@ -366,17 +374,21 @@ export default function AppHeader(props) {
           aria-label="scroll back to top"
           classes={{ colorInherit: classes.fabColor }}
         >
-          <PhoneIcon />
+          <WhatsappIcon />
         </Fab>
       </ScrollTop> */}
       <SpeedDial
         ariaLabel="SpeedDial example"
         className={classes.speedDial}
-        icon={<PhoneIcon />}
+        icon={<WhatsappIcon />}
         onClose={handleClose}
         onOpen={handleOpen}
         open={open}
         direction="up"
+        FabProps={{
+          size: "large",
+          classes: { primary: classes.fabColor },
+        }}
       >
         {actions.map((action) => (
           <SpeedDialAction
@@ -387,7 +399,7 @@ export default function AppHeader(props) {
           />
         ))}
       </SpeedDial>
-    </React.Fragment>
+    </>
   );
 }
 

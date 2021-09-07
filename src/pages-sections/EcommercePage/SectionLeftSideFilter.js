@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
   },
   drawer: {
-    width: drawerWidth,
+    //width: drawerWidth,
     flexShrink: 0,
     // [theme.breakpoints.up('lg')]: {
     //   width: drawerWidth,
@@ -67,22 +67,23 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
   },
   drawerPaper: {
+    marginLeft: 1,
     width: drawerWidth,
-    top: 'unset',
-    left: 'unset'
+    top: '120px',
+    left: 'auto'
   },
-  drawerPaperFixed: {
+  /* drawerPaperFixed: {
     width: drawerWidth,
     top: 'unset',
     left: 'unset',
     position: 'fixed',
-  },
-  drawerPaperRelative: {
+  }, */
+  /* drawerPaperRelative: {
     width: drawerWidth,
     top: 'unset',
     left: 'unset',
     position: 'relative',
-  },
+  }, */
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
@@ -200,7 +201,8 @@ function SectionLeftSideFilter({ deptDetail, catgDetail, subCatgDetail, categori
           className={classes.drawer}
           variant="permanent"
           classes={{
-            paper: hideOnScroll ? classes.drawerPaperRelative : classes.drawerPaperFixed,
+            //paper: hideOnScroll ? classes.drawerPaperRelative : classes.drawerPaperFixed,
+            paper: classes.drawerPaper,
           }}
         >
           <Scrollbar alwaysShowTracks={true}>

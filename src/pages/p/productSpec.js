@@ -296,7 +296,7 @@ export default function ProductSpecPage() {
 
   const addItemToWishlist = () => {
     axios
-      .post(`api/v1/customer/wishlist/${prodId}`)
+      .post(`api/v1/wishlist/${prodId}`)
       .then(resp => {
         setWishlisted(true);
       })

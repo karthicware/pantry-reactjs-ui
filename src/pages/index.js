@@ -119,15 +119,6 @@ function Content() {
   const classes = useStyles();
   return (
     <div>
-      {/* <Header
-        color="warning"
-        brand="Nammanuts"
-        links={<HeaderLinks dropdownHoverColor="info" />}
-        appBarStyle={{
-          boxShadow: "none",
-          borderRadius: 0,
-        }}
-      /> */}
       <div className={classes.main}>
         <SectionHeaderCarousel id="headerCarousel" />
         <SectionTrustUs id="trustUs" />

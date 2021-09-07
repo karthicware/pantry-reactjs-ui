@@ -272,9 +272,9 @@ function ShoppingCartPage(props) {
   };
 
   const moveToWishlist = (prodCode) => {
-    setBlocking(true);
+   /*  setBlocking(true);
     axios
-      .delete(`/api/v1/customer/wishlist/${prodCode}/move-to-cart`)
+      .delete(`/api/v1/wishlist/${prodCode}/move-to-cart`)
       .then((resp) => {
         setBlocking(false);
         loadCartData();
@@ -282,7 +282,7 @@ function ShoppingCartPage(props) {
       .catch((error) => {
         setBlocking(false);
         console.log(error);
-      });
+      }); */
   };
 
   const handleUpdateItemToCart = (skuCode, qty) => {

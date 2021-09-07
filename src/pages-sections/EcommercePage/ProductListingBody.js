@@ -12,6 +12,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import { FormLabel, Hidden } from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
 import Grid from "@material-ui/core/Grid";
+import { red, grey } from "@material-ui/core/colors";
+import Toolbar from "@material-ui/core/Toolbar";
 
 // @material-ui/icons
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
@@ -48,10 +50,22 @@ const useStyles = makeStyles((theme) => ({
   ...featuresStyle,
   ...productsStyle,
   ...imagesStyles,
+  content: {
+    flexGrow: 1,
+    //padding: theme.spacing(3),
+    paddingLeft: 240,
+    marginTop: 50,
+    borderLeft: "1px solid #dfdfdf",
+    borderRight: "1px solid #dfdfdf",
+    borderTop: "1px solid #dfdfdf",
+    minHeight: "calc(100vh)",
+  },
   container: {
     ...container,
     backgroundColor: "#FFF",
     minHeight: "calc(100vh)",
+    paddingLeft: 0,
+    paddingRight: 0,
     [theme.breakpoints.down("md")]: {
       margin: theme.spacing(1),
       width: "unset",
@@ -59,10 +73,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   containerWrapper: {
-    [theme.breakpoints.up("sm")]: {
+    /*  [theme.breakpoints.up("sm")]: {
       display: "flex",
-      //margin: "100px 0",
-    },
+    }, */
   },
   originalPrice: {
     paddingLeft: 0,
@@ -159,7 +172,6 @@ const useStyles = makeStyles((theme) => ({
   }),
   breadcrumbRoot: {
     marginLeft: 5,
-    marginTop: 50,
   },
   breadcrumbSeparator: {
     marginLeft: 0,
@@ -180,11 +192,9 @@ export default function SectionProductListing({
   subCatgDetail,
   productList,
 }) {
-  //console.log(`productList=${JSON.stringify(productList)}`);
   const classes = useStyles();
   const context = React.useContext(AppContext);
-  const [products, setProducts] = React.useState([]);
-  //console.log(`products=${JSON.stringify(products)}`);
+  const [products, setProducts] = React.useState([...productList]);
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
@@ -192,10 +202,132 @@ export default function SectionProductListing({
   const [hideOnScroll, setHideOnScroll] = React.useState(false);
 
   React.useEffect(() => {
-    setProducts(productList);
-    //return function cleanup() {};
-  }, [productList]);
+    const fetchMyProducts = () => {
+      axios
+        .get(`/api/v1/cart/my-wished-and-cart-products`)
+        .then((response) => {
+          if (response.data.result) {
+            const this_products = [...products];
+            const wishedProducts = response.data.result.wishedProducts;
+            const skuCodesInCart = response.data.result.skuCodesInCart;
+            if (wishedProducts && wishedProducts.length) {
+              wishedProducts.forEach((wishedProduct) => {
+                this_products.forEach((product) => {
+                  product.wishlisted = product.prodCode === wishedProduct;
+                });
+              });
+            }
+            if (skuCodesInCart && skuCodesInCart.length) {
+              skuCodesInCart.forEach((cartSkuCode) => {
+                this_products.forEach((product) => {
+                  product.variants.forEach((variant) => {
+                    variant.isExistInCart = variant.skuCode === cartSkuCode;
+                  });
+                });
+              });
+            }
+          }
+        })
+        .catch((error) => {
+          alert(JSON.stringify("error=" + error));
+        });
+    };
+    if (products.length > 0) fetchMyProducts();
+    return function cleanup() {};
+  }, []);
 
+  React.useEffect(() => {
+    const fetchOutOfStockProducts = () => {
+      axios
+        .get(`/api/v1/product/out-of-stocks`)
+        .then((response) => {
+          const skuCodes = response.data.result;
+          const this_products = [...products];
+          skuCodes.forEach((skuCode) => {
+            this_products.forEach((prod) => {
+              prod.variants.forEach((variant) => {
+                if (variant.skuCode === skuCode) {
+                  variant["isStockAvailable"] = true;
+                }
+              });
+            });
+          });
+          setProducts(this_products);
+        })
+        .catch((error) => {
+          alert(JSON.stringify("error=" + error));
+        });
+    };
+    if (products.length > 0) fetchOutOfStockProducts();
+    return function cleanup() {};
+  }, []);
+
+  React.useEffect(() => {
+    const fetchFewerItemsLeftProducts = () => {
+      axios
+        .get(`/api/v1/product/fewer-items-left/`)
+        .then((response) => {
+          const skuCodes = response.data.result;
+          const this_products = [...products];
+          skuCodes.forEach((skuCode) => {
+            this_products.forEach((product) => {
+              product.variants.forEach((variant) => {
+                if (variant.skuCode === skuCode) {
+                  variant["onlyFewItemsLeft"] = true;
+                }
+              });
+            });
+          });
+          setProducts(this_products);
+        })
+        .catch((error) => {
+          alert(JSON.stringify("error=" + error));
+        });
+    };
+    if (products.length > 0) fetchFewerItemsLeftProducts();
+    return function cleanup() {};
+  }, []);
+
+  /* const addItemToWishlist = (prodCode) => {
+    if (!this.context.isAuthenticated) {
+      this.setToggleLoginModalValue(true);
+      return false;
+    }
+    axios
+      .post(`api/v1/wishlist/${prodCode}`)
+      .then((resp) => {
+        this.setState((state, props) => ({
+          productList: state.productList.map((p) => {
+            if (p.prodCode === prodCode) return { ...p, wishlisted: true };
+            else return { ...p };
+          }),
+          isSnackbarOpen: true,
+          successMsg: "Added to wishlist!",
+        }));
+      })
+      .catch((error) => {
+        //handleError(error);
+      });
+  };
+
+  const removeItemFromWishlist = (prodCode) => {
+    axios
+      .delete(`api/v1/wishlist/${prodCode}`)
+      .then((resp) => {
+        this.setState((state, props) => ({
+          productList: state.productList.map((p) => {
+            if (p.prodCode === prodCode) return { ...p, wishlisted: false };
+            else return { ...p };
+          }),
+          isSnackbarOpen: true,
+          successMsg: "Removed from wishlist!",
+        }));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+ */
   const getCartQty = async (skuCode) => {
     return await axios.get(`/api/v1/cart/${skuCode}`);
   };
@@ -240,7 +372,7 @@ export default function SectionProductListing({
               const updatedProd = { ...p };
               updatedProd.variants.forEach((v) => {
                 if (v.skuCode === skuCode) {
-                  v.existInCart = true;
+                  v.isExistInCart = true;
                   v.cartQty = resp.data.result;
                 }
               });
@@ -270,10 +402,10 @@ export default function SectionProductListing({
               updatedProd.variants.forEach((v) => {
                 if (v.skuCode === skuCode) {
                   if (resp.data.result <= 0) {
-                    v.existInCart = false;
+                    v.isExistInCart = false;
                     v.cartQty = 0;
                   } else {
-                    v.existInCart = true;
+                    v.isExistInCart = true;
                     v.cartQty = resp.data.result;
                   }
                 }
@@ -336,279 +468,283 @@ export default function SectionProductListing({
     setToggleLoginModalValue(false);
   };
 
+  if (products.length === 0) return null;
+
   return (
-    <>
+    <div className={classes.container}>
       <Hidden smUp>
         <div style={{ marginTop: 80, marginBottom: 10, paddingLeft: 8 }}>
           {showingResultsTitle}
         </div>
       </Hidden>
-      {breadcrumbs}
-      <div className={classes.container}>
         <Backdrop open={blocking} />
-        {toggleLoginModalValue && (
+      {toggleLoginModalValue && (
           <SignupOrSigninModal
             onCloseModal={() => setToggleLoginModalValue(false)}
             onLoginSuccess={onLoginSuccessHandler}
           />
         )}
-        {/* Feature 1 START */}
-        <div className={classes.containerWrapper}>
-          <SectionLeftSideFilter
-            hideOnScroll={hideOnScroll}
-            categories={categories}
-            deptDetail={deptDetail}
-            catgDetail={catgDetail}
-            subCatgDetail={subCatgDetail}
-          />
-          <main style={{ flexGrow: 1 }}>
-            <GridContainer style={{ marginLeft: 0, marginRight: 0 }}>
-              <Hidden mdDown>
-                <GridItem
-                  style={{
-                    paddingLeft: 0,
-                    paddingRight: 0,
-                    textAlign: "center",
-                  }}
-                >
-                  <img
-                    style={{ padding: 5, width: "100%" }}
-                    src={
-                      "https://sarees-images-bucket.s3.ap-south-1.amazonaws.com/find_cheapest_prices.jpg"
-                    }
-                    alt="Card-img-cap"
-                  />
-                </GridItem>
-              </Hidden>
-              <GridItem>
-                <Hidden mdDown>{showingResultsTitle}</Hidden>
-              </GridItem>
-              <Grid container spacing={0}>
-                {products.map((p, idx) => (
-                  <Grid
-                    container
-                    item
-                    key={p.prodId}
-                    xs={6}
-                    sm={6}
-                    md={3}
-                    style={{
-                      borderLeft: idx === 0 ? "none" : "1px solid #EEE",
-                      borderTop:
-                        idx === 0 || idx === 1 || idx === 2 || idx === 3
-                          ? "1px solid #EEE"
-                          : "none",
-                      borderRight:
-                        products.length - 1 === idx
-                          ? `${
-                              products.length % 4 === 0
-                                ? "none"
-                                : "1px solid #EEE"
-                            }`
-                          : "none",
-                      borderBottom: "1px solid #EEE",
-                    }}
-                  >
-                    <Grid item container spacing={0} style={{ padding: 5 }}>
-                      <Grid item md={12} xs={12} sm={12}>
-                        <Card plain style={{ marginTop: 0, marginBottom: 0 }}>
-                          <Chip
-                            label={
-                              p.variants[p.activeVariantIdx].discPerc + "% OFF"
-                            }
-                            classes={{
-                              root: classes.offerTagRoot,
-                              label: classes.offerTag,
-                            }}
-                          />
-                          <div className={classes.softRiseShadowStyle}>
-                            <Link
-                              as={`/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
-                              href="/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"
+      <SectionLeftSideFilter
+        hideOnScroll={hideOnScroll}
+        categories={categories}
+        deptDetail={deptDetail}
+        catgDetail={catgDetail}
+        subCatgDetail={subCatgDetail}
+      />
+      <main className={classes.content}>
+        {breadcrumbs}
+        <GridContainer style={{ marginLeft: 0, marginRight: 0 }}>
+          <Hidden mdDown>
+            <GridItem
+              style={{
+                paddingLeft: 0,
+                paddingRight: 0,
+                textAlign: "center",
+              }}
+            >
+              <img
+                style={{ padding: 5, width: "100%" }}
+                src={
+                  "https://sarees-images-bucket.s3.ap-south-1.amazonaws.com/find_cheapest_prices.jpg"
+                }
+                alt="Card-img-cap"
+              />
+            </GridItem>
+          </Hidden>
+          <GridItem>
+            <Hidden mdDown>{showingResultsTitle}</Hidden>
+          </GridItem>
+          <Grid container spacing={0}>
+            {products.map((p, idx) => (
+              <Grid
+                container
+                item
+                key={idx}
+                xs={6}
+                sm={6}
+                md={3}
+                style={{
+                  borderLeft: idx === 0 ? "none" : "1px solid #EEE",
+                  borderTop:
+                    idx === 0 || idx === 1 || idx === 2 || idx === 3
+                      ? "1px solid #EEE"
+                      : "none",
+                  borderRight:
+                    products.length - 1 === idx
+                      ? `${
+                          products.length % 4 === 0 ? "none" : "1px solid #EEE"
+                        }`
+                      : "none",
+                  borderBottom: "1px solid #EEE",
+                }}
+              >
+                <Grid item container spacing={0} style={{ padding: 5 }}>
+                  <Grid item md={12} xs={12} sm={12}>
+                    <Card plain style={{ marginTop: 0, marginBottom: 0 }}>
+                      <Chip
+                        label={
+                          p.variants[p.activeVariantIdx].discPerc + "% OFF"
+                        }
+                        classes={{
+                          root: classes.offerTagRoot,
+                          label: classes.offerTag,
+                        }}
+                      />
+                      <div className={classes.softRiseShadowStyle}>
+                        <Link
+                          as={`/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
+                          href="/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"
+                        >
+                          <a>
+                            <LazyLoad once height={382}>
+                              <img
+                                src={p.variants[p.activeVariantIdx].defaultImg}
+                                alt="Card-img-cap"
+                                style={{
+                                  width: "100%",
+                                  height: 150,
+                                  cursor: "pointer",
+                                }}
+                              />
+                            </LazyLoad>
+                          </a>
+                        </Link>
+                      </div>
+                      <CardBody
+                        plain
+                        style={{
+                          paddingTop: 10,
+                          paddingLeft: 0,
+                          paddinRight: 0,
+                          paddingBottom: 0,
+                          textAlign: "left",
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          className={classes.prodName}
+                        >
+                          {p.prodName}
+                        </Typography>
+                        <div
+                          style={{
+                            marginTop: p.variants.length === 1 ? 13 : 10,
+                          }}
+                        >
+                          {p.variants.length === 1 ? (
+                            <Muted>
+                              <Typography variant="caption">
+                                {p.variants[p.activeVariantIdx].unitDesc +
+                                  " of " +
+                                  p.variants[p.activeVariantIdx].packagingDesc}
+                              </Typography>
+                            </Muted>
+                          ) : (
+                            <Select
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={p.variants[p.activeVariantIdx].skuCode}
+                              onChange={(e) =>
+                                handleVariantChange(p.prodId, e.target.value)
+                              }
+                              style={{ color: "#6c757d" }}
                             >
-                              <a>
-                                <LazyLoad once height={382}>
-                                  <img
-                                    src={
-                                      p.variants[p.activeVariantIdx].defaultImg
-                                    }
-                                    alt="Card-img-cap"
-                                    style={{
-                                      width: "100%",
-                                      height: 150,
-                                      cursor: "pointer",
-                                    }}
-                                  />
-                                </LazyLoad>
-                              </a>
-                            </Link>
-                          </div>
-                          <CardBody
-                            plain
-                            style={{
-                              paddingTop: 10,
-                              paddingLeft: 0,
-                              paddinRight: 0,
-                              paddingBottom: 0,
-                              textAlign: "left",
+                              {p.variants.map((v) => (
+                                <MenuItem key={v.skuCode} value={v.skuCode}>
+                                  <Typography variant="caption">{`${v.unitDesc} of ${v.packagingDesc} - ₹ ${v.sellingPrice}`}</Typography>
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          )}
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </Grid>
+                </Grid>
+
+                <Grid
+                  item
+                  container
+                  alignItems="flex-end"
+                  style={{ margin: 8 }}
+                >
+                  <Grid
+                    item
+                    container
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <Grid item md={6} sm={12} xs={12}>
+                      <Grid container alignItems="center">
+                        <Grid item>
+                          <FormLabel
+                            classes={{
+                              root: classes.originalPrice,
                             }}
                           >
-                            <Typography
-                              variant="body1"
-                              className={classes.prodName}
-                            >
-                              {p.prodName}
-                            </Typography>
-                            <div
-                              style={{
-                                marginTop: p.variants.length === 1 ? 13 : 10,
-                              }}
-                            >
-                              {p.variants.length === 1 ? (
-                                <Muted>
-                                  <Typography variant="caption">
-                                    {p.variants[p.activeVariantIdx].unitDesc +
-                                      " of " +
-                                      p.variants[p.activeVariantIdx]
-                                        .packagingDesc}
-                                  </Typography>
-                                </Muted>
-                              ) : (
-                                <Select
-                                  labelId="demo-simple-select-label"
-                                  id="demo-simple-select"
-                                  value={p.variants[p.activeVariantIdx].skuCode}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      p.prodId,
-                                      e.target.value
-                                    )
-                                  }
-                                  style={{ color: "#6c757d" }}
-                                >
-                                  {p.variants.map((v) => (
-                                    <MenuItem key={v.skuCode} value={v.skuCode}>
-                                      <Typography variant="caption">{`${v.unitDesc} of ${v.packagingDesc} - ₹ ${v.sellingPrice}`}</Typography>
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              )}
-                            </div>
-                          </CardBody>
-                        </Card>
+                            {`₹ ${p.variants[p.activeVariantIdx].unitPrice}`}
+                          </FormLabel>
+                        </Grid>
+                        <Grid item>
+                          <Typography
+                            variant="subtitle1"
+                            gutterBottom
+                            className={classes.sellingPrice}
+                          >
+                            {`₹ ${p.variants[p.activeVariantIdx].sellingPrice}`}
+                          </Typography>
+                        </Grid>
                       </Grid>
                     </Grid>
 
+                    <Grid item md={6} sm={12} xs={12}>
+                      {p.variants[p.activeVariantIdx].isExistInCart ? (
+                        <div className={classes.cartQtyBtnWrapper}>
+                          <CustomButton
+                            justIcon
+                            round
+                            color="primary"
+                            size="sm"
+                            style={{ marginTop: 0, marginBottom: 0 }}
+                            onClick={() =>
+                              handleUpdateItemToCart(
+                                p.prodId,
+                                p.variants[p.activeVariantIdx].skuCode,
+                                p.variants[p.activeVariantIdx].cartQty + 1
+                              )
+                            }
+                          >
+                            <AddRoundedIcon style={{ color: "#FFFFFF" }} />
+                          </CustomButton>
+                          <FormLabel
+                            classes={{
+                              root: classes.cartQtyText,
+                            }}
+                          >
+                            {p.variants[p.activeVariantIdx].cartQty}
+                          </FormLabel>
+                          <CustomButton
+                            justIcon
+                            round
+                            color="primary"
+                            size="sm"
+                            style={{ marginTop: 0, marginBottom: 0 }}
+                            onClick={() =>
+                              handleUpdateItemToCart(
+                                p.prodId,
+                                p.variants[p.activeVariantIdx].skuCode,
+                                p.variants[p.activeVariantIdx].cartQty - 1
+                              )
+                            }
+                          >
+                            <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
+                          </CustomButton>
+                        </div>
+                      ) : (
+                        <CustomOutlineButton
+                          size="small"
+                          className={classes.addToCartBtn}
+                          onClick={() =>
+                            handleAddItemToCart(
+                              p.prodId,
+                              p.variants[p.activeVariantIdx].skuCode
+                            )
+                          }
+                        >
+                          Add To Cart
+                        </CustomOutlineButton>
+                      )}
+                    </Grid>
                     <Grid
                       item
-                      container
-                      alignItems="flex-end"
-                      style={{ margin: 8 }}
+                      md={12}
+                      style={{
+                        padding: 10,
+                        textAlign: "right",
+                        color: red[500],
+                      }}
                     >
-                      <Grid
-                        item
-                        container
-                        justifyContent="space-between"
-                        alignItems="center"
-                        spacing={0}
-                      >
-                        <Grid item md={6} sm={12} xs={12}>
-                          <Grid container alignItems="center">
-                            <Grid item>
-                              <FormLabel
-                                classes={{
-                                  root: classes.originalPrice,
-                                }}
-                              >
-                                {`₹ ${
-                                  p.variants[p.activeVariantIdx].unitPrice
-                                }`}
-                              </FormLabel>
-                            </Grid>
-                            <Grid item>
-                              <Typography
-                                variant="subtitle1"
-                                gutterBottom
-                                className={classes.sellingPrice}
-                              >
-                                {`₹ ${
-                                  p.variants[p.activeVariantIdx].sellingPrice
-                                }`}
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-
-                        <Grid item md={6} sm={12} xs={12}>
-                          {p.variants[p.activeVariantIdx].existInCart ? (
-                            <div className={classes.cartQtyBtnWrapper}>
-                              <CustomButton
-                                justIcon
-                                round
-                                color="warning"
-                                size="sm"
-                                style={{ marginTop: 0, marginBottom: 0 }}
-                                onClick={() =>
-                                  handleUpdateItemToCart(
-                                    p.prodId,
-                                    p.variants[p.activeVariantIdx].skuCode,
-                                    p.variants[p.activeVariantIdx].cartQty + 1
-                                  )
-                                }
-                              >
-                                <AddRoundedIcon style={{ color: "#FFFFFF" }} />
-                              </CustomButton>
-                              <FormLabel
-                                classes={{
-                                  root: classes.cartQtyText,
-                                }}
-                              >
-                                {p.variants[p.activeVariantIdx].cartQty}
-                              </FormLabel>
-                              <CustomButton
-                                justIcon
-                                round
-                                color="warning"
-                                size="sm"
-                                style={{ marginTop: 0, marginBottom: 0 }}
-                                onClick={() =>
-                                  handleUpdateItemToCart(
-                                    p.prodId,
-                                    p.variants[p.activeVariantIdx].skuCode,
-                                    p.variants[p.activeVariantIdx].cartQty - 1
-                                  )
-                                }
-                              >
-                                <RemoveRoundedIcon
-                                  style={{ color: "#FFFFFF" }}
-                                />
-                              </CustomButton>
-                            </div>
-                          ) : (
-                            <CustomOutlineButton
-                              size="small"
-                              className={classes.addToCartBtn}
-                              onClick={() =>
-                                handleAddItemToCart(
-                                  p.prodId,
-                                  p.variants[p.activeVariantIdx].skuCode
-                                )
-                              }
-                            >
-                              Add To Cart
-                            </CustomOutlineButton>
-                          )}
-                        </Grid>
-                      </Grid>
+                      {p.variants[p.activeVariantIdx].onlyFewItemsLeft && (
+                        <Typography
+                          variant="caption"
+                          style={{
+                            color: red[500],
+                            fontWeight: 700,
+                          }}
+                        >
+                          Only Few Left!
+                        </Typography>
+                      )}
                     </Grid>
                   </Grid>
-                ))}
+                </Grid>
               </Grid>
-            </GridContainer>
-          </main>
-        </div>
-      </div>
-    </>
+            ))}
+          </Grid>
+        </GridContainer>
+      </main>
+    </div>
   );
 }
 

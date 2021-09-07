@@ -24,13 +24,15 @@ export default function ProductListingPage({
 }) {
   return (
     <AppHeader deptList={deptList}>
-      <ProductListingBody
-        deptDetail={deptDetail}
-        catgDetail={catgDetail}
-        productList={productList}
-        categories={categories}
-      />
-      <FooterPage id="footer" />
+      <div>
+        <ProductListingBody
+          deptDetail={deptDetail}
+          catgDetail={catgDetail}
+          productList={productList}
+          categories={categories}
+        />
+      </div>
+      {/* <FooterPage id="footer" /> */}
     </AppHeader>
   );
 }
@@ -102,13 +104,14 @@ export async function getStaticProps({ params }) {
     `/api/v1/product/list-products?deptId=${parseInt(deptId)}&cid=${catgId}`
   );
   productList = res2.data.result.productList;
+  //console.log(`productList=${JSON.stringify(productList)}`);
   return {
     props: {
       deptList,
-      productList,
-      categories,
       deptDetail,
+      categories,
       catgDetail,
+      productList,
     },
   };
 }
