@@ -216,6 +216,7 @@ export default function SectionProductListing({
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
+  const [openVariantSelectBox, setOpenVariantSelectBox] = React.useState(null);
   const [sortBy, setSortBy] = React.useState(null);
   const [blocking, setBlocking] = React.useState(false);
   const [hideOnScroll, setHideOnScroll] = React.useState(false);
@@ -283,13 +284,12 @@ export default function SectionProductListing({
             p.variants.forEach((v) => {
               skuCodes.forEach((skuCode) => {
                 if (v.skuCode === skuCode) {
-                  v["isStockAvailable"] = false;
-                } else {
-                  v["isStockAvailable"] = true;
+                  v["stockAvailable"] = false;
                 }
               });
             });
           });
+          //console.log(`this_products=${JSON.stringify(this_products)}`);
           setProducts(this_products);
         })
         .catch((error) => {
@@ -582,6 +582,84 @@ export default function SectionProductListing({
     );
   };
 
+  const renderAddToCartControls = (p) => {
+    console.log(`p=${JSON.stringify(p)}`);
+    if (!p.variants[p.activeVariantIdx].stockAvailable) {
+      return (
+        <Typography
+          variant="caption"
+          style={{
+            color: red[500],
+            fontWeight: 700,
+          }}
+        >
+          No stock available
+        </Typography>
+      );
+    } else {
+      if (p.variants[p.activeVariantIdx].existInCart) {
+        return (
+          <div className={classes.cartQtyBtnWrapper}>
+            <CustomButton
+              justIcon
+              round
+              color="primary"
+              size="sm"
+              style={{ marginTop: 0, marginBottom: 0 }}
+              onClick={() =>
+                handleUpdateItemToCart(
+                  p.prodId,
+                  p.variants[p.activeVariantIdx].skuCode,
+                  p.variants[p.activeVariantIdx].cartQty + 1
+                )
+              }
+            >
+              <AddRoundedIcon style={{ color: "#FFFFFF" }} />
+            </CustomButton>
+            <FormLabel
+              classes={{
+                root: classes.cartQtyText,
+              }}
+            >
+              {p.variants[p.activeVariantIdx].cartQty}
+            </FormLabel>
+            <CustomButton
+              justIcon
+              round
+              color="primary"
+              size="sm"
+              style={{ marginTop: 0, marginBottom: 0 }}
+              onClick={() =>
+                handleUpdateItemToCart(
+                  p.prodId,
+                  p.variants[p.activeVariantIdx].skuCode,
+                  p.variants[p.activeVariantIdx].cartQty - 1
+                )
+              }
+            >
+              <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
+            </CustomButton>
+          </div>
+        );
+      } else {
+        return (
+          <CustomOutlineButton
+            size="small"
+            className={classes.addToCartBtn}
+            onClick={() =>
+              handleAddItemToCart(
+                p.prodId,
+                p.variants[p.activeVariantIdx].skuCode
+              )
+            }
+          >
+            Add To Cart
+          </CustomOutlineButton>
+        );
+      }
+    }
+  };
+
   if (products.length === 0) return null;
 
   return (
@@ -733,13 +811,15 @@ export default function SectionProductListing({
                               onChange={(e) =>
                                 handleVariantChange(p.prodId, e.target.value)
                               }
+                              onOpen={() => setOpenVariantSelectBox(p.prodId)}
+                              onClose={() => setOpenVariantSelectBox(null)}
                               style={{ color: "#6c757d" }}
                             >
                               {p.variants.map((v) => (
                                 <MenuItem
                                   key={v.skuCode}
                                   value={v.skuCode}
-                                  disabled={!v.isStockAvailable}
+                                  disabled={!v.stockAvailable}
                                 >
                                   <Typography variant="caption">
                                     {`${v.unitDesc} of ${v.packagingDesc}`} -{" "}
@@ -751,6 +831,16 @@ export default function SectionProductListing({
                                     >
                                       {v.unitPrice}
                                     </span>
+                                    {openVariantSelectBox === p.prodId &&
+                                      !v.stockAvailable && (
+                                        <Typography
+                                          variant="caption"
+                                          style={{ color: red[500] }}
+                                        >
+                                          {" "}
+                                          No stock
+                                        </Typography>
+                                      )}
                                   </Typography>
                                 </MenuItem>
                               ))}
@@ -803,63 +893,7 @@ export default function SectionProductListing({
                       xs={12}
                       style={{ textAlign: "right" }}
                     >
-                      {p.variants[p.activeVariantIdx].existInCart ? (
-                        <div className={classes.cartQtyBtnWrapper}>
-                          <CustomButton
-                            justIcon
-                            round
-                            color="primary"
-                            size="sm"
-                            style={{ marginTop: 0, marginBottom: 0 }}
-                            onClick={() =>
-                              handleUpdateItemToCart(
-                                p.prodId,
-                                p.variants[p.activeVariantIdx].skuCode,
-                                p.variants[p.activeVariantIdx].cartQty + 1
-                              )
-                            }
-                          >
-                            <AddRoundedIcon style={{ color: "#FFFFFF" }} />
-                          </CustomButton>
-                          <FormLabel
-                            classes={{
-                              root: classes.cartQtyText,
-                            }}
-                          >
-                            {p.variants[p.activeVariantIdx].cartQty}
-                            {/* {JSON.stringify(p.variants[p.activeVariantIdx])} */}
-                          </FormLabel>
-                          <CustomButton
-                            justIcon
-                            round
-                            color="primary"
-                            size="sm"
-                            style={{ marginTop: 0, marginBottom: 0 }}
-                            onClick={() =>
-                              handleUpdateItemToCart(
-                                p.prodId,
-                                p.variants[p.activeVariantIdx].skuCode,
-                                p.variants[p.activeVariantIdx].cartQty - 1
-                              )
-                            }
-                          >
-                            <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
-                          </CustomButton>
-                        </div>
-                      ) : (
-                        <CustomOutlineButton
-                          size="small"
-                          className={classes.addToCartBtn}
-                          onClick={() =>
-                            handleAddItemToCart(
-                              p.prodId,
-                              p.variants[p.activeVariantIdx].skuCode
-                            )
-                          }
-                        >
-                          Add To Cart
-                        </CustomOutlineButton>
-                      )}
+                      {renderAddToCartControls(p)}
                     </Grid>
                     <Grid
                       item
