@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     //padding: theme.spacing(3),
     paddingLeft: 240,
-    marginTop: 50,
+    marginTop: 60,
     borderLeft: "1px solid #dfdfdf",
     borderRight: "1px solid #dfdfdf",
     borderTop: "1px solid #dfdfdf",
@@ -191,6 +191,7 @@ export default function SectionProductListing({
   catgDetail,
   subCatgDetail,
   productList,
+  bannerUrl,
 }) {
   const classes = useStyles();
   const context = React.useContext(AppContext);
@@ -472,18 +473,19 @@ export default function SectionProductListing({
 
   return (
     <div className={classes.container}>
+      {/* {breadcrumbs} */}
       <Hidden smUp>
         <div style={{ marginTop: 80, marginBottom: 10, paddingLeft: 8 }}>
           {showingResultsTitle}
         </div>
       </Hidden>
-        <Backdrop open={blocking} />
+      <Backdrop open={blocking} />
       {toggleLoginModalValue && (
-          <SignupOrSigninModal
-            onCloseModal={() => setToggleLoginModalValue(false)}
-            onLoginSuccess={onLoginSuccessHandler}
-          />
-        )}
+        <SignupOrSigninModal
+          onCloseModal={() => setToggleLoginModalValue(false)}
+          onLoginSuccess={onLoginSuccessHandler}
+        />
+      )}
       <SectionLeftSideFilter
         hideOnScroll={hideOnScroll}
         categories={categories}
@@ -492,7 +494,6 @@ export default function SectionProductListing({
         subCatgDetail={subCatgDetail}
       />
       <main className={classes.content}>
-        {breadcrumbs}
         <GridContainer style={{ marginLeft: 0, marginRight: 0 }}>
           <Hidden mdDown>
             <GridItem
@@ -504,9 +505,7 @@ export default function SectionProductListing({
             >
               <img
                 style={{ padding: 5, width: "100%" }}
-                src={
-                  "https://sarees-images-bucket.s3.ap-south-1.amazonaws.com/find_cheapest_prices.jpg"
-                }
+                src={bannerUrl}
                 alt="Card-img-cap"
               />
             </GridItem>
@@ -754,4 +753,5 @@ SectionProductListing.propTypes = {
   catgDetail: PropTypes.object,
   subCatgDetail: PropTypes.object,
   productList: PropTypes.array.isRequired,
+  bannerUrl: PropTypes.string,
 };

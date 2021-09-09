@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     marginLeft: 1,
     width: drawerWidth,
-    top: '120px',
+    top: '125px',
     left: 'auto'
   },
   /* drawerPaperFixed: {

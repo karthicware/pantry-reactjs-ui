@@ -21,6 +21,7 @@ export default function ProductListingPage({
   categories,
   deptDetail,
   catgDetail,
+  bannerUrl,
 }) {
   return (
     <AppHeader deptList={deptList}>
@@ -30,6 +31,7 @@ export default function ProductListingPage({
           catgDetail={catgDetail}
           productList={productList}
           categories={categories}
+          bannerUrl={bannerUrl}
         />
       </div>
       {/* <FooterPage id="footer" /> */}
@@ -43,6 +45,7 @@ ProductListingPage.propTypes = {
   categories: PropTypes.array,
   deptDetail: PropTypes.object.isRequired,
   catgDetail: PropTypes.object.isRequired,
+  bannerUrl: PropTypes.string,
 };
 
 //This function gets called at build time
@@ -76,6 +79,7 @@ export async function getStaticProps({ params }) {
   //console.log(`params = ${JSON.stringify(params)}`);
   let productList = [];
   let categories = [];
+  let bannerUrl = "";
   const deptId = params.deptIdSlug;
   const catgId = params.catgIdSlug;
   const deptDetail = { deptId, deptDesc: null, deptSeoUrl: null };
@@ -96,6 +100,8 @@ export async function getStaticProps({ params }) {
         if (catgApi.catgId.toString() === catgId) {
           catgDetail.catgDesc = catgApi.name;
           catgDetail.catgSeoUrl = catgApi.catgSeoUrl;
+          bannerUrl = catgApi.imgUrl;
+          //console.log(`bannerUrl=${JSON.stringify(catgApi)}`);
         }
       });
     }
@@ -112,6 +118,7 @@ export async function getStaticProps({ params }) {
       categories,
       catgDetail,
       productList,
+      bannerUrl,
     },
   };
 }

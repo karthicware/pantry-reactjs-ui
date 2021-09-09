@@ -20,6 +20,7 @@ export default function ProductListingPage({
   productList,
   categories,
   deptDetail,
+  bannerUrl,
 }) {
   return (
     <AppHeader deptList={deptList}>
@@ -27,8 +28,9 @@ export default function ProductListingPage({
         deptDetail={deptDetail}
         productList={productList}
         categories={categories}
+        bannerUrl={bannerUrl}
       />
-      <FooterPage id="footer" />
+      {/* <FooterPage id="footer" /> */}
     </AppHeader>
   );
 }
@@ -38,6 +40,7 @@ ProductListingPage.propTypes = {
   productList: PropTypes.array.isRequired,
   categories: PropTypes.array,
   deptDetail: PropTypes.object.isRequired,
+  bannerUrl: PropTypes.string,
 };
 
 //This function gets called at build time
@@ -67,8 +70,9 @@ export async function getStaticProps({ params }) {
   //console.log(`params = ${JSON.stringify(params)}`);
   let productList = [];
   let categories = [];
+  let bannerUrl = "";
   const deptId = params.deptIdSlug;
-  const deptDetail = { deptId, deptDesc: null, deptSeoUrl: null };
+  const deptDetail = { deptId, deptDesc: null, deptSeoUrl: null, imgUrl: null };
 
   const axiosInstance = axios.create({
     baseURL: process.env.API_BASE_URL,
@@ -78,9 +82,10 @@ export async function getStaticProps({ params }) {
   const deptList = res1.data.result;
   deptList.forEach((deptApi) => {
     if (deptApi.deptId.toString() === deptId) {
-      //deptDesc = deptApi.name;
+      //console.log(JSON.stringify(deptApi));
       deptDetail.deptDesc = deptApi.name;
       deptDetail.deptSeoUrl = deptApi.deptSeoUrl;
+      bannerUrl = deptApi.imgUrl;
       categories = deptApi.categories;
     }
   });
@@ -94,6 +99,7 @@ export async function getStaticProps({ params }) {
       productList,
       categories,
       deptDetail,
+      bannerUrl,
     },
   };
 }

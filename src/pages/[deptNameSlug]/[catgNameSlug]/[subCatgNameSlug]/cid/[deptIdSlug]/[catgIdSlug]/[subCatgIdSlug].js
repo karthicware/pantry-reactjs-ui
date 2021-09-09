@@ -22,6 +22,7 @@ export default function ProductListingPage({
   deptDetail,
   catgDetail,
   subCatgDetail,
+  bannerUrl,
 }) {
   return (
     <AppHeader deptList={deptList}>
@@ -31,8 +32,9 @@ export default function ProductListingPage({
         subCatgDetail={subCatgDetail}
         productList={productList}
         categories={categories}
+        bannerUrl={bannerUrl}
       />
-      <FooterPage id="footer" />
+      {/* <FooterPage id="footer" /> */}
     </AppHeader>
   );
 }
@@ -44,6 +46,7 @@ ProductListingPage.propTypes = {
   deptDetail: PropTypes.object.isRequired,
   catgDetail: PropTypes.object.isRequired,
   subCatgDetail: PropTypes.object.isRequired,
+  bannerUrl: PropTypes.string,
 };
 
 //This function gets called at build time
@@ -81,6 +84,7 @@ export async function getStaticProps({ params }) {
   console.log(`params = ${JSON.stringify(params)}`);
   let productList = [];
   let categories = [];
+  let bannerUrl = "";
   const deptId = params.deptIdSlug;
   const catgId = params.catgIdSlug;
   const subCatgId = params.subCatgIdSlug;
@@ -107,6 +111,7 @@ export async function getStaticProps({ params }) {
             if (subCatgApi.subCatgId.toString() === subCatgId) {
               subCatgDetail.subCatgDesc = subCatgApi.name;
               subCatgDetail.subCatgSeoUrl = subCatgApi.subCatgSeoUrl;
+              bannerUrl = subCatgApi.imgUrl;
             }
           });
         }
@@ -127,6 +132,7 @@ export async function getStaticProps({ params }) {
       deptDetail,
       catgDetail,
       subCatgDetail,
+      bannerUrl,
     },
   };
 }
