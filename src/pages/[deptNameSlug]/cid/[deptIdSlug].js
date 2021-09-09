@@ -93,6 +93,7 @@ export async function getStaticProps({ params }) {
     `/api/v1/product/list-products?deptId=${parseInt(deptId)}`
   );
   productList = res2.data.result.productList;
+  //console.log(`productList= ${JSON.stringify(productList)}`);
   return {
     props: {
       deptList,

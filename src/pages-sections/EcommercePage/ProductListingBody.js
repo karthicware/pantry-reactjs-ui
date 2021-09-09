@@ -13,12 +13,18 @@ import { FormLabel, Hidden } from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
 import Grid from "@material-ui/core/Grid";
 import { red, grey } from "@material-ui/core/colors";
-import Toolbar from "@material-ui/core/Toolbar";
+import Box from "@material-ui/core/Box";
+import IconButton from "@material-ui/core/IconButton";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
 
 // @material-ui/icons
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import AddRoundedIcon from "@material-ui/icons/AddRounded";
 import RemoveRoundedIcon from "@material-ui/icons/RemoveRounded";
+import DoneIcon from "@material-ui/icons/Done";
+import FavoriteIcon from "@material-ui/icons/Favorite";
+import FavoriteBorderOutlinedIcon from "@material-ui/icons/FavoriteBorderOutlined";
 
 // core components
 import CustomButton from "components/CustomButtons/Button.js";
@@ -42,9 +48,14 @@ import { AppContext } from "AppContext.js";
 import featuresStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/featuresStyle.js";
 import productsStyle from "assets/jss/material-kit-pro-react/views/ecommerceSections/productsStyle.js";
 import imagesStyles from "assets/jss/material-kit-pro-react/imagesStyles.js";
+import { primaryColor } from "assets/jss/material-kit-pro-react.js";
 
 import SectionLeftSideFilter from "pages-sections/EcommercePage/SectionLeftSideFilter.js";
 import SignupOrSigninModal from "pages-sections/Login/SignupOrSignin.js";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
   ...featuresStyle,
@@ -77,9 +88,16 @@ const useStyles = makeStyles((theme) => ({
       display: "flex",
     }, */
   },
+  originalPriceInSelectBox: {
+    textDecoration: "line-through",
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
   originalPrice: {
     paddingLeft: 0,
     paddingRight: 0,
+    marginTop: 10,
+    marginBottom: 10,
     textAlign: "left",
     fontSize: 14,
     color: "#777",
@@ -194,13 +212,22 @@ export default function SectionProductListing({
   bannerUrl,
 }) {
   const classes = useStyles();
-  const context = React.useContext(AppContext);
   const [products, setProducts] = React.useState([...productList]);
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
+  const [sortBy, setSortBy] = React.useState(null);
   const [blocking, setBlocking] = React.useState(false);
   const [hideOnScroll, setHideOnScroll] = React.useState(false);
+
+  //authentication
+  const context = React.useContext(AppContext);
+  const isAuthenticated = context.isAuthenticated;
+
+  //snackbar
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [severity, setSeverity] = React.useState(null);
+  const [message, setMessage] = React.useState(null);
 
   React.useEffect(() => {
     const fetchMyProducts = () => {
@@ -211,22 +238,30 @@ export default function SectionProductListing({
             const this_products = [...products];
             const wishedProducts = response.data.result.wishedProducts;
             const skuCodesInCart = response.data.result.skuCodesInCart;
-            if (wishedProducts && wishedProducts.length) {
-              wishedProducts.forEach((wishedProduct) => {
-                this_products.forEach((product) => {
-                  product.wishlisted = product.prodCode === wishedProduct;
-                });
+
+            //set wished products
+            if (wishedProducts && wishedProducts.length > 0) {
+              wishedProducts.forEach((prodId) => {
+                this_products
+                  .filter((p) => p.prodId === prodId)
+                  .forEach((p) => (p.wishlisted = true));
               });
             }
-            if (skuCodesInCart && skuCodesInCart.length) {
-              skuCodesInCart.forEach((cartSkuCode) => {
-                this_products.forEach((product) => {
-                  product.variants.forEach((variant) => {
-                    variant.isExistInCart = variant.skuCode === cartSkuCode;
-                  });
+
+            //set cart item and its qty
+            if (skuCodesInCart) {
+              this_products.forEach((product) => {
+                product.variants.forEach((variant, idx) => {
+                  if (skuCodesInCart[variant.skuCode]) {
+                    variant.existInCart = true;
+                    variant.cartQty = skuCodesInCart[variant.skuCode];
+                    product.activeVariantIdx = idx;
+                  } else {
+                    variant.existInCart = false;
+                  }
                 });
               });
-            }
+            } //if
           }
         })
         .catch((error) => {
@@ -244,11 +279,13 @@ export default function SectionProductListing({
         .then((response) => {
           const skuCodes = response.data.result;
           const this_products = [...products];
-          skuCodes.forEach((skuCode) => {
-            this_products.forEach((prod) => {
-              prod.variants.forEach((variant) => {
-                if (variant.skuCode === skuCode) {
-                  variant["isStockAvailable"] = true;
+          this_products.forEach((p) => {
+            p.variants.forEach((v) => {
+              skuCodes.forEach((skuCode) => {
+                if (v.skuCode === skuCode) {
+                  v["isStockAvailable"] = false;
+                } else {
+                  v["isStockAvailable"] = true;
                 }
               });
             });
@@ -289,46 +326,52 @@ export default function SectionProductListing({
     return function cleanup() {};
   }, []);
 
-  /* const addItemToWishlist = (prodCode) => {
-    if (!this.context.isAuthenticated) {
-      this.setToggleLoginModalValue(true);
+  const showSnackbar = (message, severity) => {
+    setMessage(message);
+    setSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  const handleHideSnackbar = (event) => {
+    setOpenSnackbar(false);
+  };
+
+  const addProductToWishlist = (prodId) => {
+    if (!context.isAuthenticated) {
+      setToggleLoginModalValue(true);
       return false;
     }
     axios
-      .post(`api/v1/wishlist/${prodCode}`)
+      .post(`api/v1/wishlist/${prodId}`)
       .then((resp) => {
-        this.setState((state, props) => ({
-          productList: state.productList.map((p) => {
-            if (p.prodCode === prodCode) return { ...p, wishlisted: true };
-            else return { ...p };
-          }),
-          isSnackbarOpen: true,
-          successMsg: "Added to wishlist!",
-        }));
+        const this_products = [...products];
+        this_products
+          .filter((p) => p.prodId === prodId)
+          .forEach((p) => (p.wishlisted = true));
+        setProducts(this_products);
+        showSnackbar("Added to wishlist!", "success");
       })
       .catch((error) => {
         //handleError(error);
       });
   };
 
-  const removeItemFromWishlist = (prodCode) => {
+  const removeProductFromWishlist = (prodId) => {
     axios
-      .delete(`api/v1/wishlist/${prodCode}`)
+      .delete(`api/v1/wishlist/${prodId}`)
       .then((resp) => {
-        this.setState((state, props) => ({
-          productList: state.productList.map((p) => {
-            if (p.prodCode === prodCode) return { ...p, wishlisted: false };
-            else return { ...p };
-          }),
-          isSnackbarOpen: true,
-          successMsg: "Removed from wishlist!",
-        }));
+        const this_products = [...products];
+        this_products
+          .filter((p) => p.prodId === prodId)
+          .forEach((p) => (p.wishlisted = false));
+        setProducts(this_products);
+        showSnackbar("Removed from wishlist!", "warning");
       })
       .catch((error) => {
         console.log(error);
       });
   };
- */
+
   const getCartQty = async (skuCode) => {
     return await axios.get(`/api/v1/cart/${skuCode}`);
   };
@@ -373,7 +416,7 @@ export default function SectionProductListing({
               const updatedProd = { ...p };
               updatedProd.variants.forEach((v) => {
                 if (v.skuCode === skuCode) {
-                  v.isExistInCart = true;
+                  v.existInCart = true;
                   v.cartQty = resp.data.result;
                 }
               });
@@ -403,10 +446,10 @@ export default function SectionProductListing({
               updatedProd.variants.forEach((v) => {
                 if (v.skuCode === skuCode) {
                   if (resp.data.result <= 0) {
-                    v.isExistInCart = false;
+                    v.existInCart = false;
                     v.cartQty = 0;
                   } else {
-                    v.isExistInCart = true;
+                    v.existInCart = true;
                     v.cartQty = resp.data.result;
                   }
                 }
@@ -459,6 +502,7 @@ export default function SectionProductListing({
   const showingResultsTitle = (
     <Typography
       color="textPrimary"
+      variant="caption"
       style={{ textAlign: "left", marginTop: 10, marginBottom: 10 }}
     >
       Showing {products.length} items
@@ -467,6 +511,75 @@ export default function SectionProductListing({
 
   const onLoginSuccessHandler = () => {
     setToggleLoginModalValue(false);
+  };
+
+  const onClickSortBy = (sortBy) => {
+    if (sortBy === "LOW_TO_HIGH") {
+      setProducts([
+        ...products.sort(
+          (a, b) => a.variants[0].sellingPrice - b.variants[0].sellingPrice
+        ),
+      ]);
+    } else if (sortBy === "HIGH_TO_LOW") {
+      setProducts([
+        ...products.sort(
+          (a, b) => b.variants[0].sellingPrice - a.variants[0].sellingPrice
+        ),
+      ]);
+    } else if (sortBy === "DISCOUNT") {
+      setProducts([
+        ...products.sort(
+          (a, b) => b.variants[0].discPerc - a.variants[0].discPerc
+        ),
+      ]);
+    }
+    setSortBy(sortBy);
+  };
+
+  const renderSortBy = () => {
+    return (
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Hidden mdDown>{showingResultsTitle}</Hidden>
+        <div>
+          <Typography
+            variant="caption"
+            style={{ marginLeft: 5, marginRight: 5 }}
+          >
+            Sort By:
+          </Typography>
+          <Chip
+            label={<Typography variant="caption">Low to High</Typography>}
+            clickable
+            color="primary"
+            onClick={() => onClickSortBy("LOW_TO_HIGH")}
+            icon={sortBy === "LOW_TO_HIGH" ? <DoneIcon /> : null}
+            variant="outlined"
+            size="small"
+            style={{ marginLeft: 5, marginRight: 5 }}
+          />
+          <Chip
+            label={<Typography variant="caption">High to Low</Typography>}
+            clickable
+            color="primary"
+            onClick={() => onClickSortBy("HIGH_TO_LOW")}
+            icon={sortBy === "HIGH_TO_LOW" ? <DoneIcon /> : null}
+            variant="outlined"
+            size="small"
+            style={{ marginLeft: 5, marginRight: 5 }}
+          />
+          <Chip
+            label={<Typography variant="caption">Discount</Typography>}
+            clickable
+            color="primary"
+            onClick={() => onClickSortBy("DISCOUNT")}
+            icon={sortBy === "DISCOUNT" ? <DoneIcon /> : null}
+            variant="outlined"
+            size="small"
+            style={{ marginLeft: 5, marginRight: 5 }}
+          />
+        </div>
+      </Box>
+    );
   };
 
   if (products.length === 0) return null;
@@ -486,6 +599,16 @@ export default function SectionProductListing({
           onLoginSuccess={onLoginSuccessHandler}
         />
       )}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        onClose={handleHideSnackbar}
+      >
+        <Alert onClose={handleHideSnackbar} severity={severity}>
+          {message}
+        </Alert>
+      </Snackbar>
       <SectionLeftSideFilter
         hideOnScroll={hideOnScroll}
         categories={categories}
@@ -510,8 +633,8 @@ export default function SectionProductListing({
               />
             </GridItem>
           </Hidden>
-          <GridItem>
-            <Hidden mdDown>{showingResultsTitle}</Hidden>
+          <GridItem style={{ backgroundColor: "#fafafa", margin: 5 }}>
+            {renderSortBy()}
           </GridItem>
           <Grid container spacing={0}>
             {products.map((p, idx) => (
@@ -523,18 +646,22 @@ export default function SectionProductListing({
                 sm={6}
                 md={3}
                 style={{
-                  borderLeft: idx === 0 ? "none" : "1px solid #EEE",
+                  padding: 10,
+                  borderLeft:
+                    idx === 0 ? "none" : "solid 1px rgba(112,112,112,.38)",
                   borderTop:
                     idx === 0 || idx === 1 || idx === 2 || idx === 3
-                      ? "1px solid #EEE"
+                      ? "solid 1px rgba(112,112,112,.38)"
                       : "none",
                   borderRight:
                     products.length - 1 === idx
                       ? `${
-                          products.length % 4 === 0 ? "none" : "1px solid #EEE"
+                          products.length % 4 === 0
+                            ? "none"
+                            : "solid 1px rgba(112,112,112,.38)"
                         }`
                       : "none",
-                  borderBottom: "1px solid #EEE",
+                  borderBottom: "solid 1px rgba(112,112,112,.38)",
                 }}
               >
                 <Grid item container spacing={0} style={{ padding: 5 }}>
@@ -609,8 +736,22 @@ export default function SectionProductListing({
                               style={{ color: "#6c757d" }}
                             >
                               {p.variants.map((v) => (
-                                <MenuItem key={v.skuCode} value={v.skuCode}>
-                                  <Typography variant="caption">{`${v.unitDesc} of ${v.packagingDesc} - ₹ ${v.sellingPrice}`}</Typography>
+                                <MenuItem
+                                  key={v.skuCode}
+                                  value={v.skuCode}
+                                  disabled={!v.isStockAvailable}
+                                >
+                                  <Typography variant="caption">
+                                    {`${v.unitDesc} of ${v.packagingDesc}`} -{" "}
+                                    <b>₹ ${v.sellingPrice}</b>
+                                    <span
+                                      className={
+                                        classes.originalPriceInSelectBox
+                                      }
+                                    >
+                                      {v.unitPrice}
+                                    </span>
+                                  </Typography>
                                 </MenuItem>
                               ))}
                             </Select>
@@ -625,7 +766,7 @@ export default function SectionProductListing({
                   item
                   container
                   alignItems="flex-end"
-                  style={{ margin: 8 }}
+                  style={{ marginTop: 8, marginBottom: 0, marginLeft: 5 }}
                 >
                   <Grid
                     item
@@ -636,16 +777,7 @@ export default function SectionProductListing({
                   >
                     <Grid item md={6} sm={12} xs={12}>
                       <Grid container alignItems="center">
-                        <Grid item>
-                          <FormLabel
-                            classes={{
-                              root: classes.originalPrice,
-                            }}
-                          >
-                            {`₹ ${p.variants[p.activeVariantIdx].unitPrice}`}
-                          </FormLabel>
-                        </Grid>
-                        <Grid item>
+                        <Box display="flex" flexDirection="column">
                           <Typography
                             variant="subtitle1"
                             gutterBottom
@@ -653,12 +785,25 @@ export default function SectionProductListing({
                           >
                             {`₹ ${p.variants[p.activeVariantIdx].sellingPrice}`}
                           </Typography>
-                        </Grid>
+                          <FormLabel
+                            classes={{
+                              root: classes.originalPrice,
+                            }}
+                          >
+                            {`₹ ${p.variants[p.activeVariantIdx].unitPrice}`}
+                          </FormLabel>
+                        </Box>
                       </Grid>
                     </Grid>
 
-                    <Grid item md={6} sm={12} xs={12}>
-                      {p.variants[p.activeVariantIdx].isExistInCart ? (
+                    <Grid
+                      item
+                      md={6}
+                      sm={12}
+                      xs={12}
+                      style={{ textAlign: "right" }}
+                    >
+                      {p.variants[p.activeVariantIdx].existInCart ? (
                         <div className={classes.cartQtyBtnWrapper}>
                           <CustomButton
                             justIcon
@@ -682,6 +827,7 @@ export default function SectionProductListing({
                             }}
                           >
                             {p.variants[p.activeVariantIdx].cartQty}
+                            {/* {JSON.stringify(p.variants[p.activeVariantIdx])} */}
                           </FormLabel>
                           <CustomButton
                             justIcon
@@ -719,22 +865,47 @@ export default function SectionProductListing({
                       item
                       md={12}
                       style={{
-                        padding: 10,
-                        textAlign: "right",
-                        color: red[500],
+                        paddingTop: 10,
+                        textAlign: "left",
                       }}
                     >
-                      {p.variants[p.activeVariantIdx].onlyFewItemsLeft && (
-                        <Typography
-                          variant="caption"
-                          style={{
-                            color: red[500],
-                            fontWeight: 700,
-                          }}
-                        >
-                          Only Few Left!
-                        </Typography>
-                      )}
+                      <Box display="flex" justifyContent="space-between">
+                        {p.wishlisted ? (
+                          <IconButton
+                            style={{ padding: 0 }}
+                            aria-label="Wishlisted"
+                            onClick={() => removeProductFromWishlist(p.prodId)}
+                          >
+                            <FavoriteIcon
+                              fontSize="small"
+                              style={{ color: primaryColor[0] }}
+                            />
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            style={{ padding: 0 }}
+                            aria-label="Add to my Wishlist"
+                            onClick={() => addProductToWishlist(p.prodId)}
+                          >
+                            <FavoriteBorderOutlinedIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                        <div>
+                          {p.variants[p.activeVariantIdx].onlyFewItemsLeft ? (
+                            <Typography
+                              variant="caption"
+                              style={{
+                                color: red[500],
+                                fontWeight: 700,
+                              }}
+                            >
+                              Only Few Left!
+                            </Typography>
+                          ) : (
+                            <Typography>&nbsp;</Typography>
+                          )}
+                        </div>
+                      </Box>
                     </Grid>
                   </Grid>
                 </Grid>

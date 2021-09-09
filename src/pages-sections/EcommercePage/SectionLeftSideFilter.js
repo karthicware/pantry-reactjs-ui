@@ -130,12 +130,21 @@ function SectionLeftSideFilter({ deptDetail, catgDetail, subCatgDetail, categori
         component="nav"
         aria-labelledby="nested-list-subheader"
       >
-        <ListItem button>
-          <ListItemIcon classes={{
-            root: classes.expandMoreIconRoot
-          }}></ListItemIcon>
-          <ListItemText primary={<Typography style={{ fontWeight: 500 }}>{deptDetail.deptDesc}</Typography>} />
-        </ListItem>
+        <Link
+          as={`/${deptDetail.deptSeoUrl}/cid/${deptDetail.deptId}`}
+          href={
+            "/[deptNameSlug]/cid/[deptIdSlug]"
+          }
+        >
+          <a>
+            <ListItem button>
+              <ListItemIcon classes={{
+                root: classes.expandMoreIconRoot
+              }}></ListItemIcon>
+              <ListItemText primary={<Typography style={{ fontWeight: 500 }}>{deptDetail.deptDesc}</Typography>} />
+            </ListItem>
+          </a>
+        </Link>
         <Divider />
         {categories && categories.map((catgApi, i) => {
           return (
