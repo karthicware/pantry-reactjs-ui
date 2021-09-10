@@ -234,7 +234,7 @@ SectionLeftSideFilter.propTypes = {
   deptDetail: PropTypes.object.isRequired,
   catgDetail: PropTypes.object,
   subCatgDetail: PropTypes.object,
-  hideOnScroll: PropTypes.bool.isRequired,
+  hideOnScroll: PropTypes.bool,
 };
 
 export default SectionLeftSideFilter;

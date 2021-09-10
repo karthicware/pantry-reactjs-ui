@@ -219,16 +219,26 @@ export default function SectionProductListing({
   const [openVariantSelectBox, setOpenVariantSelectBox] = React.useState(null);
   const [sortBy, setSortBy] = React.useState(null);
   const [blocking, setBlocking] = React.useState(false);
-  const [hideOnScroll, setHideOnScroll] = React.useState(false);
+  //const [hideOnScroll, setHideOnScroll] = React.useState(false);
 
   //authentication
   const context = React.useContext(AppContext);
-  const isAuthenticated = context.isAuthenticated;
+  //const isAuthenticated = context.isAuthenticated;
 
   //snackbar
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState(null);
   const [message, setMessage] = React.useState(null);
+
+  const setActiveVariantIdxToAll = (this_products) => {
+    this_products.forEach((p) => {
+      if (p.variants.length > 1 && !p.variants[0].stockAvailable) {
+        const variantIdx = p.variants.findIndex((v) => v.stockAvailable);
+        p.activeVariantIdx = variantIdx === -1 ? 0 : variantIdx;
+      }
+    });
+    setProducts(this_products);
+  };
 
   React.useEffect(() => {
     const fetchMyProducts = () => {
@@ -290,7 +300,8 @@ export default function SectionProductListing({
             });
           });
           //console.log(`this_products=${JSON.stringify(this_products)}`);
-          setProducts(this_products);
+          setActiveVariantIdxToAll(this_products);
+          //setProducts(this_products);
         })
         .catch((error) => {
           alert(JSON.stringify("error=" + error));
@@ -378,7 +389,7 @@ export default function SectionProductListing({
 
   const handleVariantChange = (prodId, skuCode) => {
     getCartQty(skuCode).then((resp) => {
-      console.log(`resp=${JSON.stringify(resp)}`);
+      //console.log(`resp=${JSON.stringify(resp)}`);
       const cartQty = resp.data.result.cart.qty;
       //go to product
       let updatedProducts = products.map((p, idx) => {
@@ -399,7 +410,7 @@ export default function SectionProductListing({
     });
   };
 
-  const handleAddItemToCart = (prodId, skuCode) => {
+  /* const handleAddItemToCart = (prodId, skuCode) => {
     if (!context.isAuthenticated) {
       setToggleLoginModalValue(true);
       return false;
@@ -430,34 +441,28 @@ export default function SectionProductListing({
         setBlocking(false);
         console.log(error);
       });
-  };
+  }; */
 
   const handleUpdateItemToCart = (prodId, skuCode, qty) => {
+    if (!context.isAuthenticated) {
+      setToggleLoginModalValue(true);
+      return false;
+    }
     setBlocking(true);
     axios
       .put(`api/v1/cart/${skuCode}?qty=${qty}`)
       .then((resp) => {
         setBlocking(false);
         context.refreshCartCount();
-        if (resp.data.result >= 0) {
-          const updatedProducts = products.map((p) => {
-            if (p.prodId === prodId) {
-              const updatedProd = { ...p };
-              updatedProd.variants.forEach((v) => {
-                if (v.skuCode === skuCode) {
-                  if (resp.data.result <= 0) {
-                    v.existInCart = false;
-                    v.cartQty = 0;
-                  } else {
-                    v.existInCart = true;
-                    v.cartQty = resp.data.result;
-                  }
-                }
-              });
-              return { ...updatedProd, existInCart: true };
-            } else return { ...p };
-          });
-          setProducts(updatedProducts);
+        if (!resp.data.error) {
+          const this_products = [...products];
+          const variant = this_products
+            .find((p) => p.prodId === prodId)
+            .variants.find((v) => v.skuCode === skuCode);
+          variant.existInCart = resp.data.result > 0 ? true : false;
+          variant.cartQty = resp.data.result;
+          console.log(`this_products=${JSON.stringify(this_products)}`);
+          setProducts(this_products);
         }
       })
       .catch((error) => {
@@ -466,7 +471,7 @@ export default function SectionProductListing({
       });
   };
 
-  useScrollPosition(({ prevPos, currPos }) => {
+  /* useScrollPosition(({ prevPos, currPos }) => {
     // console.log(currPos.x);
     // console.log(currPos.y);
     if (currPos.y < 0) {
@@ -474,9 +479,9 @@ export default function SectionProductListing({
     } else if (currPos.y > 0) {
       setHideOnScroll(false);
     }
-  });
+  }); */
 
-  const breadcrumbs = (
+  /* const breadcrumbs = (
     <>
       <Breadcrumbs
         separator={<NavigateNextIcon fontSize="small" />}
@@ -497,7 +502,7 @@ export default function SectionProductListing({
         )}
       </Breadcrumbs>
     </>
-  );
+  ); */
 
   const showingResultsTitle = (
     <Typography
@@ -583,7 +588,7 @@ export default function SectionProductListing({
   };
 
   const renderAddToCartControls = (p) => {
-    console.log(`p=${JSON.stringify(p)}`);
+    //console.log(`p=${JSON.stringify(p)}`);
     if (!p.variants[p.activeVariantIdx].stockAvailable) {
       return (
         <Typography
@@ -647,9 +652,10 @@ export default function SectionProductListing({
             size="small"
             className={classes.addToCartBtn}
             onClick={() =>
-              handleAddItemToCart(
+              handleUpdateItemToCart(
                 p.prodId,
-                p.variants[p.activeVariantIdx].skuCode
+                p.variants[p.activeVariantIdx].skuCode,
+                1
               )
             }
           >
@@ -688,7 +694,7 @@ export default function SectionProductListing({
         </Alert>
       </Snackbar>
       <SectionLeftSideFilter
-        hideOnScroll={hideOnScroll}
+        //hideOnScroll={hideOnScroll}
         categories={categories}
         deptDetail={deptDetail}
         catgDetail={catgDetail}
