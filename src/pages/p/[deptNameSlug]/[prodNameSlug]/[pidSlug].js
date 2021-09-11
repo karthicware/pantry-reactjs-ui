@@ -14,9 +14,7 @@ import Header from "components/Header/Header.js";
 import Footer from "components/Footer/Footer.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
-import Info from "components/Typography/Info.js";
 import Muted from "components/Typography/Muted.js";
-import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
 import Success from "components/Typography/Success.js";
 import Danger from "components/Typography/Danger.js";
@@ -25,21 +23,23 @@ import Backdrop from "components/Backdrop/CustomBackdrop";
 
 // @material-ui/core components
 import Chip from "@material-ui/core/Chip";
-import { Alert, AlertTitle } from "@material-ui/lab";
 import MuiButton from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import { FormLabel } from "@material-ui/core";
-import InputAdornment from "@material-ui/core/InputAdornment";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
 import Typography from "@material-ui/core/Typography";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
+import { red, grey } from "@material-ui/core/colors";
 
 // @material-ui/icons
 import AddRoundedIcon from "@material-ui/icons/AddRounded";
 import RemoveRoundedIcon from "@material-ui/icons/RemoveRounded";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import Favorite from "@material-ui/icons/Favorite";
+import FavoriteBorderOutlinedIcon from "@material-ui/icons/FavoriteBorderOutlined";
 import DescriptionIcon from "@material-ui/icons/DescriptionOutlined";
 import SecurityIcon from "@material-ui/icons/Security";
 import ShoppingCart from "@material-ui/icons/ShoppingCart";
@@ -75,6 +75,10 @@ import Indicator from "utils/Indicator.js";
 import { AppContext } from "AppContext.js";
 import { ACCESS_CODE_SAREE } from "utils/constants.js";
 import { handleError } from "utils/util";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
   ...productStyle,
@@ -202,9 +206,13 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
   ] = React.useState(1);
   const [blocking, setBlocking] = React.useState(false);
 
+  //snackbar
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [severity, setSeverity] = React.useState(null);
+  const [message, setMessage] = React.useState(null);
+
   React.useEffect(() => {
     const prodDetails = { ...productDetailsSlug };
-    //console.log(`prodDetails=${JSON.stringify(prodDetails)}`);
 
     //config images for carousel
     prodDetails.variants.forEach((v) => {
@@ -225,13 +233,18 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
     if (prodDetails !== null && flagForLoadingCartDataInitially === 1) {
       loadCartDataForSelectedVariant();
       setFlagForLoadingCartDataInitially(-1);
+      //verifyOutOfStock(prodDetails.variants[activeVariantIdx].skuCode);
+      setAvailableVariantAsDefault();
       return function cleanup() {};
     }
   }, [prodDetails]);
 
   React.useEffect(() => {
     //console.log(`activeVariantIdx = ${JSON.stringify(activeVariantIdx)}`);
-    if (prodDetails !== null) loadCartDataForSelectedVariant();
+    if (prodDetails !== null) {
+      loadCartDataForSelectedVariant();
+      verifyOutOfStock(prodDetails.variants[activeVariantIdx].skuCode);
+    }
     //return function cleanup() {};
   }, [activeVariantIdx]);
 
@@ -249,25 +262,57 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
           alert(resp.data.error.messages[0]);
         } else {
           const cart = resp.data.result.cart;
-          /* const thisProdDetails = { ...prodDetails };
-          thisProdDetails.variants[activeVariantIdx].existInCart = cart.qty > 0;
-          thisProdDetails.variants[activeVariantIdx].cartQty = cart.qty;
-          setProdDetails(thisProdDetails); */
           const variants = prodDetails.variants.map((v) => {
             const variant = { ...v };
             if (variant.skuCode === skuCode) {
               variant.existInCart = cart.qty > 0;
               variant.cartQty = cart.qty;
             }
-            console.log(`variant=${JSON.stringify(variant)}`);
+            //console.log(`variant=${JSON.stringify(variant)}`);
             return variant;
           });
-          console.log(`variants=${JSON.stringify(variants)}`);
+          //console.log(`variants=${JSON.stringify(variants)}`);
           setProdDetails({ ...prodDetails, variants });
         }
       })
       .catch((error) => {
         console.log(error);
+      });
+  };
+
+  const setAvailableVariantAsDefault = () => {
+    axios
+      .get(`/api/v1/product/list-available-sku/${prodId}`)
+      .then((response) => {
+        const skuCodes = response.data.result;
+        if (skuCodes.length > 0) {
+          const variantIdx = prodDetails.variants.findIndex(
+            (v) => v.skuCode === skuCodes[0]
+          );
+          if (variantIdx !== -1) {
+            setActiveVariantIdx(variantIdx);
+          }
+        }
+      })
+      .catch((error) => {
+        alert(JSON.stringify("error=" + error));
+      });
+  };
+
+  const verifyOutOfStock = (skuCode) => {
+    axios
+      .get(`/api/v1/product/out-of-stock-by-sku/${skuCode}`)
+      .then((response) => {
+        const bool = response.data.result;
+        const this_prodDetails = { ...prodDetails };
+        const variant = this_prodDetails.variants.find(
+          (v) => v.skuCode === skuCode
+        );
+        variant["stockAvailable"] = bool;
+        setProdDetails({ ...this_prodDetails });
+      })
+      .catch((error) => {
+        alert(JSON.stringify("error=" + error));
       });
   };
 
@@ -284,7 +329,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
         setBlocking(false);
         context.refreshCartCount();
         if (resp.data.error) {
-          alert(resp.data.error.messages[0]);
+          showSnackbar(resp.data.error.messages[0], "warning");
         } else {
           const cartQty = resp.data.result;
           activeVariant.existInCart = cartQty > 0;
@@ -298,13 +343,22 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
   };
 
   const addProductToWishlist = () => {
+    if (!context.isAuthenticated) {
+      setToggleLoginModalValue(true);
+      return false;
+    }
     axios
       .post(`api/v1/wishlist/${prodId}`)
       .then((resp) => {
-        setProdDetails({ ...prodDetails, wishlisted: true });
+        if (resp.data.error) {
+          showSnackbar(resp.data.error.messages[0], "warning");
+        } else {
+          setProdDetails({ ...prodDetails, wishlisted: true });
+          showSnackbar("Added to wishlist!", "success");
+        }
       })
       .catch((error) => {
-        console.log(error);
+        //handleError(error);
       });
   };
 
@@ -312,8 +366,12 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
     axios
       .delete(`api/v1/wishlist/${prodId}`)
       .then((resp) => {
-        if (!resp.data.error)
+        if (resp.data.error) {
+          showSnackbar(resp.data.error.messages[0], "warning");
+        } else {
           setProdDetails({ ...prodDetails, wishlisted: false });
+          showSnackbar("Removed from wishlist!", "warning");
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -322,6 +380,16 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
 
   const onLoginSuccessHandler = () => {
     setToggleLoginModalValue(false);
+  };
+
+  const showSnackbar = (message, severity) => {
+    setMessage(message);
+    setSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  const handleHideSnackbar = (event) => {
+    setOpenSnackbar(false);
   };
 
   const renderDeliveryDetails = () => {
@@ -402,6 +470,74 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
         </GridItem>
       </GridContainer>
     );
+  };
+
+  const renderAddToCartControls = () => {
+    if (prodDetails.variants[activeVariantIdx].stockAvailable === false) {
+      return (
+        <Typography
+          variant="body1"
+          style={{
+            color: red[500],
+            fontWeight: 700,
+            marginRight: 20,
+          }}
+        >
+          No stock available
+        </Typography>
+      );
+    } else {
+      if (prodDetails.variants[activeVariantIdx].existInCart) {
+        return (
+          <div
+            style={{ display: "flex", alignItems: "center", marginRight: 20 }}
+          >
+            <Button
+              justIcon
+              round
+              color="primary"
+              onClick={() =>
+                handleUpdateItemToCart(
+                  prodDetails.variants[activeVariantIdx].cartQty - 1
+                )
+              }
+            >
+              <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
+            </Button>
+            <FormLabel
+              classes={{
+                root: classes.cartQtyText,
+              }}
+            >
+              {prodDetails.variants[activeVariantIdx].cartQty}
+            </FormLabel>
+            <Button
+              justIcon
+              round
+              color="primary"
+              onClick={() =>
+                handleUpdateItemToCart(
+                  prodDetails.variants[activeVariantIdx].cartQty + 1
+                )
+              }
+            >
+              <AddRoundedIcon style={{ color: "#FFFFFF" }} />
+            </Button>
+          </div>
+        );
+      } else {
+        return (
+          <Button
+            round
+            color="primary"
+            style={{ marginRight: 20, textTransform: "inherit" }}
+            onClick={() => handleUpdateItemToCart(1)}
+          >
+            <ShoppingCart /> &nbsp; Add to Cart
+          </Button>
+        );
+      }
+    }
   };
 
   const renderSareeSpec = () => {
@@ -541,6 +677,16 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
   return (
     <AppHeader deptList={deptList}>
       <Backdrop open={blocking} />
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        onClose={handleHideSnackbar}
+      >
+        <Alert onClose={handleHideSnackbar} severity={severity}>
+          {message}
+        </Alert>
+      </Snackbar>
 
       <div className={classes.root}>
         {toggleLoginModalValue && (
@@ -665,53 +811,11 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                   paddingBottom: 30,
                   borderBottom: "1px dashed #DDD",
                   display: "flex",
+                  alignItems: "center",
                   marginRight: 20,
                 }}
               >
-                {prodDetails.variants[activeVariantIdx].existInCart ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Button
-                      justIcon
-                      round
-                      color="primary"
-                      onClick={() =>
-                        handleUpdateItemToCart(
-                          prodDetails.variants[activeVariantIdx].cartQty - 1
-                        )
-                      }
-                    >
-                      <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
-                    </Button>
-                    <FormLabel
-                      classes={{
-                        root: classes.cartQtyText,
-                      }}
-                    >
-                      {prodDetails.variants[activeVariantIdx].cartQty}
-                    </FormLabel>
-                    <Button
-                      justIcon
-                      round
-                      color="primary"
-                      onClick={() =>
-                        handleUpdateItemToCart(
-                          prodDetails.variants[activeVariantIdx].cartQty + 1
-                        )
-                      }
-                    >
-                      <AddRoundedIcon style={{ color: "#FFFFFF" }} />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    round
-                    color="primary"
-                    style={{ marginRight: 20 }}
-                    onClick={() => handleUpdateItemToCart(1)}
-                  >
-                    <ShoppingCart /> &nbsp; Add to Cart
-                  </Button>
-                )}
+                {renderAddToCartControls()}
                 <Button
                   round
                   color="white"
@@ -719,14 +823,23 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                     if (prodDetails.wishlisted) removeProductFromWishlist();
                     else addProductToWishlist();
                   }}
+                  style={{ textTransform: "inherit" }}
                 >
-                  <Favorite
-                    style={{
-                      color: prodDetails.wishlisted ? primaryColor[0] : "none",
-                    }}
-                  />{" "}
+                  {prodDetails.wishlisted ? (
+                    <Favorite
+                      style={{
+                        color: primaryColor[0],
+                      }}
+                    />
+                  ) : (
+                    <FavoriteBorderOutlinedIcon
+                      style={{
+                        color: "none",
+                      }}
+                    />
+                  )}{" "}
                   &nbsp;
-                  {prodDetails.wishlisted ? "Wishlisted" : "Add to wishlist"}
+                  {prodDetails.wishlisted ? "Wishlisted" : "Add to Wishlist"}
                 </Button>
               </GridItem>
               <GridItem style={{ marginTop: 20 }}>
