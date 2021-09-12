@@ -27,10 +27,12 @@ import CustomInput from "components/CustomInput/CustomInput.js";
 import headersStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/headersStyle.js";
 import { STATIC_IMG_BASE_URL } from "utils/constants.js";
 
-const dg1 = `${STATIC_IMG_BASE_URL}/assets/img/dashboard/carousel/1.jpg`;
+const bg12 = `${STATIC_IMG_BASE_URL}/assets/img/bg12.jpg`;
+const office2 = `${STATIC_IMG_BASE_URL}/assets/img/examples/office2.jpg`;
+const dg1 = `${STATIC_IMG_BASE_URL}/assets/img/dashboard/carousel/1.png`;
 const dg2 = `${STATIC_IMG_BASE_URL}/assets/img/dashboard/carousel/2.jpg`;
 const dg3 = `${STATIC_IMG_BASE_URL}/assets/img/dashboard/carousel/3.jpg`;
-const dg4 = `${STATIC_IMG_BASE_URL}/assets/img/dashboard/carousel/4.jpg`;
+const dg4 = `${STATIC_IMG_BASE_URL}/assets/img/dashboard/carousel/1.png`;
 
 const customStyles = theme => ({
   grid: {
@@ -99,7 +101,7 @@ export default function SectionHeaderCarousel({ ...rest }) {
   return (
     // we've set the className to cd-section so we can make smooth scroll to it
     //style={{paddingTop: 100, paddingLeft: 140, paddingRight: 140}}
-    <div className="cd-section" style={{marginTop: 41}} {...rest}>
+    <div className="cd-section" {...rest}>
       {/* HEADER 3 START */}
       <Carousel {...settings}>
         {data.map((d, i) => (

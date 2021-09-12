@@ -918,7 +918,7 @@ export default function SectionProductListing({
                           >
                             <FavoriteIcon
                               fontSize="small"
-                              style={{ color: primaryColor[0] }}
+                              style={{ color: grey[700] }}
                             />
                           </IconButton>
                         ) : (

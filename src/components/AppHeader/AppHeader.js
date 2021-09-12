@@ -19,13 +19,16 @@ import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import grey from "@material-ui/core/colors/grey";
+import Drawer from "@material-ui/core/Drawer";
+import Divider from "@material-ui/core/Divider";
+import Grid from "@material-ui/core/Grid";
 
 import SpeedDial from "@material-ui/lab/SpeedDial";
 import SpeedDialIcon from "@material-ui/lab/SpeedDialIcon";
 import SpeedDialAction from "@material-ui/lab/SpeedDialAction";
 
 // icons
-import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+import CloseIcon from "@material-ui/icons/Close";
 import WhatsappIcon from "@material-ui/icons/Whatsapp";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
@@ -159,6 +162,7 @@ export default function AppHeader(props) {
     false
   );
   const [open, setOpen] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const context = React.useContext(AppContext);
   const isAuthenticated = context.isAuthenticated;
@@ -262,6 +266,63 @@ export default function AppHeader(props) {
     setOpen(true);
   };
 
+  const toggleDrawer = (isOpen) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setDrawerOpen(isOpen);
+  };
+
+  const renderLeftDrawerContent = () => {
+    return (
+      <Grid container direction="column" style={{ padding: 10 }}>
+        <Grid item>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            flexDirection="row"
+          >
+            <Typography variant="body1" style={{ display: "flex" }}>
+              <AccountCircle style={{ marginRight: 5 }} /> Hello, Sign in
+            </Typography>
+            <IconButton
+              color="inherit"
+              aria-label="close drawer"
+              onClick={() => setDrawerOpen(false)}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </Grid>
+        <Grid item>
+          <Button
+            color="primary"
+            className={classes.loginSignupBtn}
+            onClick={() => setToggleLoginModalValue(true)}
+            size="sm"
+            endIcon={<AccountCircle />}
+          >
+            Login / Sign Up
+          </Button>
+          <Button
+            color="primary"
+            className={classes.loginSignupBtn}
+            onClick={() => setToggleLoginModalValue(true)}
+            size="sm"
+            endIcon={<AccountCircle />}
+          >
+            Orders
+          </Button>
+        </Grid>
+      </Grid>
+    );
+  };
+
   return (
     <>
       {toggleLoginModalValue && (
@@ -278,6 +339,7 @@ export default function AppHeader(props) {
             className={classes.menuButton}
             color="inherit"
             aria-label="open drawer"
+            onClick={() => setDrawerOpen(true)}
           >
             <MenuIcon />
           </IconButton>
@@ -363,20 +425,10 @@ export default function AppHeader(props) {
         </Toolbar>
       </AppBar>
       <Toolbar id="back-to-top-anchor" />
-      {/* <Container>
-        <Box my={2}>{props.children}</Box>
-      </Container> */}
+      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+        {renderLeftDrawerContent()}
+      </Drawer>
       {props.children}
-      {/* <ScrollTop {...props}>
-        <Fab
-          color="inherit"
-          size="small"
-          aria-label="scroll back to top"
-          classes={{ colorInherit: classes.fabColor }}
-        >
-          <WhatsappIcon />
-        </Fab>
-      </ScrollTop> */}
       <SpeedDial
         ariaLabel="SpeedDial example"
         className={classes.speedDial}
@@ -405,4 +457,5 @@ export default function AppHeader(props) {
 
 AppHeader.propTypes = {
   deptList: PropTypes.array.isRequired,
+  children: PropTypes.element.isRequired,
 };

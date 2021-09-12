@@ -15,8 +15,6 @@ import HeaderLinks from "components/Header/HeaderLinks.js";
 
 // sections of this Page
 import SectionHeaderCarousel from "pages-sections/LandingPage/Sections/SectionHeaderCarousel.js";
-import SectionShopByCategory from "pages-sections/LandingPage/Sections/SectionShopByCategory.js";
-import SectionOffers from "pages-sections/LandingPage/Sections/SectionOffers.js";
 
 //import SectionContacts from "./Sections/SectionContacts.js";
 import SectionProductCarousel from "pages-sections/LandingPage/Sections/SectionProductCarousel.js";
@@ -122,11 +120,9 @@ function Content() {
     <div>
       <div className={classes.main}>
         <SectionHeaderCarousel id="headerCarousel" />
-        <SectionShopByCategory id="shopByCategory" />
-        <SectionOffers id="offers" />
-        {/* <SectionTrustUs id="trustUs" />
-        <SectionPromotionalOffer id="shopByOffer" /> */}
-        {/* <SectionProductCarousel
+        <SectionTrustUs id="trustUs" />
+        <SectionPromotionalOffer id="shopByOffer" />
+        <SectionProductCarousel
           id="nuts"
           title="Nuts & Seeds"
           productData={nutsData}
@@ -135,7 +131,7 @@ function Content() {
           id="dry_fruits"
           title="Dry Fruit"
           productData={dryFruitData}
-        /> */}
+        />
         {/* <SectionShopByPrice id="shopByPrice" />
         <SectionShopByOccasion id="shopByOccasion" />
         <SectionContacts id="contacts" /> */}

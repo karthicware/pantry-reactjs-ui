@@ -687,6 +687,22 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
           {message}
         </Alert>
       </Snackbar>
+      <Breadcrumbs
+                separator={<NavigateNextIcon fontSize="small" />}
+                aria-label="breadcrumb"
+                style={{ paddingTop: 10, paddingBottom: 10 }}
+                classes={{ separator: classes.breadcrumbSeparator }}
+              >
+                <Typography variant="caption">Home</Typography>
+                <Typography variant="caption">
+                  {prodDetails.categoryDesc}
+                </Typography>
+                {prodDetails.subCategoryDesc && (
+                  <Typography variant="caption">
+                    {prodDetails.subCategoryDesc}
+                  </Typography>
+                )}
+              </Breadcrumbs>
 
       <div className={classes.root}>
         {toggleLoginModalValue && (
@@ -793,7 +809,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                       backgroundColor:
                         prodDetails.variants[activeVariantIdx].skuCode ===
                         v.skuCode
-                          ? primaryColor[0]
+                          ? grey[700]
                           : "#FFF",
                     }}
                     onClick={() => onClickVariant(i)}
