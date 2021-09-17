@@ -45,7 +45,7 @@
   "scripts": {
     "dev": "next",
     "build": "next build && next export",
-    "deploy": "aws s3 sync out/ s3://nammanuts-ui --acl public-read",
+    "deploy": "aws s3 sync out/ s3://pantry.com --acl public-read",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint:check": "eslint . --ext=js,jsx;  exit 0",

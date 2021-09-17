@@ -212,7 +212,7 @@ export default function SectionProductListing({
   bannerUrl,
 }) {
   const classes = useStyles();
-  const [products, setProducts] = React.useState([...productList]);
+  const [products, setProducts] = React.useState([]);
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
@@ -230,15 +230,9 @@ export default function SectionProductListing({
   const [severity, setSeverity] = React.useState(null);
   const [message, setMessage] = React.useState(null);
 
-  const setActiveVariantIdxToAll = (this_products) => {
-    this_products.forEach((p) => {
-      if (p.variants.length > 1 && !p.variants[0].stockAvailable) {
-        const variantIdx = p.variants.findIndex((v) => v.stockAvailable);
-        p.activeVariantIdx = variantIdx === -1 ? 0 : variantIdx;
-      }
-    });
-    setProducts(this_products);
-  };
+  React.useEffect(() => {
+    setProducts([...productList]);
+  }, [productList]);
 
   React.useEffect(() => {
     const fetchMyProducts = () => {
@@ -336,6 +330,16 @@ export default function SectionProductListing({
     if (products.length > 0) fetchFewerItemsLeftProducts();
     return function cleanup() {};
   }, []);
+
+  const setActiveVariantIdxToAll = (this_products) => {
+    this_products.forEach((p) => {
+      if (p.variants.length > 1 && !p.variants[0].stockAvailable) {
+        const variantIdx = p.variants.findIndex((v) => v.stockAvailable);
+        p.activeVariantIdx = variantIdx === -1 ? 0 : variantIdx;
+      }
+    });
+    setProducts(this_products);
+  };
 
   const showSnackbar = (message, severity) => {
     setMessage(message);
@@ -666,8 +670,6 @@ export default function SectionProductListing({
     }
   };
 
-  if (products.length === 0) return null;
-
   return (
     <div className={classes.container}>
       {/* {breadcrumbs} */}
@@ -772,7 +774,7 @@ export default function SectionProductListing({
                                 alt="Card-img-cap"
                                 style={{
                                   width: "100%",
-                                  height: 320,
+                                  height: 150,
                                   cursor: "pointer",
                                 }}
                               />

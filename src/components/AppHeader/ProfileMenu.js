@@ -74,7 +74,8 @@ export default function MenuListComposition({ mobile }) {
         display: "flex",
         alignItems: "center",
         cursor: "pointer",
-        paddingLeft: 10,
+        paddingLeft: 12,
+        paddingRight: 12,
       }}
     >
       {/* <Button

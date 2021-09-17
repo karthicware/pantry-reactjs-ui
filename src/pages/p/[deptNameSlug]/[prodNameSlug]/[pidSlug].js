@@ -2,8 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 
 // nodejs library that concatenates classes
-import classNames from "classnames";
-import { useRouter } from "next/router";
 import axios from "axios";
 import ReactImageMagnify from "react-image-magnify";
 
@@ -186,9 +184,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//const useStyles = makeStyles(styles);
-
-export default function ProductSpecPage({ deptList, productDetailsSlug }) {
+function ProductSpecPage({ deptList, productDetailsSlug }) {
   const classes = useStyles();
   const context = React.useContext(AppContext);
   //const router = useRouter();
@@ -965,7 +961,8 @@ export async function getStaticPaths() {
   const deptList = res1.data.result;
   //console.log(`deptList = ${JSON.stringify(deptList)}`);
 
-  deptList.map(async (deptApi) => {
+  for (let i = 0; i < deptList.length; i++) {
+    const deptApi = deptList[i];
     const res2 = await axios.get(
       `${process.env.API_BASE_URL}/api/v1/product/list-products?deptId=${deptApi.deptId}`
     );
@@ -973,17 +970,14 @@ export async function getStaticPaths() {
     productList.forEach((p) => {
       paths.push({
         params: {
-          deptNameSlug: p.deptSeoUrl,
+          deptNameSlug: deptApi.deptSeoUrl,
           prodNameSlug: p.prodSeoUrl,
-          pidSlug: p.prodId,
+          pidSlug: p.prodId.toString(),
         },
       }); //paths.push
     }); //productList.forEach
-  }); //deptList.map
-
-  //console.log(`paths = ${JSON.stringify(paths)}`);
-
-  // { fallback: false } means other routes should 404.
+  }
+  console.log(`paths = ${JSON.stringify(paths)}`);
   return { paths, fallback: false };
 }
 
@@ -1009,3 +1003,4 @@ export async function getStaticProps({ params }) {
     },
   };
 }
+export default ProductSpecPage;

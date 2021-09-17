@@ -2,7 +2,6 @@ import React from "react";
 // nodejs library that concatenates classes
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import { useRouter } from "next/router";
 
 // react components for routing our app without refresh
 import Link from "next/link";
@@ -12,11 +11,6 @@ import axios from "axios";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Tooltip from "@material-ui/core/Tooltip";
-import FormLabel from "@material-ui/core/FormLabel";
-import Divider from "@material-ui/core/Divider";
 import MuiButton from "@material-ui/core/Button";
 //import Fade from "@material-ui/core/Fade";
 import { alpha as Fade } from "@material-ui/core/styles";
@@ -50,6 +44,7 @@ import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import Muted from "components/Typography/Muted.js";
 import Backdrop from "components/Backdrop/CustomBackdrop";
+import AppHeader from "components/AppHeader/AppHeader.js";
 
 import {
   roseColor,
@@ -58,7 +53,7 @@ import {
   dangerColor,
   successColor,
   title,
-  container,
+  container, 
 } from "assets/jss/material-kit-pro-react.js";
 import shoppingCartStyle from "assets/jss/material-kit-pro-react/views/shoppingCartStyle.js";
 
@@ -72,6 +67,9 @@ import { addCommas, handleError } from "utils/util.js";
 
 const useStyles = makeStyles((theme) => ({
   ...shoppingCartStyle,
+  main: {
+    backgroundColor: "#FFF",
+  },
   container: {
     ...container,
     marginTop: 20,
@@ -206,9 +204,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ShoppingCartPage(props) {
+function ShoppingCartPage({ deptList }) {
   const classes = useStyles();
-  const router = useRouter();
   const [blocking, setBlocking] = React.useState(false);
   const [expanded, setExpanded] = React.useState("panel1");
 
@@ -223,8 +220,6 @@ function ShoppingCartPage(props) {
   const [deliveryAddressId, setDeliveryAddressId] = React.useState(null);
 
   const handleChange = (panel) => (event, isExpanded) => {
-    // console.log(`panel=${panel}`);
-    // console.log(`isExpanded=${isExpanded}`);
     if (panel === "panel3" && !deliveryAddressId) return false;
     setExpanded(isExpanded ? panel : expanded === panel ? panel : false);
   };
@@ -272,7 +267,7 @@ function ShoppingCartPage(props) {
   };
 
   const moveToWishlist = (prodCode) => {
-   /*  setBlocking(true);
+    /*  setBlocking(true);
     axios
       .delete(`/api/v1/wishlist/${prodCode}/move-to-cart`)
       .then((resp) => {
@@ -589,16 +584,7 @@ function ShoppingCartPage(props) {
   };
 
   const emptyCart = (
-    <>
-      <Header
-        color="dark"
-        brand="Nammanuts"
-        links={<HeaderLinks dropdownHoverColor="warning" />}
-        appBarStyle={{
-          marginBottom: 0,
-          boxShadow: "0 4px 12px 0 rgba(0,0,0,.05)",
-        }}
-      />
+    <AppHeader deptList={deptList}>
       <div className={classNames(classes.main)}>
         <GridContainer spacing={10} style={{ width: "100%" }}>
           <GridItem style={{ padding: 200, textAlign: "center" }}>
@@ -619,8 +605,7 @@ function ShoppingCartPage(props) {
         </GridContainer>
         <FooterPage />
       </div>
-      4
-    </>
+    </AppHeader>
   );
 
   if (cartItems.length <= 0 && !deliveryAddressId) {
@@ -742,6 +727,26 @@ function ShoppingCartPage(props) {
       </div>
     </div>
   );
+}
+
+ShoppingCartPage.propTypes = {
+  deptList: PropTypes.array.isRequired,
+};
+
+export async function getStaticProps() {
+  const axiosInstance = axios.create({
+    baseURL: process.env.API_BASE_URL,
+    responseType: "json",
+  });
+
+  const res = await axiosInstance.get("/api/v1/department/");
+  const deptList = res.data.result;
+
+  return {
+    props: {
+      deptList,
+    },
+  };
 }
 
 export default ShoppingCartPage;

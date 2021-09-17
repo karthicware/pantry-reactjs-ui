@@ -224,6 +224,17 @@ export default function AppHeader(props) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
+      <MenuItem onClick={handleProfileMenuOpen}>
+        <IconButton
+          aria-label="account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit"
+        >
+          <AccountCircle />
+        </IconButton>
+        <p>Profile</p>
+      </MenuItem>
       <MenuItem>
         <IconButton aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={4} color="secondary">
@@ -238,18 +249,6 @@ export default function AppHeader(props) {
             <NotificationsIcon />
           </Badge>
         </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
       </MenuItem>
     </Menu>
   );
@@ -361,6 +360,19 @@ export default function AppHeader(props) {
             />
           </div>
           <div className={classes.sectionDesktop}>
+            {isAuthenticated ? (
+              <ProfileMenu mobile={mobile} />
+            ) : (
+              <Button
+                color="transparent"
+                className={classes.loginSignupBtn}
+                onClick={() => setToggleLoginModalValue(true)}
+                size="sm"
+                endIcon={<AccountCircle />}
+              >
+                Login / Sign Up
+              </Button>
+            )}
             <Link href="/wishlist">
               <IconButton
                 aria-label="show 4 new mails"
@@ -385,21 +397,11 @@ export default function AppHeader(props) {
                     </Badge>
                   )}
                 </AppContext.Consumer>
+                <Typography variant="subtitle2" style={{ paddingLeft: 20 }}>
+                  &#8377; {context.cartAmount}
+                </Typography>
               </IconButton>
             </Link>
-            {isAuthenticated ? (
-              <ProfileMenu mobile={mobile} />
-            ) : (
-              <Button
-                color="transparent"
-                className={classes.loginSignupBtn}
-                onClick={() => setToggleLoginModalValue(true)}
-                size="sm"
-                endIcon={<AccountCircle />}
-              >
-                Login / Sign Up
-              </Button>
-            )}
           </div>
           <div className={classes.sectionMobile}>
             <IconButton

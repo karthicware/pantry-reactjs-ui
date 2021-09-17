@@ -24,6 +24,7 @@ export default function ProductListingPage({
   subCatgDetail,
   bannerUrl,
 }) {
+  //console.log(`subCatgDetail=${JSON.stringify(subCatgDetail)}`);
   return (
     <AppHeader deptList={deptList}>
       <ProductListingBody
@@ -81,7 +82,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   //console.log("product listing... getStaticProps()");
-  console.log(`params = ${JSON.stringify(params)}`);
+  //console.log(`params = ${JSON.stringify(params)}`);
   let productList = [];
   let categories = [];
   let bannerUrl = "";
@@ -111,7 +112,7 @@ export async function getStaticProps({ params }) {
             if (subCatgApi.subCatgId.toString() === subCatgId) {
               subCatgDetail.subCatgDesc = subCatgApi.name;
               subCatgDetail.subCatgSeoUrl = subCatgApi.subCatgSeoUrl;
-              bannerUrl = subCatgApi.imgUrl;
+              bannerUrl = catgApi.imgUrl;
             }
           });
         }

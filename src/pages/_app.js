@@ -10,7 +10,7 @@ import PageChange from "components/PageChange/PageChange.js";
 import "assets/scss/material-kit-pro-react.scss?v=1.8.0";
 import "assets/css/override.css";
 
-import 'react-block-ui/style.css';
+import "react-block-ui/style.css";
 
 // import "slick-carousel/slick/slick.css";
 // import "slick-carousel/slick/slick-theme.css";
@@ -18,7 +18,7 @@ import 'react-block-ui/style.css';
 import { ACCESS_TOKEN, MOBILE } from "utils/constants";
 import { AppContext } from "AppContext.js";
 
-Router.events.on("routeChangeStart", url => {
+Router.events.on("routeChangeStart", (url) => {
   console.log(`Loading: ${url}`);
   document.body.classList.add("body-page-transition");
   ReactDOM.render(
@@ -45,7 +45,7 @@ export default class MyApp extends App {
       cartAmount: 0,
       isAuthenticated: null,
       mobile: null,
-      isOpenLoginModal: false
+      isOpenLoginModal: false,
     };
   }
 
@@ -59,7 +59,7 @@ export default class MyApp extends App {
 
     // Add a request interceptor
     axios.interceptors.request.use(
-      config => {
+      (config) => {
         //console.log("axios.interceptors.request.use");
         const token = localStorage.getItem(ACCESS_TOKEN);
         if (token) {
@@ -67,7 +67,7 @@ export default class MyApp extends App {
         }
         return config;
       },
-      error => {
+      (error) => {
         console.log("axios.interceptors.request.error = error");
         Promise.reject(error);
       }
@@ -83,12 +83,12 @@ export default class MyApp extends App {
       return Promise.reject({ ...error });
     };
 
-    const successHandler = response => {
+    const successHandler = (response) => {
       return response;
     };
     axios.interceptors.response.use(
-      response => successHandler(response),
-      error => errorHandler(error)
+      (response) => successHandler(response),
+      (error) => errorHandler(error)
     );
   }
 
@@ -97,7 +97,7 @@ export default class MyApp extends App {
     if (token && localStorage.getItem(MOBILE)) {
       this.setState({
         isAuthenticated: true,
-        mobile: localStorage.getItem(MOBILE)
+        mobile: localStorage.getItem(MOBILE),
       });
       this.loadCartData();
     }
@@ -106,11 +106,14 @@ export default class MyApp extends App {
   loadCartData = () => {
     axios
       .get(`api/v1/cart/count`)
-      .then(resp => {
-        this.setState({ cartItems: resp.data.result.cartCountApi.cartItemCount, cartAmount: resp.data.result.cartCountApi.totalAmount });
+      .then((resp) => {
+        this.setState({
+          cartItems: resp.data.result.cartCountApi.cartItemCount,
+          cartAmount: resp.data.result.cartCountApi.totalAmount,
+        });
         //console.log(`${JSON.stringify(this.state)}`);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   };
@@ -126,11 +129,10 @@ export default class MyApp extends App {
     localStorage.setItem(MOBILE, mobile);
     this.setState({
       isAuthenticated: true,
-      mobile
+      mobile,
     });
     this.loadCartData();
-    if(isRedirect)
-      Router.push({ pathname: "/" });
+    if (isRedirect) Router.push({ pathname: "/" });
   };
 
   logout = () => {
@@ -142,7 +144,7 @@ export default class MyApp extends App {
       cartAmount: 0,
     });
     Router.push({
-      pathname: "/"
+      pathname: "/",
     });
   };
 
@@ -163,8 +165,10 @@ export default class MyApp extends App {
             refreshCartCount: () => this.loadCartData(),
             triggerLoginModal: () => this.triggerLoginModal(),
             isOpenLoginModal: this.state.isOpenLoginModal,
-            resetTriggerLoginModal: () => this.setState({isOpenLoginModal: false}),
-            login: (accessToken, mobile, isRedirect) => this.login(accessToken, mobile, isRedirect),
+            resetTriggerLoginModal: () =>
+              this.setState({ isOpenLoginModal: false }),
+            login: (accessToken, mobile, isRedirect) =>
+              this.login(accessToken, mobile, isRedirect),
             logout: () => this.logout(),
             isAuthenticated: this.state.isAuthenticated,
             mobile: this.state.mobile,
