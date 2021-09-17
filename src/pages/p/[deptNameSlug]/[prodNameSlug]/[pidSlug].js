@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import { useRouter } from "next/router";
 import axios from "axios";
+import ReactImageMagnify from "react-image-magnify";
 
 // react component used to create nice image meadia player
 import ImageGallery from "react-image-gallery";
@@ -85,10 +86,11 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     backgroundColor: "#FFF",
-    marginTop: 120,
+    marginTop: 20,
   },
   container: {
-    ...container,
+    marginRight: 20,
+    marginLeft: 20,
     backgroundColor: whiteColor,
   },
   mainSubContainer: {
@@ -292,6 +294,10 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
           if (variantIdx !== -1) {
             setActiveVariantIdx(variantIdx);
           }
+        } else {
+          const this_prodDetails = { ...prodDetails };
+          this_prodDetails.variants.forEach((v) => (v.stockAvailable = false));
+          setProdDetails(this_prodDetails);
         }
       })
       .catch((error) => {
@@ -405,7 +411,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
             backgroundColor: grayColor[2],
           }}
         >
-          <GridItem md={12} style={{ paddingLeft: 0 }}>
+          <GridItem md={6} style={{ paddingLeft: 0 }}>
             <Box display="flex">
               <LocalShippingOutlined
                 style={{ color: primaryColor[5], fontSize: 28 }}
@@ -419,7 +425,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
               </Box>
             </Box>
           </GridItem>
-          <GridItem md={12} style={{ paddingLeft: 0 }}>
+          <GridItem md={6} style={{ paddingLeft: 0 }}>
             <Box display="flex">
               <RepeatOneIcon style={{ color: primaryColor[5], fontSize: 28 }} />
               <Box style={{ marginLeft: 10, marginRight: 10 }}>
@@ -430,7 +436,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
               </Box>
             </Box>
           </GridItem>
-          <GridItem md={12} style={{ paddingLeft: 0 }}>
+          <GridItem md={6} style={{ paddingLeft: 0 }}>
             <Box display="flex">
               <KeyboardReturnIcon
                 style={{ color: primaryColor[5], fontSize: 28 }}
@@ -443,7 +449,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
               </Box>
             </Box>
           </GridItem>
-          <GridItem md={12} style={{ paddingLeft: 0 }}>
+          <GridItem md={6} style={{ paddingLeft: 0 }}>
             <Box display="flex">
               <SecurityIcon style={{ color: primaryColor[5], fontSize: 28 }} />
               <Box style={{ marginLeft: 10, marginRight: 10 }}>
@@ -543,6 +549,7 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
   const renderSareeSpec = () => {
     if (ACCESS_CODE_SAREE === prodDetails.accessCode) {
       const sareeSpec = prodDetails.variants[activeVariantIdx].sareeSpecApi;
+      if (!sareeSpec) return null;
       return (
         <GridContainer>
           <GridItem style={{ marginTop: 20 }}>
@@ -673,6 +680,69 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
     }
   };
 
+  const renderImagesForFashionDept = () => {
+    return (
+      <GridContainer direction="row">
+        {prodDetails.variants[activeVariantIdx].images.map((img, i) => (
+          <GridItem
+            md={6}
+            key={i}
+            style={{
+              paddingLeft: 5,
+              paddingRight: 5,
+              paddingBottom: 5,
+              paddingTop: 5,
+            }}
+          >
+            <ReactImageMagnify
+              {...{
+                smallImage: {
+                  alt: "Wristwatch by Ted Baker London",
+                  isFluidWidth: true,
+                  src: img.original,
+                  srcSet: img.original,
+                  sizes:
+                    "(max-width: 480px) 100vw, (max-width: 1200px) 30vw, 360px",
+                },
+                largeImage: {
+                  src: img.original,
+                  width: 1200,
+                  height: 1800,
+                },
+                lensStyle: { backgroundColor: "rgba(0,0,0,.6)" },
+                enlargedImagePosition: "over",
+              }}
+            />
+          </GridItem>
+        ))}
+      </GridContainer>
+    );
+  };
+
+  const renderImagesForOtherDept = () => {
+    return (
+      <GridContainer spacing={5}>
+        <GridItem>
+          <ImageGallery
+            showFullscreenButton={false}
+            showPlayButton={false}
+            thumbnailPosition="left"
+            lazyLoad={true}
+            items={prodDetails.variants[activeVariantIdx].images}
+          />
+        </GridItem>
+      </GridContainer>
+    );
+  };
+
+  const renderImages = () => {
+    if (ACCESS_CODE_SAREE === prodDetails.accessCode) {
+      return renderImagesForFashionDept();
+    } else {
+      return renderImagesForOtherDept();
+    }
+  };
+
   if (prodDetails === null) return <Indicator />;
   return (
     <AppHeader deptList={deptList}>
@@ -688,21 +758,19 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
         </Alert>
       </Snackbar>
       <Breadcrumbs
-                separator={<NavigateNextIcon fontSize="small" />}
-                aria-label="breadcrumb"
-                style={{ paddingTop: 10, paddingBottom: 10 }}
-                classes={{ separator: classes.breadcrumbSeparator }}
-              >
-                <Typography variant="caption">Home</Typography>
-                <Typography variant="caption">
-                  {prodDetails.categoryDesc}
-                </Typography>
-                {prodDetails.subCategoryDesc && (
-                  <Typography variant="caption">
-                    {prodDetails.subCategoryDesc}
-                  </Typography>
-                )}
-              </Breadcrumbs>
+        separator={<NavigateNextIcon fontSize="small" />}
+        aria-label="breadcrumb"
+        style={{ paddingTop: 10, paddingBottom: 10 }}
+        classes={{ separator: classes.breadcrumbSeparator }}
+      >
+        <Typography variant="caption">Home</Typography>
+        <Typography variant="caption">{prodDetails.categoryDesc}</Typography>
+        {prodDetails.subCategoryDesc && (
+          <Typography variant="caption">
+            {prodDetails.subCategoryDesc}
+          </Typography>
+        )}
+      </Breadcrumbs>
 
       <div className={classes.root}>
         {toggleLoginModalValue && (
@@ -712,8 +780,8 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
           />
         )}
         <div className={classes.container}>
-          <Grid container direction="row" spacing={10}>
-            <Grid item md sm>
+          <Grid container direction="row" spacing={2}>
+            <Grid item md={7} sm>
               <Breadcrumbs
                 separator={<NavigateNextIcon fontSize="small" />}
                 aria-label="breadcrumb"
@@ -731,27 +799,10 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
                 )}
               </Breadcrumbs>
 
-              <div className={classes.productContainer}>
-                <GridContainer spacing={5}>
-                  <GridItem>
-                    <ImageGallery
-                      showFullscreenButton={false}
-                      showPlayButton={false}
-                      thumbnailPosition="left"
-                      lazyLoad={true}
-                      items={prodDetails.variants[activeVariantIdx].images}
-                    />
-                  </GridItem>
-                  <GridItem>
-                    {/* <MoreInfoComponent info={prodDetails.otherDetails} /> */}
-                    {renderProductDetails()}
-                    {renderSareeSpec()}
-                  </GridItem>
-                </GridContainer>
-              </div>
+              <div className={classes.productContainer}>{renderImages()}</div>
             </Grid>
 
-            <Grid item md sm>
+            <Grid item md={5} sm>
               <GridItem>
                 <Chip
                   label={
@@ -861,7 +912,9 @@ export default function ProductSpecPage({ deptList, productDetailsSlug }) {
               <GridItem style={{ marginTop: 20 }}>
                 {renderDeliveryDetails()}
               </GridItem>
-              <GridItem style={{ marginTop: 30 }}>
+              <GridItem>{renderProductDetails()}</GridItem>
+              <GridItem>{renderSareeSpec()}</GridItem>
+              <GridItem style={{ marginTop: 30, marginBottom: 20 }}>
                 <h5 className={classes.titleText}>Why Pantry?</h5>
                 <Typography variant="subtitle2" style={{ color: infoColor[0] }}>
                   Easy returns and refunds

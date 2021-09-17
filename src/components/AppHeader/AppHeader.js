@@ -457,5 +457,5 @@ export default function AppHeader(props) {
 
 AppHeader.propTypes = {
   deptList: PropTypes.array.isRequired,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.node.isRequired,
 };

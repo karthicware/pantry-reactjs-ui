@@ -763,7 +763,7 @@ export default function SectionProductListing({
                       <div className={classes.softRiseShadowStyle}>
                         <Link
                           as={`/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
-                          href="/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"
+                          href={"/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"}
                         >
                           <a>
                             <LazyLoad once height={382}>
@@ -772,7 +772,7 @@ export default function SectionProductListing({
                                 alt="Card-img-cap"
                                 style={{
                                   width: "100%",
-                                  height: 150,
+                                  height: 320,
                                   cursor: "pointer",
                                 }}
                               />

@@ -46,6 +46,16 @@ module.exports = {
         };
       }); */
     }
+
+    /* routes[`/p/grocery/chakki-atta--kg/49`] = {
+      page: "/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]",
+      query: {
+        deptNameSlug: "grocery",
+        prodNameSlug: "chakki-atta--kg",
+        pidSlug: "49",
+      },
+    }; */
+
     return routes;
   },
 };
