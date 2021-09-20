@@ -6,6 +6,7 @@ import LazyLoad from "react-lazyload";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
+import { Typography } from "@material-ui/core";
 
 // @material-ui/icons
 import FormatQuote from "@material-ui/icons/FormatQuote";
@@ -17,7 +18,6 @@ import GridItem from "components/Grid/GridItem.js";
 
 import { title } from "assets/jss/material-kit-pro-react.js";
 import { STATIC_IMG_BASE_URL } from "utils/constants.js";
-import { Typography } from "@material-ui/core";
 
 const styles = {
   container: {
