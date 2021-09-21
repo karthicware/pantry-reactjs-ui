@@ -217,7 +217,6 @@ export default function SectionProductListing({
     false
   );
   const [openVariantSelectBox, setOpenVariantSelectBox] = React.useState(null);
-  const [sortBy, setSortBy] = React.useState(null);
   const [blocking, setBlocking] = React.useState(false);
   //const [hideOnScroll, setHideOnScroll] = React.useState(false);
 
