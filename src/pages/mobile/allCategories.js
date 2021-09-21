@@ -15,7 +15,14 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 //icons
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
-import { container, title } from "assets/jss/material-kit-pro-react.js";
+import {
+  container,
+  title,
+  primaryColor,
+  grayColor,
+  warningColor,
+  infoColor,
+} from "assets/jss/material-kit-pro-react.js";
 import { STATIC_IMG_BASE_URL } from "utils/constants.js";
 
 const styles = (theme) => ({
@@ -56,13 +63,17 @@ function AllCategories({ deptList }) {
       {deptList.map((dept, idx) => (
         <Accordion
           key={idx}
-          expanded={expanded === "panel1"}
-          onChange={handleChange("panel1")}
+          expanded={expanded === idx}
+          onChange={handleChange(idx)}
+          style={{ marginBottom: 10 }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1bh-content"
-            id="panel1bh-header"
+            expandIcon={<ExpandMoreIcon style={{ color: primaryColor[0] }} />}
+            aria-controls="panel1-content"
+            style={{
+              backgroundColor: expanded === idx ? infoColor[4] : "unset",
+            }}
+            id={idx}
           >
             <Box display="flex" flexDirection="row">
               <img
@@ -81,18 +92,41 @@ function AllCategories({ deptList }) {
           </AccordionSummary>
           <AccordionDetails>
             <Box display="flex" flexDirection="row" flexWrap="wrap">
-              {dept.categories.map((c, idx) => (
+              {dept.categories.map((c, cat_idx) => (
                 <Box
-                  key={idx}
+                  key={cat_idx}
                   display="flex"
                   flexDirection="column"
-                  style={{ border: "1px solid #EEE", padding: 10 }}
+                  id={cat_idx}
+                  style={{
+                    padding: 20,
+                    flex: 1,
+                    borderLeft: "solid 1px rgba(112,112,112,.38)",
+                    borderTop:
+                      cat_idx === 0 ||
+                      cat_idx === 1 ||
+                      cat_idx === 2 ||
+                      cat_idx === 3
+                        ? "solid 1px rgba(112,112,112,.38)"
+                        : "unset",
+                    borderRight:
+                      dept.categories.length - 1 === cat_idx ||
+                      (cat_idx + 1) % 4 === 0
+                        ? "solid 1px rgba(112,112,112,.38)"
+                        : "unset",
+                    borderBottom: "solid 1px rgba(112,112,112,.38)",
+                  }}
                 >
                   <img
                     src={c.imgUrl}
                     style={{ width: 120, height: 60, objectFit: "cover" }}
                   />
-                  <Typography variant="body2">{c.name}</Typography>
+                  <Typography
+                    variant="body2"
+                    style={{ marginTop: 10, marginBottom: 10 }}
+                  >
+                    {c.name}
+                  </Typography>
                 </Box>
               ))}
             </Box>
