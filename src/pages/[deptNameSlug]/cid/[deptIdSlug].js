@@ -85,7 +85,7 @@ export async function getStaticProps({ params }) {
       //console.log(JSON.stringify(deptApi));
       deptDetail.deptDesc = deptApi.name;
       deptDetail.deptSeoUrl = deptApi.deptSeoUrl;
-      bannerUrl = deptApi.imgUrl;
+      bannerUrl = deptApi.imgUrlLg;
       categories = deptApi.categories;
     }
   });

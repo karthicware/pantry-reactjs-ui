@@ -214,10 +214,10 @@ function ProductSpecPage({ deptList, productDetailsSlug }) {
 
     //config images for carousel
     prodDetails.variants.forEach((v) => {
-      const images = v.images.map((img) => {
+      const images = v.imagesLg.map((img) => {
         return {
-          original: img.imgUri,
-          thumbnail: img.thumbUri,
+          original: img,
+          thumbnail: img,
         };
       });
       v.images = images;

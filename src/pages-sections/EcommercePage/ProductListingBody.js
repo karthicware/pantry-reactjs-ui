@@ -216,6 +216,7 @@ export default function SectionProductListing({
   const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
     false
   );
+  const [sortBy, setSortBy] = React.useState(null);
   const [openVariantSelectBox, setOpenVariantSelectBox] = React.useState(null);
   const [blocking, setBlocking] = React.useState(false);
   //const [hideOnScroll, setHideOnScroll] = React.useState(false);
@@ -769,7 +770,9 @@ export default function SectionProductListing({
                           <a>
                             <LazyLoad once height={382}>
                               <img
-                                src={p.variants[p.activeVariantIdx].defaultImg}
+                                src={
+                                  p.variants[p.activeVariantIdx].defaultImgLg
+                                }
                                 alt="Card-img-cap"
                                 style={{
                                   width: "100%",

@@ -112,7 +112,7 @@ export async function getStaticProps({ params }) {
             if (subCatgApi.subCatgId.toString() === subCatgId) {
               subCatgDetail.subCatgDesc = subCatgApi.name;
               subCatgDetail.subCatgSeoUrl = subCatgApi.subCatgSeoUrl;
-              bannerUrl = catgApi.imgUrl;
+              bannerUrl = catgApi.imgUrlLg;
             }
           });
         }

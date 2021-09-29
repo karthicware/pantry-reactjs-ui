@@ -77,7 +77,7 @@ function AllCategories({ deptList }) {
           >
             <Box display="flex" flexDirection="row">
               <img
-                src={dept.imgUrl}
+                src={dept.imgUrlXs}
                 style={{ width: 145, height: 140, objectFit: "cover" }}
               />
               <div style={{ marginLeft: 10, marginRight: 10 }}>
@@ -118,7 +118,7 @@ function AllCategories({ deptList }) {
                   }}
                 >
                   <img
-                    src={c.imgUrl}
+                    src={c.imgUrlXs}
                     style={{ width: 120, height: 60, objectFit: "cover" }}
                   />
                   <Typography

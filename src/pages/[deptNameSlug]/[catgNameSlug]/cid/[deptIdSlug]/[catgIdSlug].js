@@ -100,7 +100,7 @@ export async function getStaticProps({ params }) {
         if (catgApi.catgId.toString() === catgId) {
           catgDetail.catgDesc = catgApi.name;
           catgDetail.catgSeoUrl = catgApi.catgSeoUrl;
-          bannerUrl = catgApi.imgUrl;
+          bannerUrl = catgApi.imgUrlLg;
           //console.log(`bannerUrl=${JSON.stringify(catgApi)}`);
         }
       });
