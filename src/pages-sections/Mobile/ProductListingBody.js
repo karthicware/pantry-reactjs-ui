@@ -68,10 +68,13 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#fff",
   },
   container: {
-    marginTop: 80,
+    marginTop: 50,
     backgroundColor: "#FFF",
     width: "unset",
     padding: 0,
+  },
+  tabIndicator: {
+    backgroundColor: primaryColor[0],
   },
   originalPriceInSelectBox: {
     textDecoration: "line-through",
@@ -566,15 +569,14 @@ export default function SectionProductListing({
 
   return (
     <div className={classes.container}>
-      <AppBar position="fixed" color="default">
+      <AppBar position="fixed" color="white">
         <Tabs
           value={selectedTabIdx}
           onChange={handleTabChange}
-          indicatorColor="primary"
-          textColor="primary"
           variant="scrollable"
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"
+          classes={{ indicator: classes.tabIndicator }}
         >
           {categories.map((c, idx) => (
             <Tab
@@ -582,7 +584,10 @@ export default function SectionProductListing({
               label={
                 <Typography
                   variant="subtitle2"
-                  style={{ textTransform: "capitalize" }}
+                  style={{
+                    textTransform: "capitalize",
+                    color: idx === selectedTabIdx ? primaryColor[0] : "inherit",
+                  }}
                 >
                   {c.name}
                 </Typography>
@@ -608,9 +613,9 @@ export default function SectionProductListing({
       </Snackbar>
       <main className={classes.content}>
         <GridContainer style={{ marginLeft: 0, marginRight: 0 }}>
-          <GridItem style={{ backgroundColor: "#fafafa", margin: 5 }}>
+          {/* <GridItem style={{ backgroundColor: "#fafafa", margin: 5 }}>
             {renderSortBy()}
-          </GridItem>
+          </GridItem> */}
           <Grid container spacing={0}>
             {products.map((p, idx) => (
               <Grid

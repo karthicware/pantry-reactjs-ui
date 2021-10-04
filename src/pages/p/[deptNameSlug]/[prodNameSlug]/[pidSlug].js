@@ -977,7 +977,7 @@ export async function getStaticPaths() {
       }); //paths.push
     }); //productList.forEach
   }
-  console.log(`paths = ${JSON.stringify(paths)}`);
+  //console.log(`paths = ${JSON.stringify(paths)}`);
   return { paths, fallback: false };
 }
 

@@ -192,7 +192,16 @@ function LandingPage({ deptList }) {
         <Paper elevation={0} style={{ marginBottom: 40 }}>
           <Carousel {...settings}>
             {deptList.map((d, idx) => (
-              <div key={idx} style={{ margin: 20 }}>
+              <div
+                key={idx}
+                style={{ margin: 20 }}
+                onClick={() =>
+                  callParent({
+                    screenName: "ProductListing",
+                    pageUrl: `http://pantry.com.s3-website.ap-south-1.amazonaws.com/mobile/${d.deptSeoUrl}/cid/${d.deptId}`,
+                  })
+                }
+              >
                 <Box
                   display="flex"
                   flexDirection="column"
@@ -227,6 +236,17 @@ function LandingPage({ deptList }) {
         </div>
       </Box>
     );
+  };
+
+  const callParent = (data) => {
+    window.ReactNativeWebView.postMessage(JSON.stringify(data));
+    /* alert(JSON.stringify(data));
+    let postMessage = window.parent.postMessage;
+    if (window.ReactNativeWebView) {
+      postMessage = window.ReactNativeWebView.postMessage;
+      alert('if');
+    }
+    postMessage(data); */
   };
 
   return (

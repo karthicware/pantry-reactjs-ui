@@ -31,7 +31,7 @@ export default function ProductListingPage({
 
 ProductListingPage.propTypes = {
   deptDetail: PropTypes.object,
-  catgId: PropTypes.number,
+  catgId: PropTypes.string,
   categories: PropTypes.array,
   productList: PropTypes.array.isRequired,
   fromLink: PropTypes.string.isRequired,
@@ -81,7 +81,7 @@ export async function getStaticProps({ params }) {
       categories = deptApi.categories;
     }
   });
-  const catgId = categories[0].catgId;
+  const catgId = categories[0].catgId.toString();
   const res2 = await axiosInstance.get(
     `/api/v1/product/list-products?deptId=${parseInt(deptId)}&cid=${catgId}`
   );

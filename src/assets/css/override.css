@@ -29,6 +29,10 @@ h6,
 a:hover, a:focus {
   color: none;
 }
+@media only screen and (max-width: 600px) {
+  /* For desktop: */
+  body {background-color: #FFF;}
+}
 /* .image-gallery-thumbnails-container button {
   border: 1px solid #c2c2c2 !important;
   width: 52px !important;
