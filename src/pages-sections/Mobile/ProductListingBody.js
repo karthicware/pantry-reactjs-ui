@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Link from "next/link";
+import Router from "next/router";
 
 //other components
 import LazyLoad from "react-lazyload";
@@ -14,7 +15,10 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Grid from "@material-ui/core/Grid";
 import { red, grey } from "@material-ui/core/colors";
 import Box from "@material-ui/core/Box";
-import IconButton from "@material-ui/core/IconButton";
+import Toolbar from "@material-ui/core/Toolbar";
+import AppBar from "@material-ui/core/AppBar";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 
@@ -38,20 +42,15 @@ import Muted from "components/Typography/Muted.js";
 import Chip from "@material-ui/core/Chip";
 import Select from "@material-ui/core/Select";
 import Typography from "@material-ui/core/Typography";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 
 import Backdrop from "components/Backdrop/CustomBackdrop";
 import { container, successColor } from "assets/jss/material-kit-pro-react.js";
-import { AppContext } from "AppContext.js";
 
 //styles
 import featuresStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/featuresStyle.js";
 import productsStyle from "assets/jss/material-kit-pro-react/views/ecommerceSections/productsStyle.js";
 import imagesStyles from "assets/jss/material-kit-pro-react/imagesStyles.js";
 import { primaryColor } from "assets/jss/material-kit-pro-react.js";
-
-import SectionLeftSideFilter from "pages-sections/EcommercePage/SectionLeftSideFilter.js";
-import SignupOrSigninModal from "pages-sections/Login/SignupOrSignin.js";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -61,32 +60,18 @@ const useStyles = makeStyles((theme) => ({
   ...featuresStyle,
   ...productsStyle,
   ...imagesStyles,
-  content: {
+  root: {
     flexGrow: 1,
-    //padding: theme.spacing(3),
-    paddingLeft: 240,
-    marginTop: 60,
-    borderLeft: "1px solid #dfdfdf",
-    borderRight: "1px solid #dfdfdf",
-    borderTop: "1px solid #dfdfdf",
-    minHeight: "calc(100vh)",
+    width: "100%",
+  },
+  appBar: {
+    backgroundColor: "#fff",
   },
   container: {
-    ...container,
+    marginTop: 80,
     backgroundColor: "#FFF",
-    minHeight: "calc(100vh)",
-    paddingLeft: 0,
-    paddingRight: 0,
-    [theme.breakpoints.down("md")]: {
-      margin: theme.spacing(1),
-      width: "unset",
-      padding: 0,
-    },
-  },
-  containerWrapper: {
-    /*  [theme.breakpoints.up("sm")]: {
-      display: "flex",
-    }, */
+    width: "unset",
+    padding: 0,
   },
   originalPriceInSelectBox: {
     textDecoration: "line-through",
@@ -203,32 +188,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function a11yProps(index) {
+  return {
+    id: `scrollable-auto-tab-${index}`,
+    "aria-controls": `scrollable-auto-tabpanel-${index}`,
+  };
+}
+
 export default function SectionProductListing({
   deptDetail,
+  catgId,
   categories,
-  catgDetail,
-  subCatgDetail,
   productList,
-  bannerUrl,
+  fromLink,
 }) {
   const classes = useStyles();
   const [products, setProducts] = React.useState([]);
-  const [toggleLoginModalValue, setToggleLoginModalValue] = React.useState(
-    false
-  );
   const [sortBy, setSortBy] = React.useState(null);
   const [openVariantSelectBox, setOpenVariantSelectBox] = React.useState(null);
   const [blocking, setBlocking] = React.useState(false);
-  //const [hideOnScroll, setHideOnScroll] = React.useState(false);
-
-  //authentication
-  const context = React.useContext(AppContext);
-  //const isAuthenticated = context.isAuthenticated;
+  //const [value, setValue] = React.useState(0);
 
   //snackbar
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState(null);
   const [message, setMessage] = React.useState(null);
+
+  const selectedTabIdx = categories.findIndex(
+    (c) => parseInt(c.catgId) === parseInt(catgId)
+  );
 
   React.useEffect(() => {
     setProducts([...productList]);
@@ -270,7 +258,7 @@ export default function SectionProductListing({
           }
         })
         .catch((error) => {
-          alert(JSON.stringify("error=" + error));
+          //alert(JSON.stringify("error=" + error));
         });
     };
     if (products.length > 0) fetchMyProducts();
@@ -298,7 +286,7 @@ export default function SectionProductListing({
           //setProducts(this_products);
         })
         .catch((error) => {
-          alert(JSON.stringify("error=" + error));
+          //alert(JSON.stringify("error=" + error));
         });
     };
     if (products.length > 0) fetchOutOfStockProducts();
@@ -324,7 +312,7 @@ export default function SectionProductListing({
           setProducts(this_products);
         })
         .catch((error) => {
-          alert(JSON.stringify("error=" + error));
+          //alert(JSON.stringify("error=" + error));
         });
     };
     if (products.length > 0) fetchFewerItemsLeftProducts();
@@ -341,6 +329,20 @@ export default function SectionProductListing({
     setProducts(this_products);
   };
 
+  const handleTabChange = (event, newValue) => {
+    if (fromLink === "D" || fromLink === "C") {
+      const selectedCatg = categories[newValue];
+      Router.push(
+        `/mobile/${deptDetail.deptSeoUrl}/${selectedCatg.catgSeoUrl}/cid/${deptDetail.deptId}/${selectedCatg.catgId}`
+      );
+    } else if (fromLink === "S") {
+      const selectedCatg = categories[newValue].subCatg;
+      Router.push(
+        `/mobile/${deptDetail.deptSeoUrl}/${selectedCatg.catgSeoUrl}/cid/${deptDetail.deptId}/${selectedCatg.catgId}`
+      );
+    }
+  };
+
   const showSnackbar = (message, severity) => {
     setMessage(message);
     setSeverity(severity);
@@ -349,42 +351,6 @@ export default function SectionProductListing({
 
   const handleHideSnackbar = (event) => {
     setOpenSnackbar(false);
-  };
-
-  const addProductToWishlist = (prodId) => {
-    if (!context.isAuthenticated) {
-      setToggleLoginModalValue(true);
-      return false;
-    }
-    axios
-      .post(`api/v1/wishlist/${prodId}`)
-      .then((resp) => {
-        const this_products = [...products];
-        this_products
-          .filter((p) => p.prodId === prodId)
-          .forEach((p) => (p.wishlisted = true));
-        setProducts(this_products);
-        showSnackbar("Added to wishlist!", "success");
-      })
-      .catch((error) => {
-        //handleError(error);
-      });
-  };
-
-  const removeProductFromWishlist = (prodId) => {
-    axios
-      .delete(`api/v1/wishlist/${prodId}`)
-      .then((resp) => {
-        const this_products = [...products];
-        this_products
-          .filter((p) => p.prodId === prodId)
-          .forEach((p) => (p.wishlisted = false));
-        setProducts(this_products);
-        showSnackbar("Removed from wishlist!", "warning");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
   };
 
   const getCartQty = async (skuCode) => {
@@ -415,16 +381,12 @@ export default function SectionProductListing({
   };
 
   const handleUpdateItemToCart = (prodId, skuCode, qty) => {
-    if (!context.isAuthenticated) {
-      setToggleLoginModalValue(true);
-      return false;
-    }
     setBlocking(true);
     axios
       .put(`api/v1/cart/${skuCode}?qty=${qty}`)
       .then((resp) => {
         setBlocking(false);
-        context.refreshCartCount();
+        //refresh cart count
         if (!resp.data.error) {
           const this_products = [...products];
           const variant = this_products
@@ -442,39 +404,6 @@ export default function SectionProductListing({
       });
   };
 
-  /* useScrollPosition(({ prevPos, currPos }) => {
-    // console.log(currPos.x);
-    // console.log(currPos.y);
-    if (currPos.y < 0) {
-      setHideOnScroll(true);
-    } else if (currPos.y > 0) {
-      setHideOnScroll(false);
-    }
-  }); */
-
-  /* const breadcrumbs = (
-    <>
-      <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" />}
-        aria-label="breadcrumb"
-        style={{ paddingTop: 10, paddingBottom: 10 }}
-        classes={{
-          root: classes.breadcrumbRoot,
-          separator: classes.breadcrumbSeparator,
-        }}
-      >
-        <Typography variant="caption">Home</Typography>
-        <Typography variant="caption">{deptDetail.deptDesc}</Typography>
-        {catgDetail && (
-          <Typography variant="caption">{catgDetail.catgDesc}</Typography>
-        )}
-        {subCatgDetail && (
-          <Typography variant="caption">{subCatgDetail.subCatgDesc}</Typography>
-        )}
-      </Breadcrumbs>
-    </>
-  ); */
-
   const showingResultsTitle = (
     <Typography
       color="textPrimary"
@@ -484,10 +413,6 @@ export default function SectionProductListing({
       Showing {products.length} items
     </Typography>
   );
-
-  const onLoginSuccessHandler = () => {
-    setToggleLoginModalValue(false);
-  };
 
   const onClickSortBy = (sortBy) => {
     if (sortBy === "LOW_TO_HIGH") {
@@ -637,21 +562,40 @@ export default function SectionProductListing({
     }
   };
 
+  console.log(`catgId=${catgId}`);
+
   return (
     <div className={classes.container}>
-      {/* {breadcrumbs} */}
-      <Hidden smUp>
-        <div style={{ marginTop: 80, marginBottom: 10, paddingLeft: 8 }}>
-          {showingResultsTitle}
-        </div>
-      </Hidden>
+      <AppBar position="fixed" color="default">
+        <Tabs
+          value={selectedTabIdx}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="scrollable auto tabs example"
+        >
+          {categories.map((c, idx) => (
+            <Tab
+              key={idx}
+              label={
+                <Typography
+                  variant="subtitle2"
+                  style={{ textTransform: "capitalize" }}
+                >
+                  {c.name}
+                </Typography>
+              }
+              {...a11yProps(idx)}
+            />
+          ))}
+        </Tabs>
+      </AppBar>
+      <div style={{ marginBottom: 10, paddingLeft: 8 }}>
+        {showingResultsTitle}
+      </div>
       <Backdrop open={blocking} />
-      {toggleLoginModalValue && (
-        <SignupOrSigninModal
-          onCloseModal={() => setToggleLoginModalValue(false)}
-          onLoginSuccess={onLoginSuccessHandler}
-        />
-      )}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}
@@ -662,30 +606,8 @@ export default function SectionProductListing({
           {message}
         </Alert>
       </Snackbar>
-      <SectionLeftSideFilter
-        //hideOnScroll={hideOnScroll}
-        categories={categories}
-        deptDetail={deptDetail}
-        catgDetail={catgDetail}
-        subCatgDetail={subCatgDetail}
-      />
       <main className={classes.content}>
         <GridContainer style={{ marginLeft: 0, marginRight: 0 }}>
-          <Hidden mdDown>
-            <GridItem
-              style={{
-                paddingLeft: 0,
-                paddingRight: 0,
-                textAlign: "center",
-              }}
-            >
-              <img
-                style={{ padding: 5, width: "100%" }}
-                src={bannerUrl}
-                alt="Card-img-cap"
-              />
-            </GridItem>
-          </Hidden>
           <GridItem style={{ backgroundColor: "#fafafa", margin: 5 }}>
             {renderSortBy()}
           </GridItem>
@@ -695,9 +617,9 @@ export default function SectionProductListing({
                 container
                 item
                 key={idx}
-                xs={6}
-                sm={6}
-                md={3}
+                xs={12}
+                sm={12}
+                md={12}
                 style={{
                   padding: 10,
                   borderLeft:
@@ -742,7 +664,7 @@ export default function SectionProductListing({
                                 }
                                 alt="Card-img-cap"
                                 style={{
-                                  width: "100%",
+                                  width: 150,
                                   height: 150,
                                   cursor: "pointer",
                                 }}
@@ -880,27 +802,7 @@ export default function SectionProductListing({
                         textAlign: "left",
                       }}
                     >
-                      <Box display="flex" justifyContent="space-between">
-                        {p.wishlisted ? (
-                          <IconButton
-                            style={{ padding: 0 }}
-                            aria-label="Wishlisted"
-                            onClick={() => removeProductFromWishlist(p.prodId)}
-                          >
-                            <FavoriteIcon
-                              fontSize="small"
-                              style={{ color: grey[700] }}
-                            />
-                          </IconButton>
-                        ) : (
-                          <IconButton
-                            style={{ padding: 0 }}
-                            aria-label="Add to my Wishlist"
-                            onClick={() => addProductToWishlist(p.prodId)}
-                          >
-                            <FavoriteBorderOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        )}
+                      <Box display="flex" justifyContent="flex-end">
                         <div>
                           {p.variants[p.activeVariantIdx].onlyFewItemsLeft ? (
                             <Typography
@@ -930,10 +832,9 @@ export default function SectionProductListing({
 }
 
 SectionProductListing.propTypes = {
-  categories: PropTypes.array.isRequired,
   deptDetail: PropTypes.object.isRequired,
-  catgDetail: PropTypes.object,
-  subCatgDetail: PropTypes.object,
+  catgId: PropTypes.string,
+  categories: PropTypes.array,
   productList: PropTypes.array.isRequired,
-  bannerUrl: PropTypes.string,
+  fromLink: PropTypes.string.isRequired,
 };

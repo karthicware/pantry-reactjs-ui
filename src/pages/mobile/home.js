@@ -3,11 +3,14 @@ import PropTypes from "prop-types";
 
 import axios from "axios";
 import Carousel from "react-slick";
+import LazyLoad from "react-lazyload";
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import { Typography } from "@material-ui/core";
+import Fade from "@material-ui/core/Fade";
+import Paper from "@material-ui/core/Paper";
 
 // icons
 import LocalShippingIcon from "@material-ui/icons/LocalShippingOutlined";
@@ -37,7 +40,7 @@ const styles = (theme) => ({
 
 const useStyles = makeStyles(styles);
 
-function LandingPage() {
+function LandingPage({ deptList }) {
   const classes = useStyles();
 
   const renderHeaderCarousel = () => {
@@ -153,18 +156,61 @@ function LandingPage() {
     return (
       <div style={{ backgroundColor: "#FFF" }}>
         <Box>
-          <Typography variant="h6" className={classes.title}>
+          <Typography variant="subtitle2" className={classes.title}>
             Shop by Category
           </Typography>
           {data.map((d, i) => (
-            <img key={i} src={d.img} style={{ width: "100%" }} />
+            <LazyLoad key={i}>
+              <img src={d.img} style={{ width: "100%" }} />
+            </LazyLoad>
           ))}
         </Box>
       </div>
     );
   };
 
-  const renderBlock1 = () => {
+  const renderDepartmentsInHeader = () => {
+    const settings = {
+      dots: false,
+      infinite: false,
+      pauseOnDotsHover: false,
+      pauseOnFocus: true,
+      cssEase: "linear",
+      responsive: [
+        {
+          breakpoint: 480,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 3,
+            autoplay: false,
+          },
+        },
+      ],
+    };
+    return (
+      <Fade in={true} timeout={1000}>
+        <Paper elevation={0} style={{ marginBottom: 40 }}>
+          <Carousel {...settings}>
+            {deptList.map((d, idx) => (
+              <div key={idx} style={{ margin: 20 }}>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <img src={d.imgUrlXs} style={{ width: 64, height: 64 }} />
+                  <Typography variant="caption">{d.name}</Typography>
+                </Box>
+              </div>
+            ))}
+          </Carousel>
+        </Paper>
+      </Fade>
+    );
+  };
+
+  const renderDeliveryNote = () => {
     return (
       <Box
         display="flex"
@@ -186,7 +232,8 @@ function LandingPage() {
   return (
     <div>
       <div className={classes.container}>
-        {renderBlock1()}
+        {renderDepartmentsInHeader()}
+        {renderDeliveryNote()}
         {renderHeaderCarousel()}
         {renderShopByCategory()}
         {/* <SectionOffers id="offers" /> */}

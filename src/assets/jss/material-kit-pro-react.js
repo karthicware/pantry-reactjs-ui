@@ -324,11 +324,11 @@ const defaultBoxShadow = {
     hexToRgb(blackColor) +
     ", 0.2)",
   padding: "10px 0",
-  transition: "all 150ms ease 0s"
+  transition: "all 150ms ease 0s",
 };
 
 const title = {
-  color: grayColor[1],
+  color: grayColor[15],
   textDecoration: "none",
   fontWeight: "700",
   marginTop: "30px",
