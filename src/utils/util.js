@@ -5,3 +5,7 @@ export function addCommas(val) {
 export function handleError(errResp) {
   return errResp.response.data.message;
 }
+
+export const callParent = (data) => {
+  window.ReactNativeWebView.postMessage(JSON.stringify(data));
+};

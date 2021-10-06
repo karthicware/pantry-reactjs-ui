@@ -16,6 +16,7 @@ export default function ProductListingPage({
   catgId,
   categories,
   productList,
+  bannerUrl,
   fromLink,
 }) {
   return (
@@ -24,6 +25,7 @@ export default function ProductListingPage({
       catgId={catgId}
       categories={categories}
       productList={productList}
+      bannerUrl={bannerUrl}
       fromLink={fromLink}
     />
   );
@@ -34,6 +36,7 @@ ProductListingPage.propTypes = {
   catgId: PropTypes.string,
   categories: PropTypes.array,
   productList: PropTypes.array.isRequired,
+  bannerUrl: PropTypes.string,
   fromLink: PropTypes.string.isRequired,
 };
 
@@ -66,6 +69,7 @@ export async function getStaticProps({ params }) {
   let categories = [];
   const deptId = params.deptIdSlug;
   const deptDetail = { deptId, deptDesc: null };
+  let bannerUrl = null;
 
   const axiosInstance = axios.create({
     baseURL: process.env.API_BASE_URL,
@@ -78,6 +82,7 @@ export async function getStaticProps({ params }) {
       //console.log(JSON.stringify(deptApi));
       deptDetail.deptDesc = deptApi.name;
       deptDetail.deptSeoUrl = deptApi.deptSeoUrl;
+      bannerUrl = deptApi.imgUrlXs;
       categories = deptApi.categories;
     }
   });
@@ -94,6 +99,7 @@ export async function getStaticProps({ params }) {
       catgId,
       categories,
       productList,
+      bannerUrl,
       fromLink,
     },
   };

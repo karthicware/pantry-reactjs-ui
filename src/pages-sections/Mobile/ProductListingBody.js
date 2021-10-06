@@ -23,7 +23,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 
 // @material-ui/icons
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import AddIcon from "@material-ui/icons/AddRounded";
 import AddRoundedIcon from "@material-ui/icons/AddRounded";
 import RemoveRoundedIcon from "@material-ui/icons/RemoveRounded";
 import DoneIcon from "@material-ui/icons/Done";
@@ -44,7 +44,11 @@ import Select from "@material-ui/core/Select";
 import Typography from "@material-ui/core/Typography";
 
 import Backdrop from "components/Backdrop/CustomBackdrop";
-import { container, successColor } from "assets/jss/material-kit-pro-react.js";
+import {
+  container,
+  successColor,
+  grayColor,
+} from "assets/jss/material-kit-pro-react.js";
 
 //styles
 import featuresStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/featuresStyle.js";
@@ -73,6 +77,12 @@ const useStyles = makeStyles((theme) => ({
     width: "unset",
     padding: 0,
   },
+  content: {
+    backgroundColor: "#FFF",
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 8,
+  },
   tabIndicator: {
     backgroundColor: primaryColor[0],
   },
@@ -82,25 +92,21 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   originalPrice: {
-    paddingLeft: 0,
-    paddingRight: 0,
-    marginTop: 10,
-    marginBottom: 10,
     textAlign: "left",
-    fontSize: 14,
-    color: "#777",
+    color: grayColor[7],
     textDecoration: "line-through",
-    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
+    fontFamily: "Roboto Slab, Times New Roman, serif !important",
   },
   sellingPrice: {
     textTransform: "capitalize",
-    lineHeight: "initial",
     fontWeight: 600,
     marginBottom: 0,
   },
   cartQtyText: {
     fontSize: 14,
-    color: "#777",
+    color: grayColor[7],
     paddingLeft: 15,
     paddingRight: 15,
   },
@@ -130,16 +136,17 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   prodName: {
-    height: 45,
-    "-webkit-box-orient": "vertical",
-    display: "-webkit-box",
-    "-webkit-line-clamp": 2,
-    textOverflow: "ellipsis",
-    overflow: "hidden",
+    color: grayColor[7],
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  priceBox: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
   variantDesc: {
     fontSize: 13,
-    color: "#777",
+    color: grayColor[7],
     fontWeight: 400,
     marginTop: 10,
     marginBottom: 5,
@@ -153,12 +160,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 300,
   },
   offerTagRoot: {
-    width: 60,
-    height: "18px",
+    width: 70,
+    height: "22px",
     fontSize: 12,
     fontWeight: 600,
-    position: "absolute",
-    zIndex: 99,
     backgroundColor: successColor[0],
     color: "#FFF",
   },
@@ -166,16 +171,10 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
     paddingRight: 0,
   },
-  softRiseShadowStyle: ({ inactive }) => ({
+  softRiseShadowStyle: {
     textAlign: "center",
     padding: 10,
-    transition: "0.3s",
-    ...(!inactive && {
-      "&:hover": {
-        transform: "translateY(-5px)",
-      },
-    }),
-  }),
+  },
   breadcrumbRoot: {
     marginLeft: 5,
   },
@@ -203,6 +202,7 @@ export default function SectionProductListing({
   catgId,
   categories,
   productList,
+  bannerUrl,
   fromLink,
 }) {
   const classes = useStyles();
@@ -409,9 +409,13 @@ export default function SectionProductListing({
 
   const showingResultsTitle = (
     <Typography
-      color="textPrimary"
       variant="caption"
-      style={{ textAlign: "left", marginTop: 10, marginBottom: 10 }}
+      style={{
+        textAlign: "left",
+        marginTop: 10,
+        marginBottom: 10,
+        color: grayColor[7],
+      }}
     >
       Showing {products.length} items
     </Typography>
@@ -547,9 +551,13 @@ export default function SectionProductListing({
         );
       } else {
         return (
-          <CustomOutlineButton
-            size="small"
-            className={classes.addToCartBtn}
+          <CustomButton
+            color="primary"
+            size="sm"
+            style={{
+              paddingLeft: 20,
+              paddingRight: 10,
+            }}
             onClick={() =>
               handleUpdateItemToCart(
                 p.prodId,
@@ -558,14 +566,15 @@ export default function SectionProductListing({
               )
             }
           >
-            Add To Cart
-          </CustomOutlineButton>
+            <Typography variant="button" style={{ lineHeight: 1 }}>
+              ADD
+            </Typography>{" "}
+            {"  "} <AddIcon style={{ marginLeft: 8 }} />
+          </CustomButton>
         );
       }
     }
   };
-
-  console.log(`catgId=${catgId}`);
 
   return (
     <div className={classes.container}>
@@ -586,7 +595,7 @@ export default function SectionProductListing({
                   variant="subtitle2"
                   style={{
                     textTransform: "capitalize",
-                    color: idx === selectedTabIdx ? primaryColor[0] : "inherit",
+                    fontWeight: 600,
                   }}
                 >
                   {c.name}
@@ -597,9 +606,6 @@ export default function SectionProductListing({
           ))}
         </Tabs>
       </AppBar>
-      <div style={{ marginBottom: 10, paddingLeft: 8 }}>
-        {showingResultsTitle}
-      </div>
       <Backdrop open={blocking} />
       <Snackbar
         open={openSnackbar}
@@ -612,41 +618,68 @@ export default function SectionProductListing({
         </Alert>
       </Snackbar>
       <main className={classes.content}>
-        <GridContainer style={{ marginLeft: 0, marginRight: 0 }}>
-          {/* <GridItem style={{ backgroundColor: "#fafafa", margin: 5 }}>
-            {renderSortBy()}
-          </GridItem> */}
-          <Grid container spacing={0}>
-            {products.map((p, idx) => (
-              <Grid
-                container
-                item
-                key={idx}
-                xs={12}
-                sm={12}
-                md={12}
-                style={{
-                  padding: 10,
-                  borderLeft:
-                    idx === 0 ? "none" : "solid 1px rgba(112,112,112,.38)",
-                  borderTop:
-                    idx === 0 || idx === 1 || idx === 2 || idx === 3
-                      ? "solid 1px rgba(112,112,112,.38)"
-                      : "none",
-                  borderRight:
-                    products.length - 1 === idx
-                      ? `${
-                          products.length % 4 === 0
-                            ? "none"
-                            : "solid 1px rgba(112,112,112,.38)"
-                        }`
-                      : "none",
-                  borderBottom: "solid 1px rgba(112,112,112,.38)",
-                }}
-              >
-                <Grid item container spacing={0} style={{ padding: 5 }}>
-                  <Grid item md={12} xs={12} sm={12}>
-                    <Card plain style={{ marginTop: 0, marginBottom: 0 }}>
+        <div style={{ marginBottom: 10, paddingLeft: 8 }}>
+          {showingResultsTitle}
+        </div>
+        {products.map((p, idx) => (
+          <Card key={idx} style={{ marginTop: 8, marginBottom: 8 }}>
+            <CardBody style={{ padding: 0 }}>
+              <Grid container>
+                <Grid
+                  item
+                  xs={4}
+                  sm={4}
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 10,
+                  }}
+                >
+                  <Box>
+                    <Link
+                      as={`/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
+                      href={"/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"}
+                    >
+                      <a>
+                        <LazyLoad once height={100}>
+                          <img
+                            src={p.variants[p.activeVariantIdx].defaultImgLg}
+                            alt="Card-img-cap"
+                            style={{
+                              width: "100%",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </LazyLoad>
+                      </a>
+                    </Link>
+                  </Box>
+                </Grid>
+                <Grid
+                  item
+                  xs={8}
+                  sm={8}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    padding: 10,
+                  }}
+                >
+                  <Box>
+                    <Box display="flex" flexDirection="row" alignItems="center">
+                      <Typography variant="h6" className={classes.sellingPrice}>
+                        {`₹ ${p.variants[p.activeVariantIdx].sellingPrice}`}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        classes={{
+                          root: classes.originalPrice,
+                        }}
+                      >
+                        {`₹ ${p.variants[p.activeVariantIdx].unitPrice}`}
+                      </Typography>
                       <Chip
                         label={
                           p.variants[p.activeVariantIdx].discPerc + "% OFF"
@@ -656,181 +689,92 @@ export default function SectionProductListing({
                           label: classes.offerTag,
                         }}
                       />
-                      <div className={classes.softRiseShadowStyle}>
-                        <Link
-                          as={`/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
-                          href={"/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"}
-                        >
-                          <a>
-                            <LazyLoad once height={382}>
-                              <img
-                                src={
-                                  p.variants[p.activeVariantIdx].defaultImgLg
-                                }
-                                alt="Card-img-cap"
-                                style={{
-                                  width: 150,
-                                  height: 150,
-                                  cursor: "pointer",
-                                }}
-                              />
-                            </LazyLoad>
-                          </a>
-                        </Link>
-                      </div>
-                      <CardBody
-                        plain
-                        style={{
-                          paddingTop: 10,
-                          paddingLeft: 0,
-                          paddinRight: 0,
-                          paddingBottom: 0,
-                          textAlign: "left",
-                        }}
-                      >
-                        <Typography
-                          variant="body1"
-                          className={classes.prodName}
-                        >
-                          {p.prodName}
-                        </Typography>
-                        <div
-                          style={{
-                            marginTop: p.variants.length === 1 ? 13 : 10,
-                          }}
-                        >
-                          {p.variants.length === 1 ? (
-                            <Muted>
-                              <Typography variant="caption">
-                                {p.variants[p.activeVariantIdx].unitDesc +
-                                  " of " +
-                                  p.variants[p.activeVariantIdx].packagingDesc}
-                              </Typography>
-                            </Muted>
-                          ) : (
-                            <Select
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={p.variants[p.activeVariantIdx].skuCode}
-                              onChange={(e) =>
-                                handleVariantChange(p.prodId, e.target.value)
-                              }
-                              onOpen={() => setOpenVariantSelectBox(p.prodId)}
-                              onClose={() => setOpenVariantSelectBox(null)}
-                              style={{ color: "#6c757d" }}
-                            >
-                              {p.variants.map((v) => (
-                                <MenuItem
-                                  key={v.skuCode}
-                                  value={v.skuCode}
-                                  disabled={!v.stockAvailable}
-                                >
-                                  <Typography variant="caption">
-                                    {`${v.unitDesc} of ${v.packagingDesc}`} -{" "}
-                                    <b>₹ ${v.sellingPrice}</b>
-                                    <span
-                                      className={
-                                        classes.originalPriceInSelectBox
-                                      }
-                                    >
-                                      {v.unitPrice}
-                                    </span>
-                                    {openVariantSelectBox === p.prodId &&
-                                      !v.stockAvailable && (
-                                        <Typography
-                                          variant="caption"
-                                          style={{ color: red[500] }}
-                                        >
-                                          {" "}
-                                          No stock
-                                        </Typography>
-                                      )}
-                                  </Typography>
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          )}
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </Grid>
-                </Grid>
-
-                <Grid
-                  item
-                  container
-                  alignItems="flex-end"
-                  style={{ marginTop: 8, marginBottom: 0, marginLeft: 5 }}
-                >
-                  <Grid
-                    item
-                    container
-                    justifyContent="space-between"
-                    alignItems="center"
-                    spacing={0}
-                  >
-                    <Grid item md={6} sm={12} xs={12}>
-                      <Grid container alignItems="center">
-                        <Box display="flex" flexDirection="column">
+                    </Box>
+                    <Typography variant="body1" className={classes.prodName}>
+                      {p.prodName}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Grid container direction="row" alignItems="center">
+                      <Grid item sm={6} xs={6}>
+                        {p.variants.length === 1 ? (
                           <Typography
-                            variant="subtitle1"
-                            gutterBottom
-                            className={classes.sellingPrice}
+                            variant="body1"
+                            style={{ color: grayColor[7] }}
                           >
-                            {`₹ ${p.variants[p.activeVariantIdx].sellingPrice}`}
+                            {p.variants[p.activeVariantIdx].unitDesc}
                           </Typography>
-                          <FormLabel
-                            classes={{
-                              root: classes.originalPrice,
+                        ) : (
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={p.variants[p.activeVariantIdx].skuCode}
+                            onChange={(e) =>
+                              handleVariantChange(p.prodId, e.target.value)
+                            }
+                            onOpen={() => setOpenVariantSelectBox(p.prodId)}
+                            onClose={() => setOpenVariantSelectBox(null)}
+                            style={{ color: "#6c757d" }}
+                          >
+                            {p.variants.map((v) => (
+                              <MenuItem
+                                key={v.skuCode}
+                                value={v.skuCode}
+                                disabled={!v.stockAvailable}
+                              >
+                                <Typography variant="caption">
+                                  {`${v.unitDesc} of ${v.packagingDesc}`} -{" "}
+                                  <b>₹ ${v.sellingPrice}</b>
+                                  <span
+                                    className={classes.originalPriceInSelectBox}
+                                  >
+                                    {v.unitPrice}
+                                  </span>
+                                  {openVariantSelectBox === p.prodId &&
+                                    !v.stockAvailable && (
+                                      <Typography
+                                        variant="caption"
+                                        style={{ color: red[500] }}
+                                      >
+                                        {" "}
+                                        No stock
+                                      </Typography>
+                                    )}
+                                </Typography>
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        )}
+                      </Grid>
+                      <Grid item sm={6} xs={6} style={{ textAlign: "right" }}>
+                        {renderAddToCartControls(p)}
+                      </Grid>
+                      {p.variants[p.activeVariantIdx].onlyFewItemsLeft && (
+                        <Grid
+                          item
+                          sm={12}
+                          xs={12}
+                          style={{ textAlign: "right" }}
+                        >
+                          <Typography
+                            variant="caption"
+                            style={{
+                              color: red[500],
+                              fontWeight: 700,
+                              marginRight: 5,
                             }}
                           >
-                            {`₹ ${p.variants[p.activeVariantIdx].unitPrice}`}
-                          </FormLabel>
-                        </Box>
-                      </Grid>
+                            Only Few Left!
+                          </Typography>
+                        </Grid>
+                      )}
                     </Grid>
-
-                    <Grid
-                      item
-                      md={6}
-                      sm={12}
-                      xs={12}
-                      style={{ textAlign: "right" }}
-                    >
-                      {renderAddToCartControls(p)}
-                    </Grid>
-                    <Grid
-                      item
-                      md={12}
-                      style={{
-                        paddingTop: 10,
-                        textAlign: "left",
-                      }}
-                    >
-                      <Box display="flex" justifyContent="flex-end">
-                        <div>
-                          {p.variants[p.activeVariantIdx].onlyFewItemsLeft ? (
-                            <Typography
-                              variant="caption"
-                              style={{
-                                color: red[500],
-                                fontWeight: 700,
-                              }}
-                            >
-                              Only Few Left!
-                            </Typography>
-                          ) : (
-                            <Typography>&nbsp;</Typography>
-                          )}
-                        </div>
-                      </Box>
-                    </Grid>
-                  </Grid>
+                  </Box>
                 </Grid>
               </Grid>
-            ))}
-          </Grid>
-        </GridContainer>
+            </CardBody>
+          </Card>
+        ))}
       </main>
     </div>
   );

@@ -37,6 +37,7 @@ import {
   infoColor,
 } from "assets/jss/material-kit-pro-react.js";
 import { STATIC_IMG_BASE_URL } from "utils/constants.js";
+import { callParent } from "utils/util.js";
 
 const styles = (theme) => ({
   root: {
@@ -122,7 +123,13 @@ function AllCategories({ deptList }) {
                 <List style={{ backgroundColor: "#FFF", width: "100%" }}>
                   {dept.categories.map((c, cat_idx) => (
                     <React.Fragment key={cat_idx}>
-                      <ListItem button>
+                      <ListItem button onClick={() =>
+                  callParent({
+                    screenName: "ProductListing",
+                    pageUrl: `http://pantry.com.s3-website.ap-south-1.amazonaws.com/mobile/${dept.deptSeoUrl}/${c.catgSeoUrl}/cid/${dept.deptId}/${c.catgId}`,
+                    title: c.name,
+                  })
+                }>
                         <LazyLoad>
                           <img
                             src={c.imgUrlXs}

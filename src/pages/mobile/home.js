@@ -22,6 +22,7 @@ import {
   grayColor,
 } from "assets/jss/material-kit-pro-react.js";
 import { STATIC_IMG_BASE_URL } from "utils/constants.js";
+import { callParent } from "utils/util.js";
 
 const styles = (theme) => ({
   container: {
@@ -199,6 +200,7 @@ function LandingPage({ deptList }) {
                   callParent({
                     screenName: "ProductListing",
                     pageUrl: `http://pantry.com.s3-website.ap-south-1.amazonaws.com/mobile/${d.deptSeoUrl}/cid/${d.deptId}`,
+                    title: d.name,
                   })
                 }
               >
@@ -236,17 +238,6 @@ function LandingPage({ deptList }) {
         </div>
       </Box>
     );
-  };
-
-  const callParent = (data) => {
-    window.ReactNativeWebView.postMessage(JSON.stringify(data));
-    /* alert(JSON.stringify(data));
-    let postMessage = window.parent.postMessage;
-    if (window.ReactNativeWebView) {
-      postMessage = window.ReactNativeWebView.postMessage;
-      alert('if');
-    }
-    postMessage(data); */
   };
 
   return (
