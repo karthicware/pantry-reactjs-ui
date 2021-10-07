@@ -417,7 +417,7 @@ export default function AppHeader(props) {
         </Toolbar>
         <Toolbar
           style={{
-            backgroundColor: "#ececed",
+            backgroundColor: "#FFF",
             minHeight: 40,
             display: "grid",
             zIndex: -1,

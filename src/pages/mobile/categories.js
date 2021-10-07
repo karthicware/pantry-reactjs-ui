@@ -119,17 +119,24 @@ function AllCategories({ deptList }) {
                   </Box>
                 </Box>
               </AccordionSummary>
-              <AccordionDetails style={{ backgroundColor: warningColor[4] }}>
-                <List style={{ backgroundColor: "#FFF", width: "100%" }}>
+              <AccordionDetails
+                style={{ backgroundColor: warningColor[4], padding: 10 }}
+              >
+                <List
+                  style={{ backgroundColor: "#FFF", width: "100%", padding: 0 }}
+                >
                   {dept.categories.map((c, cat_idx) => (
                     <React.Fragment key={cat_idx}>
-                      <ListItem button onClick={() =>
-                  callParent({
-                    screenName: "ProductListing",
-                    pageUrl: `http://pantry.com.s3-website.ap-south-1.amazonaws.com/mobile/${dept.deptSeoUrl}/${c.catgSeoUrl}/cid/${dept.deptId}/${c.catgId}`,
-                    title: c.name,
-                  })
-                }>
+                      <ListItem
+                        button
+                        onClick={() =>
+                          callParent({
+                            screenName: "ProductListing",
+                            pageUrl: `http://pantry.com.s3-website.ap-south-1.amazonaws.com/mobile/${dept.deptSeoUrl}/${c.catgSeoUrl}/cid/${dept.deptId}/${c.catgId}`,
+                            title: c.name,
+                          })
+                        }
+                      >
                         <LazyLoad>
                           <img
                             src={c.imgUrlXs}

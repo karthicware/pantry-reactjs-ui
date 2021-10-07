@@ -555,8 +555,10 @@ export default function SectionProductListing({
             color="primary"
             size="sm"
             style={{
-              paddingLeft: 20,
+              paddingLeft: 18,
               paddingRight: 10,
+              paddingTop: 4,
+              paddingBottom: 4,
             }}
             onClick={() =>
               handleUpdateItemToCart(

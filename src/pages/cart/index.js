@@ -12,14 +12,15 @@ import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import MuiButton from "@material-ui/core/Button";
-//import Fade from "@material-ui/core/Fade";
-import { alpha as Fade } from "@material-ui/core/styles";
+import Fade from "@material-ui/core/Fade";
+import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
-import Hidden from "@material-ui/core/Hidden";
+import Box from "@material-ui/core/Box";
+import FormLabel from "@material-ui/core/FormLabel";
 
 // @material-ui/icons
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -53,7 +54,7 @@ import {
   dangerColor,
   successColor,
   title,
-  container, 
+  container,
 } from "assets/jss/material-kit-pro-react.js";
 import shoppingCartStyle from "assets/jss/material-kit-pro-react/views/shoppingCartStyle.js";
 
@@ -119,10 +120,6 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     paddingTop: 10,
   },
-  sellingPriceLabel: {
-    fontSize: "1.2rem",
-    color: "rgba(0, 0, 0, 0.87)",
-  },
   mrpLabel: {
     fontSize: ".8rem",
   },
@@ -164,7 +161,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   offerTagRoot: {
-    width: 80,
+    //width: 60,
     height: "18px",
     fontSize: 12,
     fontWeight: 600,
@@ -230,6 +227,11 @@ function ShoppingCartPage({ deptList }) {
       .get(`/api/v1/cart/`)
       .then((resp) => {
         setBlocking(false);
+        console.log(
+          `resp.data.result.cartItems=${JSON.stringify(
+            resp.data.result.cartItems
+          )}`
+        );
         setCartItems(resp.data.result.cartItems);
         setNoOfItems(resp.data.result.noOfItems);
         setBagTotal(resp.data.result.bagTotal);
@@ -300,141 +302,135 @@ function ShoppingCartPage({ deptList }) {
         <CardBody style={{ padding: 0 }}>
           {cartItems.map((rowData, i) => (
             <Fade in={true} key={i} timeout={1000}>
-              <GridContainer className={classes.rowContainer} spacing={0}>
-                <GridItem md={3} sm={12} xs={12}>
-                  <div
-                    className={classes.imgContainer}
-                    style={{ margin: "auto" }}
-                  >
-                    <img
-                      src={rowData.defaultImg}
-                      alt="..."
-                      className={classes.img}
-                    />
-                  </div>
-                </GridItem>
-
-                <GridItem md={7} sm={12} xs={12}>
-                  <GridContainer>
-                    <GridItem className={classes.prodNameContainer}>
-                      <Typography variant="subtitle1">
-                        {rowData.prodName}
-                      </Typography>
-                      <Typography variant="caption">
-                        {rowData.unitDesc} of {rowData.packagingDesc}
-                      </Typography>
-                    </GridItem>
-                    <GridItem>
-                      <GridContainer direction="row">
-                        <GridItem md>
-                          <div
-                            style={{
-                              display: "flex",
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Button
-                              justIcon
-                              round
-                              color="warning"
-                              size="sm"
-                              onClick={() =>
-                                handleUpdateItemToCart(
-                                  rowData.skuCode,
-                                  rowData.qty + 1
-                                )
-                              }
-                            >
-                              <AddRoundedIcon style={{ color: "#FFFFFF" }} />
-                            </Button>
-                            <Typography variant="body1" style={{ padding: 15 }}>
-                              {rowData.qty}
-                            </Typography>
-                            <Button
-                              justIcon
-                              round
-                              color="warning"
-                              size="sm"
-                              onClick={() =>
-                                handleUpdateItemToCart(
-                                  rowData.skuCode,
-                                  rowData.qty - 1
-                                )
-                              }
-                            >
-                              <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
-                            </Button>
-                          </div>
-                        </GridItem>
-
-                        <GridItem
-                          md
-                          xs={4}
-                          sm={4}
-                          size="small"
-                          style={{ margin: "auto" }}
-                        >
-                          <MuiButton
-                            variant="outlined"
-                            color="secondary"
-                            style={{
-                              color: dangerColor[0],
-                              textTransform: "capitalize",
-                              fontWeight: 400,
-                            }}
-                            onClick={() => removeFromCart(rowData.skuCode)}
-                          >
-                            <DeleteForeverOutlinedIcon /> Remove
-                          </MuiButton>
-                        </GridItem>
-
-                        <GridItem
-                          md={5}
-                          xs={8}
-                          sm={8}
-                          style={{ margin: "auto" }}
-                        >
-                          <MuiButton
-                            style={{
-                              color: "#666",
-                              textTransform: "capitalize",
-                              fontWeight: 400,
-                              textAlign: "right",
-                            }}
-                            onClick={() => moveToWishlist(rowData.prodCode)}
-                          >
-                            <FavoriteBorderOutlinedIcon />
-                            &nbsp; Move To Favourites
-                          </MuiButton>
-                        </GridItem>
-                      </GridContainer>
-                    </GridItem>
-                  </GridContainer>
-                </GridItem>
-
-                <GridItem md={2} style={{ textAlign: "right", paddingTop: 20 }}>
-                  <Chip
-                    label={rowData.discPerc + " % OFF"}
-                    classes={{
-                      root: classes.offerTagRoot,
-                      label: classes.offerTag,
-                    }}
-                  />
-                  <Typography variant="body2">
-                    MRP: &nbsp; &#8377; &nbsp;
-                    <span
-                      style={{ color: "#999", textDecoration: "line-through" }}
+              <Paper elevation={0}>
+                <GridContainer className={classes.rowContainer} spacing={0}>
+                  <GridItem md={3} sm={12} xs={12}>
+                    <div
+                      className={classes.imgContainer}
+                      style={{ margin: "auto" }}
                     >
-                      {rowData.unitPrice}
-                    </span>
-                  </Typography>
-                  <Typography variant="body2">
-                    &#8377; {rowData.sellingPrice}
-                  </Typography>
-                </GridItem>
-              </GridContainer>
+                      <img
+                        src={rowData.defaultImgXs}
+                        alt="..."
+                        className={classes.img}
+                      />
+                    </div>
+                  </GridItem>
+
+                  <GridItem md={7} sm={12} xs={12}>
+                    <Typography variant="body1">
+                      {rowData.prodName}
+                    </Typography>
+                    <Typography variant="caption">
+                      {rowData.unitDesc} of {rowData.packagingDesc}
+                    </Typography>
+
+                    <Box display="flex" flexDirection="row" alignItems="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Button
+                          justIcon
+                          round
+                          color="primary"
+                          size="sm"
+                          onClick={() =>
+                            handleUpdateItemToCart(
+                              rowData.skuCode,
+                              rowData.qty + 1
+                            )
+                          }
+                        >
+                          <AddRoundedIcon style={{ color: "#FFFFFF" }} />
+                        </Button>
+                        <Typography variant="body1" style={{ padding: 15 }}>
+                          {rowData.qty}
+                        </Typography>
+                        <Button
+                          justIcon
+                          round
+                          color="primary"
+                          size="sm"
+                          onClick={() =>
+                            handleUpdateItemToCart(
+                              rowData.skuCode,
+                              rowData.qty - 1
+                            )
+                          }
+                        >
+                          <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
+                        </Button>
+                      </div>
+                      <MuiButton
+                        color="secondary"
+                        style={{
+                          color: dangerColor[0],
+                          textTransform: "capitalize",
+                          fontWeight: 400,
+                          marginLeft: 20,
+                          paddingLeft: 8,
+                          paddingRight: 8,
+                        }}
+                        onClick={() => removeFromCart(rowData.skuCode)}
+                      >
+                        <DeleteForeverOutlinedIcon style={{ fontSize: 16 }} />{" "}
+                        <Typography variant="button">Remove</Typography>
+                      </MuiButton>
+
+                      {/* <GridItem
+                            md={5}
+                            xs={8}
+                            sm={8}
+                            style={{ margin: "auto" }}
+                          >
+                            <MuiButton
+                              style={{
+                                color: "#666",
+                                textTransform: "capitalize",
+                                fontWeight: 400,
+                                textAlign: "right",
+                              }}
+                              onClick={() => moveToWishlist(rowData.prodCode)}
+                            >
+                              <FavoriteBorderOutlinedIcon />
+                              &nbsp; Move To Favourites
+                            </MuiButton>
+                          </GridItem> */}
+                    </Box>
+                  </GridItem>
+
+                  <GridItem md={2} style={{ textAlign: "right" }}>
+                    <Chip
+                      label={rowData.discPerc + " % OFF"}
+                      classes={{
+                        root: classes.offerTagRoot,
+                        label: classes.offerTag,
+                      }}
+                    />
+                    <div style={{ marginTop: 10, marginBottom: 10}}>
+                    <FormLabel
+                      style={{ fontSize: 14, color: grayColor[7], }}
+                    >
+                      MRP: &nbsp; &#8377; &nbsp;
+                      <span
+                        style={{
+                          color: "#999",
+                          textDecoration: "line-through",
+                        }}
+                      >
+                        {rowData.unitPrice}
+                      </span>
+                    </FormLabel>
+                    </div>
+                    <Typography variant="subtitle1" gutterBottom style={{ fontWeight: 600 }}>
+                      &#8377; {rowData.sellingPrice}
+                    </Typography>
+                  </GridItem>
+                </GridContainer>
+              </Paper>
             </Fade>
           ))}
           <div
@@ -444,7 +440,8 @@ function ShoppingCartPage({ deptList }) {
             )}
           >
             <Typography
-              variant="subtitle2"
+              variant="subtitle1"
+              gutterBottom
               style={{ textTransform: "capitalize" }}
             >
               Subtotal ({noOfItems} items): &nbsp;&nbsp;&nbsp;&#8377;{" "}
@@ -560,16 +557,16 @@ function ShoppingCartPage({ deptList }) {
               {expanded === "panel1" && (
                 <Button
                   block
-                  color="warning"
+                  color="primary"
                   onClick={() => setExpanded("panel2")}
                 >
-                  Proceed to shipping
+                  <Typography variant="button" style={{textTransform: 'capitalize'}}>Proceed to shipping</Typography>
                 </Button>
               )}
               {expanded === "panel2" && (
                 <Button
                   block
-                  color="warning"
+                  color="primary"
                   disabled={!deliveryAddressId}
                   onClick={() => setExpanded("panel3")}
                 >
@@ -595,7 +592,7 @@ function ShoppingCartPage({ deptList }) {
               </Typography>
             </div>
             <Button
-              color="warning"
+              color="primary"
               className={classes.navButton}
               onClick={() => Router.push("/")}
             >
@@ -620,7 +617,7 @@ function ShoppingCartPage({ deptList }) {
         <CartStepper activeStep={deliveryAddressId ? 2 : 0} />
         <div className={classes.container}>
           <GridContainer>
-            <GridItem md={9}>
+            <GridItem md={8}>
               <Accordion
                 expanded={expanded === "panel1"}
                 onChange={handleChange("panel1")}
@@ -703,8 +700,8 @@ function ShoppingCartPage({ deptList }) {
                 </AccordionDetails>
               </Accordion>
             </GridItem>
-            <GridItem md={3}>{renderSummary()}</GridItem>
-            <GridItem md={9}>
+            <GridItem md={4}>{renderSummary()}</GridItem>
+            <GridItem md={8}>
               <Card plain>
                 <Typography className={classes.continueShopping}>
                   <Link href="/">

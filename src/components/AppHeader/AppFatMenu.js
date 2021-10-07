@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     border: "0px solid",
     //padding: theme.spacing(1),
-    backgroundColor: "#ececed",
+    backgroundColor: "#FFF",
     borderRadius: 0,
     boxShadow: "none",
   },

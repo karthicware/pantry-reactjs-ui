@@ -48,7 +48,7 @@ import { AppContext } from "AppContext.js";
 import featuresStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/featuresStyle.js";
 import productsStyle from "assets/jss/material-kit-pro-react/views/ecommerceSections/productsStyle.js";
 import imagesStyles from "assets/jss/material-kit-pro-react/imagesStyles.js";
-import { primaryColor } from "assets/jss/material-kit-pro-react.js";
+import { primaryColor, grayColor } from "assets/jss/material-kit-pro-react.js";
 
 import SectionLeftSideFilter from "pages-sections/EcommercePage/SectionLeftSideFilter.js";
 import SignupOrSigninModal from "pages-sections/Login/SignupOrSignin.js";
@@ -93,6 +93,11 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
+  mrpLabel: {
+    fontSize: 14,
+    color: grayColor[7],
+    marginLeft: theme.spacing(1),
+  },
   originalPrice: {
     paddingLeft: 0,
     paddingRight: 0,
@@ -100,8 +105,9 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 10,
     textAlign: "left",
     fontSize: 14,
-    color: "#777",
+    color: grayColor[7],
     textDecoration: "line-through",
+    marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
   sellingPrice: {
@@ -112,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
   },
   cartQtyText: {
     fontSize: 14,
-    color: "#777",
+    color: grayColor[7],
     paddingLeft: 15,
     paddingRight: 15,
   },
@@ -151,7 +157,7 @@ const useStyles = makeStyles((theme) => ({
   },
   variantDesc: {
     fontSize: 13,
-    color: "#777",
+    color: grayColor[7],
     fontWeight: 400,
     marginTop: 10,
     marginBottom: 5,
@@ -619,8 +625,9 @@ export default function SectionProductListing({
         );
       } else {
         return (
-          <CustomOutlineButton
-            size="small"
+          <CustomButton
+            color="primary"
+            size="sm"
             className={classes.addToCartBtn}
             onClick={() =>
               handleUpdateItemToCart(
@@ -630,8 +637,8 @@ export default function SectionProductListing({
               )
             }
           >
-            Add To Cart
-          </CustomOutlineButton>
+            ADD <AddRoundedIcon style={{ fontSize: 12 }} />
+          </CustomButton>
         );
       }
     }
@@ -833,7 +840,7 @@ export default function SectionProductListing({
                   item
                   container
                   alignItems="flex-end"
-                  style={{ marginTop: 8, marginBottom: 0, marginLeft: 5 }}
+                  style={{ marginTop: 0, marginBottom: 0, marginLeft: 5 }}
                 >
                   <Grid
                     item
@@ -842,46 +849,46 @@ export default function SectionProductListing({
                     alignItems="center"
                     spacing={0}
                   >
-                    <Grid item md={6} sm={12} xs={12}>
-                      <Grid container alignItems="center">
-                        <Box display="flex" flexDirection="column">
-                          <Typography
-                            variant="subtitle1"
-                            gutterBottom
-                            className={classes.sellingPrice}
-                          >
-                            {`₹ ${p.variants[p.activeVariantIdx].sellingPrice}`}
-                          </Typography>
-                          <FormLabel
-                            classes={{
-                              root: classes.originalPrice,
-                            }}
-                          >
-                            {`₹ ${p.variants[p.activeVariantIdx].unitPrice}`}
-                          </FormLabel>
-                        </Box>
-                      </Grid>
+                    <Grid item md={12} sm={12} xs={12}>
+                      <Box
+                        display="flex"
+                        flexDirection="row"
+                        alignItems="center"
+                      >
+                        <Typography
+                          variant="subtitle1"
+                          gutterBottom
+                          className={classes.sellingPrice}
+                        >
+                          {`₹ ${p.variants[p.activeVariantIdx].sellingPrice}`}
+                        </Typography>
+                        <FormLabel
+                          classes={{
+                            root: classes.mrpLabel
+                          }}
+                        >
+                          MRP: 
+                        </FormLabel>
+                        <FormLabel
+                          classes={{
+                            root: classes.originalPrice,
+                          }}
+                        >
+                          {`₹ ${p.variants[p.activeVariantIdx].unitPrice}`}
+                        </FormLabel>
+                      </Box>
                     </Grid>
 
                     <Grid
                       item
-                      md={6}
-                      sm={12}
-                      xs={12}
-                      style={{ textAlign: "right" }}
-                    >
-                      {renderAddToCartControls(p)}
-                    </Grid>
-                    <Grid
-                      item
                       md={12}
                       style={{
-                        paddingTop: 10,
+                        paddingTop: 0,
                         textAlign: "left",
                       }}
                     >
                       <Box display="flex" justifyContent="space-between">
-                        {p.wishlisted ? (
+                        {/* {p.wishlisted ? (
                           <IconButton
                             style={{ padding: 0 }}
                             aria-label="Wishlisted"
@@ -900,7 +907,7 @@ export default function SectionProductListing({
                           >
                             <FavoriteBorderOutlinedIcon fontSize="small" />
                           </IconButton>
-                        )}
+                        )} */}
                         <div>
                           {p.variants[p.activeVariantIdx].onlyFewItemsLeft ? (
                             <Typography
@@ -916,6 +923,7 @@ export default function SectionProductListing({
                             <Typography>&nbsp;</Typography>
                           )}
                         </div>
+                        <div>{renderAddToCartControls(p)}</div>
                       </Box>
                     </Grid>
                   </Grid>
