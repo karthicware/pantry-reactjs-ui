@@ -73,6 +73,7 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     display: "none",
+    color: "#FFF",
     [theme.breakpoints.up("sm")]: {
       display: "block",
     },
@@ -214,7 +215,7 @@ export default function AppHeader(props) {
   );
 
   const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
+  /* const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
       anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -251,7 +252,7 @@ export default function AppHeader(props) {
         </IconButton>
       </MenuItem>
     </Menu>
-  );
+  ); */
 
   const onLoginSuccessHandler = () => {
     setToggleLoginModalValue(false);
@@ -373,7 +374,7 @@ export default function AppHeader(props) {
                 Login / Sign Up
               </Button>
             )}
-            <Link href="/wishlist">
+            {/* <Link href="/wishlist">
               <IconButton
                 aria-label="show 4 new mails"
                 color="inherit"
@@ -383,7 +384,7 @@ export default function AppHeader(props) {
                   <FavoriteBorderIcon />
                 </Badge>
               </IconButton>
-            </Link>
+            </Link> */}
             <Link href="/cart">
               <IconButton
                 aria-label="show 17 new notifications"
@@ -393,11 +394,14 @@ export default function AppHeader(props) {
                 <AppContext.Consumer>
                   {(context) => (
                     <Badge badgeContent={context.cartItems} color="secondary">
-                      <ShoppingCartIcon />
+                      <ShoppingCartIcon style={{ color: "#FFF" }} />
                     </Badge>
                   )}
                 </AppContext.Consumer>
-                <Typography variant="subtitle2" style={{ paddingLeft: 20 }}>
+                <Typography
+                  variant="subtitle2"
+                  style={{ paddingLeft: 20, color: "#FFF" }}
+                >
                   &#8377; {context.cartAmount}
                 </Typography>
               </IconButton>

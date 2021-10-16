@@ -164,12 +164,15 @@ const useStyles = makeStyles((theme) => ({
     height: "22px",
     fontSize: 12,
     fontWeight: 600,
-    backgroundColor: successColor[0],
     color: "#FFF",
+    border: `1px solid ${successColor[0]}`,
+    backgroundColor: "#FFF",
+    borderRadius: 4,
   },
   offerTag: {
     paddingLeft: 0,
     paddingRight: 0,
+    color: successColor[0],
   },
   softRiseShadowStyle: {
     textAlign: "center",
@@ -568,7 +571,10 @@ export default function SectionProductListing({
               )
             }
           >
-            <Typography variant="button" style={{ lineHeight: 1 }}>
+            <Typography
+              variant="button"
+              style={{ lineHeight: 1, color: "#FFF" }}
+            >
               ADD
             </Typography>{" "}
             {"  "} <AddIcon style={{ marginLeft: 8 }} />

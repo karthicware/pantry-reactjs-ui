@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Celias';
+    src: local('Celias Regular'), local('Celias-Regular'),
+        url('Celias.woff2') format('woff2'),
+        url('Celias.woff') format('woff'),
+        url('Celias.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 //core components
 import { makeStyles, withStyles } from "@material-ui/core/styles";
-import Typography from '@material-ui/core/Typography';
+import Typography from "@material-ui/core/Typography";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
@@ -14,7 +14,7 @@ import StepConnector from "@material-ui/core/StepConnector";
 import { StepIconProps } from "@material-ui/core/StepIcon";
 import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
-import Hidden from '@material-ui/core/Hidden';
+import Hidden from "@material-ui/core/Hidden";
 
 //icons
 import VerifiedUser from "@material-ui/icons/VerifiedUser";
@@ -26,7 +26,11 @@ import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Info from "components/Typography/Info.js";
-import { roseColor, warningColor, successColor } from "assets/jss/material-kit-pro-react.js";
+import {
+  primaryColor,
+  warningColor,
+  successColor,
+} from "assets/jss/material-kit-pro-react.js";
 
 const styles = makeStyles({
   origProdsLabel: { paddingRight: 2, marginRight: 2 },
@@ -36,8 +40,8 @@ const styles = makeStyles({
     height: 10,
     marginLeft: 2,
     marginRight: 5,
-    verticalAlign: "middle"
-  }
+    verticalAlign: "middle",
+  },
 });
 
 const ColorlibConnector = withStyles({
@@ -45,49 +49,49 @@ const ColorlibConnector = withStyles({
     top: 22,
   },
   active: {
-    '& $line': {
+    "& $line": {
       // backgroundImage:
       //   'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
-      backgroundColor: warningColor[0],
+      backgroundColor: primaryColor[0],
     },
   },
   completed: {
-    '& $line': {
+    "& $line": {
       // backgroundImage:
       //   'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
-      backgroundColor: warningColor[0],
+      backgroundColor: primaryColor[0],
     },
   },
   line: {
     height: 3,
     border: 0,
-    backgroundColor: '#eaeaf0',
+    backgroundColor: "#eaeaf0",
     borderRadius: 1,
   },
 })(StepConnector);
 
 const useColorlibStepIconStyles = makeStyles({
   root: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     zIndex: 1,
-    color: '#fff',
+    color: "#fff",
     width: 30,
     height: 30,
-    display: 'flex',
-    borderRadius: '50%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    display: "flex",
+    borderRadius: "50%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   active: {
     // backgroundImage:
     //   'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)',
-    backgroundColor: warningColor[7],
-    boxShadow: '0 2px 5px 0 rgba(0,0,0,.25)',
+    backgroundColor: primaryColor[5],
+    boxShadow: "0 2px 5px 0 rgba(0,0,0,.25)",
   },
   completed: {
     // backgroundImage:
     //   'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)',
-    backgroundColor: warningColor[7],
+    backgroundColor: primaryColor[5],
   },
 });
 
@@ -96,10 +100,10 @@ function ColorlibStepIcon(props) {
   const { active, completed } = props;
 
   const icons = {
-    1: <ShoppingBasketIcon style={{fontSize: 16}} />,
-    2: <LocalShippingIcon style={{fontSize: 16}} />,
+    1: <ShoppingBasketIcon style={{ fontSize: 16 }} />,
+    2: <LocalShippingIcon style={{ fontSize: 16 }} />,
     //3: <AccountBalanceIcon style={{fontSize: 16}} />,
-    3: <p style={{margin: 0, fontSize: 16}}>&#8377;</p>
+    3: <p style={{ margin: 0, fontSize: 16 }}>&#8377;</p>,
   };
 
   return (
@@ -169,24 +173,29 @@ function CartStepper(props) {
         boxShadow: "0 2px 3px 0px rgba(0, 0, 0, 0.14)",
         backgroundColor: "#FFF",
         width: "100%",
-        margin: 0
+        margin: 0,
       }}
     >
-      <GridItem md={3} sm={3}><Button className={classes.title} style={{marginRight: 60}}>
+      <GridItem md={3} sm={3}>
+        <Button className={classes.title} style={{ marginRight: 60 }}>
           <Link href="/">
             <a>
-              <img style={{width: "80px"}} src="https://sarees-images-bucket.s3.ap-south-1.amazonaws.com/logo.PNG" />
+              <img
+                style={{ width: "80px" }}
+                src="https://sarees-images-bucket.s3.ap-south-1.amazonaws.com/logo.PNG"
+              />
             </a>
           </Link>
-        </Button></GridItem>
+        </Button>
+      </GridItem>
       <GridItem md={6} sm={6}>
         <Stepper
           alternativeLabel
           activeStep={activeStep}
           connector={<ColorlibConnector />}
-          style={{padding: 10}}
+          style={{ padding: 10 }}
         >
-          {steps.map(label => (
+          {steps.map((label) => (
             <Step key={label}>
               <StepLabel StepIconComponent={ColorlibStepIcon}>
                 <Typography variant="body2">{label}</Typography>
@@ -203,7 +212,7 @@ function CartStepper(props) {
 }
 
 CartStepper.propTypes = {
-  activeStep: PropTypes.number.isRequired
+  activeStep: PropTypes.number.isRequired,
 };
 
 export default CartStepper;

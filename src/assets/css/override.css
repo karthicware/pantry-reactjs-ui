@@ -2,15 +2,18 @@
     z-index: 99;
 }
 body,
+.MuiTypography-root,
+.MuiInput-input {
+  color: #6c757d;
+  text-transform: inherit;
+}
 h1,
 h2,
 h3,
 h4,
 h5,
-h6,
-.MuiTypography-root,
-.MuiInput-input {
-  /* color: #666 !important; */
+h6 {
+  color: #555;
   text-transform: inherit;
 }
 .MuiTypography-h6,

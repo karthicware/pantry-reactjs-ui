@@ -46,11 +46,12 @@ import CardBody from "components/Card/CardBody.js";
 import Muted from "components/Typography/Muted.js";
 import Backdrop from "components/Backdrop/CustomBackdrop";
 import AppHeader from "components/AppHeader/AppHeader.js";
+import OfferTag from "components/OfferTag";
 
 import {
   roseColor,
   grayColor,
-  warningColor,
+  primaryColor,
   dangerColor,
   successColor,
   title,
@@ -92,27 +93,16 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 20,
     marginRight: 20,
   },
-  prodNameContainer: {
-    [theme.breakpoints.down("md")]: {
-      textAlign: "center",
-    },
-  },
   prodName: {
     textTransform: "capitalize",
-    fontSize: "16px",
   },
   addMoreWishList: {
     fontSize: "14px",
     color: "rgba(0, 0, 0, 0.87)",
   },
   originalPrice: {
-    marginRight: 15,
     textDecoration: "line-through",
-    color: "#999 !important",
-  },
-  offerPerc: {
-    color: roseColor[4],
-    fontSize: ".8rem",
+    marginRight: 10,
   },
   priceColumn: {
     textAlign: "right",
@@ -160,19 +150,6 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: 5,
     },
   },
-  offerTagRoot: {
-    //width: 60,
-    height: "18px",
-    fontSize: 12,
-    fontWeight: 600,
-    padding: 10,
-    backgroundColor: successColor[0],
-    color: "#FFF",
-  },
-  offerTag: {
-    paddingLeft: 0,
-    paddingRight: 0,
-  },
   heading: {
     display: "flex",
   },
@@ -212,7 +189,7 @@ function ShoppingCartPage({ deptList }) {
   const [bagDiscount, setBagDiscount] = React.useState(0);
   const [subTotal, setSubTotal] = React.useState(0);
   const [deliveryCharges, setDeliveryCharges] = React.useState(0);
-  const [total, setTotal] = React.useState(0);
+  const [finalAmount, setFinalAmount] = React.useState(0);
 
   const [deliveryAddressId, setDeliveryAddressId] = React.useState(null);
 
@@ -238,7 +215,7 @@ function ShoppingCartPage({ deptList }) {
         setBagDiscount(resp.data.result.bagDiscount);
         setSubTotal(resp.data.result.subTotal);
         setDeliveryCharges(resp.data.result.deliveryCharges);
-        setTotal(resp.data.result.total);
+        setFinalAmount(resp.data.result.finalAmount);
       })
       .catch((error) => {
         setBlocking(false);
@@ -254,7 +231,7 @@ function ShoppingCartPage({ deptList }) {
     return function cleanup() {};
   }, []);
 
-  const removeFromCart = (skuCode) => {
+  /* const removeFromCart = (skuCode) => {
     setBlocking(true);
     axios
       .delete(`/api/v1/cart/${skuCode}`)
@@ -266,7 +243,7 @@ function ShoppingCartPage({ deptList }) {
         setBlocking(false);
         console.log(error);
       });
-  };
+  }; */
 
   const moveToWishlist = (prodCode) => {
     /*  setBlocking(true);
@@ -304,7 +281,7 @@ function ShoppingCartPage({ deptList }) {
             <Fade in={true} key={i} timeout={1000}>
               <Paper elevation={0}>
                 <GridContainer className={classes.rowContainer} spacing={0}>
-                  <GridItem md={3} sm={12} xs={12}>
+                  <GridItem md={3}>
                     <div
                       className={classes.imgContainer}
                       style={{ margin: "auto" }}
@@ -317,15 +294,33 @@ function ShoppingCartPage({ deptList }) {
                     </div>
                   </GridItem>
 
-                  <GridItem md={7} sm={12} xs={12}>
-                    <Typography variant="body1">
-                      {rowData.prodName}
-                    </Typography>
-                    <Typography variant="caption">
-                      {rowData.unitDesc} of {rowData.packagingDesc}
-                    </Typography>
-
-                    <Box display="flex" flexDirection="row" alignItems="center">
+                  <GridItem md={9}>
+                    <Box
+                      display="flex"
+                      flexDirection="row"
+                      justifyContent="space-between"
+                      fontWeight="fontWeightLight"
+                    >
+                      <div>
+                        <Typography
+                          variant="subtitle1"
+                          className={classes.prodName}
+                        >
+                          {rowData.prodName}
+                        </Typography>
+                        <Typography variant="subtitle1">
+                          {rowData.unitDesc}
+                        </Typography>
+                      </div>
+                      <div>
+                        <OfferTag discPerc={rowData.discPerc} />
+                      </div>
+                    </Box>
+                    <Box
+                      display="flex"
+                      flexDirection="row"
+                      justifyContent="space-between"
+                    >
                       <div
                         style={{
                           display: "flex",
@@ -335,8 +330,11 @@ function ShoppingCartPage({ deptList }) {
                         <Button
                           justIcon
                           round
-                          color="primary"
                           size="sm"
+                          style={{
+                            border: `1px solid ${primaryColor[0]}`,
+                            backgroundColor: "#FFF",
+                          }}
                           onClick={() =>
                             handleUpdateItemToCart(
                               rowData.skuCode,
@@ -344,7 +342,7 @@ function ShoppingCartPage({ deptList }) {
                             )
                           }
                         >
-                          <AddRoundedIcon style={{ color: "#FFFFFF" }} />
+                          <AddRoundedIcon style={{ color: primaryColor[0] }} />
                         </Button>
                         <Typography variant="body1" style={{ padding: 15 }}>
                           {rowData.qty}
@@ -352,8 +350,11 @@ function ShoppingCartPage({ deptList }) {
                         <Button
                           justIcon
                           round
-                          color="primary"
                           size="sm"
+                          style={{
+                            border: `1px solid ${primaryColor[0]}`,
+                            backgroundColor: "#FFF",
+                          }}
                           onClick={() =>
                             handleUpdateItemToCart(
                               rowData.skuCode,
@@ -361,73 +362,45 @@ function ShoppingCartPage({ deptList }) {
                             )
                           }
                         >
-                          <RemoveRoundedIcon style={{ color: "#FFFFFF" }} />
+                          <RemoveRoundedIcon
+                            style={{ color: primaryColor[0] }}
+                          />
                         </Button>
+                        <Typography
+                          variant="subtitle1"
+                          style={{ marginLeft: 20, marginRight: 20 }}
+                        >
+                          x
+                        </Typography>
+                        <Typography
+                          variant="subtitle2"
+                          style={{ marginRight: 15 }}
+                        >
+                          {rowData.sellingPrice}
+                        </Typography>
+                        <FormLabel
+                          classes={{
+                            root: classes.originalPrice,
+                          }}
+                        >
+                          {`₹ ${rowData.unitPrice}`}
+                        </FormLabel>
                       </div>
-                      <MuiButton
-                        color="secondary"
-                        style={{
-                          color: dangerColor[0],
-                          textTransform: "capitalize",
-                          fontWeight: 400,
-                          marginLeft: 20,
-                          paddingLeft: 8,
-                          paddingRight: 8,
-                        }}
-                        onClick={() => removeFromCart(rowData.skuCode)}
-                      >
-                        <DeleteForeverOutlinedIcon style={{ fontSize: 16 }} />{" "}
-                        <Typography variant="button">Remove</Typography>
-                      </MuiButton>
 
-                      {/* <GridItem
-                            md={5}
-                            xs={8}
-                            sm={8}
-                            style={{ margin: "auto" }}
-                          >
-                            <MuiButton
-                              style={{
-                                color: "#666",
-                                textTransform: "capitalize",
-                                fontWeight: 400,
-                                textAlign: "right",
-                              }}
-                              onClick={() => moveToWishlist(rowData.prodCode)}
-                            >
-                              <FavoriteBorderOutlinedIcon />
-                              &nbsp; Move To Favourites
-                            </MuiButton>
-                          </GridItem> */}
+                      <div>
+                        <Typography
+                          variant="subtitle1"
+                          gutterBottom
+                          style={{
+                            fontWeight: 600,
+                            marginTop: 10,
+                            marginBottom: 10,
+                          }}
+                        >
+                          &#8377; {rowData.subTotal}
+                        </Typography>
+                      </div>
                     </Box>
-                  </GridItem>
-
-                  <GridItem md={2} style={{ textAlign: "right" }}>
-                    <Chip
-                      label={rowData.discPerc + " % OFF"}
-                      classes={{
-                        root: classes.offerTagRoot,
-                        label: classes.offerTag,
-                      }}
-                    />
-                    <div style={{ marginTop: 10, marginBottom: 10}}>
-                    <FormLabel
-                      style={{ fontSize: 14, color: grayColor[7], }}
-                    >
-                      MRP: &nbsp; &#8377; &nbsp;
-                      <span
-                        style={{
-                          color: "#999",
-                          textDecoration: "line-through",
-                        }}
-                      >
-                        {rowData.unitPrice}
-                      </span>
-                    </FormLabel>
-                    </div>
-                    <Typography variant="subtitle1" gutterBottom style={{ fontWeight: 600 }}>
-                      &#8377; {rowData.sellingPrice}
-                    </Typography>
                   </GridItem>
                 </GridContainer>
               </Paper>
@@ -467,12 +440,12 @@ function ShoppingCartPage({ deptList }) {
                   textTransform: "capitalize",
                 }}
               >
-                Price Details
+                Payment Details
               </Typography>
               <GridContainer className={classes.priceDetailsContainer}>
                 {/* Bag total */}
                 <GridItem md={7}>
-                  <Typography variant="body2">Bag Total</Typography>
+                  <Typography variant="body2">MRP Total</Typography>
                 </GridItem>
                 <GridItem md={5} style={{ textAlign: "right" }}>
                   <Typography variant="body2">
@@ -484,11 +457,11 @@ function ShoppingCartPage({ deptList }) {
                 {bagDiscount > 0 && (
                   <>
                     <GridItem md={7}>
-                      <Typography variant="body2">Bag Discount</Typography>
+                      <Typography variant="body2">MRP Discount (-)</Typography>
                     </GridItem>
                     <GridItem md={5} style={{ textAlign: "right" }}>
                       <Typography variant="body2">
-                        - &#8377; {addCommas(bagDiscount)}
+                        &#8377; {addCommas(bagDiscount)}
                       </Typography>
                     </GridItem>
                   </>
@@ -519,7 +492,7 @@ function ShoppingCartPage({ deptList }) {
 
                 {/* Shipping Charges */}
                 <GridItem md={7}>
-                  <Typography variant="body2">Shipping Charges</Typography>
+                  <Typography variant="body2">Shipping Charges (+)</Typography>
                 </GridItem>
                 <GridItem md={5} style={{ textAlign: "right" }}>
                   <Typography variant="body2">
@@ -539,13 +512,13 @@ function ShoppingCartPage({ deptList }) {
                     <GridContainer>
                       <GridItem md={7}>
                         <Typography variant="subtitle2">
-                          Amount Payable
+                          Final Amount
                         </Typography>
                       </GridItem>
                       <GridItem md={5} style={{ textAlign: "right" }}>
                         <Typography variant="subtitle2">
                           &#8377;{" "}
-                          <span style={{ fontWeight: 600 }}>{total}</span>
+                          <span style={{ fontWeight: 600 }}>{finalAmount}</span>
                         </Typography>
                       </GridItem>
                     </GridContainer>
@@ -560,7 +533,15 @@ function ShoppingCartPage({ deptList }) {
                   color="primary"
                   onClick={() => setExpanded("panel2")}
                 >
-                  <Typography variant="button" style={{textTransform: 'capitalize'}}>Proceed to shipping</Typography>
+                  <Typography
+                    variant="button"
+                    style={{
+                      textTransform: "capitalize",
+                      color: "#FFF",
+                    }}
+                  >
+                    Proceed to shipping
+                  </Typography>
                 </Button>
               )}
               {expanded === "panel2" && (
@@ -725,6 +706,19 @@ function ShoppingCartPage({ deptList }) {
     </div>
   );
 }
+
+/*  <MuiButton
+                              style={{
+                                color: "#666",
+                                textTransform: "capitalize",
+                                fontWeight: 400,
+                                textAlign: "right",
+                              }}
+                              onClick={() => moveToWishlist(rowData.prodCode)}
+                            >
+                              <FavoriteBorderOutlinedIcon />
+                              &nbsp; Move To Favourites
+                            </MuiButton> */
 
 ShoppingCartPage.propTypes = {
   deptList: PropTypes.array.isRequired,
