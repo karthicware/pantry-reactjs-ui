@@ -64,6 +64,7 @@ import CartStepper from "pages-sections/Cart/CartStepper.js";
 import StepDeliveryAddress from "pages-sections/Cart/StepDeliveryAddress.js";
 import StepPayment from "pages-sections/Cart/StepPayment.js";
 import FooterPage from "pages-sections/FooterPage/FooterPage.js";
+import AddressText from "pages-sections/Address/AddressText.js";
 
 import { addCommas, handleError } from "utils/util.js";
 
@@ -191,10 +192,10 @@ function ShoppingCartPage({ deptList }) {
   const [deliveryCharges, setDeliveryCharges] = React.useState(0);
   const [finalAmount, setFinalAmount] = React.useState(0);
 
-  const [deliveryAddressId, setDeliveryAddressId] = React.useState(null);
+  const [deliveryAddress, setDeliveryAddress] = React.useState(null);
 
   const handleChange = (panel) => (event, isExpanded) => {
-    if (panel === "panel3" && !deliveryAddressId) return false;
+    if (panel === "panel3" && !deliveryAddress) return false;
     setExpanded(isExpanded ? panel : expanded === panel ? panel : false);
   };
 
@@ -426,7 +427,7 @@ function ShoppingCartPage({ deptList }) {
     );
   };
 
-  const renderSummary = () => {
+  const renderPaymentDetails = () => {
     return (
       <Card>
         <CardBody>
@@ -544,16 +545,43 @@ function ShoppingCartPage({ deptList }) {
                   </Typography>
                 </Button>
               )}
-              {expanded === "panel2" && (
-                <Button
-                  block
-                  color="primary"
-                  disabled={!deliveryAddressId}
-                  onClick={() => setExpanded("panel3")}
-                >
-                  Proceed to payment
-                </Button>
-              )}
+            </GridItem>
+          </GridContainer>
+        </CardBody>
+      </Card>
+    );
+  };
+
+  const renderAddressDetails = () => {
+    const a = deliveryAddress;
+    return (
+      <Card>
+        <CardBody>
+          <GridContainer>
+            <GridItem>
+              <Typography
+                variant="h6"
+                style={{
+                  paddingTop: 5,
+                  paddingBottom: 25,
+                  textTransform: "capitalize",
+                }}
+              >
+                Delivery Details
+              </Typography>
+              <GridContainer>
+                <GridItem>
+                <AddressText
+                  name={a.name}
+                  houseNo={a.houseNo}
+                  address={a.address}
+                  city={a.city}
+                  state={a.state}
+                  pincode={a.pincode}
+                  mobile={a.mobile}
+                />
+                </GridItem>
+              </GridContainer>
             </GridItem>
           </GridContainer>
         </CardBody>
@@ -586,7 +614,7 @@ function ShoppingCartPage({ deptList }) {
     </AppHeader>
   );
 
-  if (cartItems.length <= 0 && !deliveryAddressId) {
+  if (cartItems.length <= 0 && !deliveryAddress) {
     if (blocking) return null;
     else return emptyCart;
   }
@@ -595,7 +623,7 @@ function ShoppingCartPage({ deptList }) {
     <div>
       <Backdrop open={blocking} />
       <div className={classNames(classes.main, classes.sectionGray)}>
-        <CartStepper activeStep={deliveryAddressId ? 2 : 0} />
+        <CartStepper activeStep={deliveryAddress ? 2 : 0} />
         <div className={classes.container}>
           <GridContainer>
             <GridItem md={8}>
@@ -629,14 +657,14 @@ function ShoppingCartPage({ deptList }) {
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <Avatar
                       className={
-                        deliveryAddressId
+                        deliveryAddress
                           ? classes.completedAvatar
                           : expanded === "panel2"
                           ? classes.activeAvatar
                           : classes.inactivatedAvatar
                       }
                     >
-                      {deliveryAddressId ? <CheckIcon /> : 2}
+                      {deliveryAddress ? <CheckIcon /> : 2}
                     </Avatar>
                     <Typography variant="h6">Delivery Address</Typography>
                   </div>
@@ -645,15 +673,16 @@ function ShoppingCartPage({ deptList }) {
                   {/* load when accordion selected also delivery address should be picked */}
                   {expanded === "panel2" && (
                     <StepDeliveryAddress
-                      onSelectAddress={(selectedAddressId) =>
-                        setDeliveryAddressId(selectedAddressId)
-                      }
+                      onSelectAddress={(addressDetail) => {
+                        setDeliveryAddress(addressDetail);
+                        setExpanded("panel3");
+                      }}
                     />
                   )}
                 </AccordionDetails>
               </Accordion>
               <Accordion
-                expanded={expanded === "panel3" && deliveryAddressId}
+                expanded={expanded === "panel3" && deliveryAddress}
                 onChange={handleChange("panel3")}
               >
                 <AccordionSummary
@@ -675,13 +704,16 @@ function ShoppingCartPage({ deptList }) {
                   </div>
                 </AccordionSummary>
                 <AccordionDetails>
-                  {deliveryAddressId && (
-                    <StepPayment deliveryAddressId={deliveryAddressId} />
+                  {deliveryAddress && (
+                    <StepPayment deliveryAddressId={deliveryAddress.id} />
                   )}
                 </AccordionDetails>
               </Accordion>
             </GridItem>
-            <GridItem md={4}>{renderSummary()}</GridItem>
+            <GridItem md={4}>
+              {renderPaymentDetails()}
+              {deliveryAddress && renderAddressDetails()}
+            </GridItem>
             <GridItem md={8}>
               <Card plain>
                 <Typography className={classes.continueShopping}>

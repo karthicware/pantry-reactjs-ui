@@ -7,6 +7,10 @@ body,
   color: #6c757d;
   text-transform: inherit;
 }
+.MuiTypography-button {
+  color: #FFF;
+  text-transform: none !important;
+}
 h1,
 h2,
 h3,

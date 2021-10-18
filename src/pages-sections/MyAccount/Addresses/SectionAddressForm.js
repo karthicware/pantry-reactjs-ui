@@ -1,30 +1,22 @@
 import React from "react";
+// nodejs library that concatenates classes
 import PropTypes from "prop-types";
-import clsx from "clsx";
+import classNames from "classnames";
 import axios from "axios";
-import MaskedInput from "react-text-mask";
 
-//core components
+// core components
 import { makeStyles } from "@material-ui/core/styles";
-import { FormLabel } from "@material-ui/core";
+import MuiButton from "@material-ui/core/Button";
+import { FormLabel, Typography } from "@material-ui/core";
 import Slide from "@material-ui/core/Slide";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
+import Alert from "@material-ui/lab/Alert";
 import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
-import MuiButton from "@material-ui/core/Button";
-import List from "@material-ui/core/List";
-import Divider from "@material-ui/core/Divider";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import Typography from "@material-ui/core/Typography";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Radio from "@material-ui/core/Radio";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-// custom components
+//custom components
 import Header from "components/Header/Header.js";
 import Footer from "components/Footer/Footer.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -39,117 +31,42 @@ import NavPills from "components/NavPills/NavPills.js";
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter";
-import Checkbox from "@material-ui/core/Checkbox";
-import IconButton from "@material-ui/core/IconButton";
 
 // @material-ui/icons
-import AddLocationRoundedIcon from "@material-ui/icons/AddLocationRounded";
-import EditLocationRoundedIcon from "@material-ui/icons/EditLocationRounded";
+import Close from "@material-ui/icons/Close";
+import IconButton from "@material-ui/core/IconButton";
 import IconCheck from "@material-ui/icons/Check";
 import IconClose from "@material-ui/icons/Close";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
-import FiberManualRecord from "@material-ui/icons/FiberManualRecord";
-import Check from "@material-ui/icons/Check";
-import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
+
+// sections for this page
+import HeaderLinks from "components/Header/HeaderLinks.js";
 
 import { handleError } from "utils/util.js";
-import customCheckboxRadioSwitchStyle from "assets/jss/material-kit-pro-react/customCheckboxRadioSwitchStyle.js";
-
-const useStyles = makeStyles({
-  ...customCheckboxRadioSwitchStyle,
-  bottomControls: {
-    position: "sticky",
-    zIndex: 1,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 48,
-    marginTop: 120,
-    textAlign: "center",
-    //height: 70,
-    display: "flex",
-    width: "100%",
-  },
-});
-
-function TextMaskCustom(props) {
-  const { inputRef, ...other } = props;
-
-  return (
-    <MaskedInput
-      {...other}
-      ref={(ref) => {
-        inputRef(ref ? ref.inputElement : null);
-      }}
-      mask={[/\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/]}
-      placeholderChar={"\u2000"}
-      guide={false}
-    />
-  );
-}
-
-TextMaskCustom.propTypes = {
-  inputRef: PropTypes.func.isRequired,
-};
 
 export default function SectionAddressForm(props) {
-  const classes = useStyles();
-  const [isDrawerOpen, setDrawerOpen] = React.useState(true);
-
   const [name, setName] = React.useState("");
   const [mobile, setMobile] = React.useState("");
-  const [houseNo, setAddress] = React.useState("");
+  const [houseNo, setHouseNo] = React.useState("");
   const [address, setAddress] = React.useState("");
   const [city, setCity] = React.useState("");
   const [state, setState] = React.useState("");
   const [pincode, setPincode] = React.useState("");
-  const [makeAsDefaultAddress, setMakeAsDefaultAddress] = React.useState(false);
 
   const [nameErrMsg, setNameErrMsg] = React.useState(null);
   const [mobileErrMsg, setMobileErrMsg] = React.useState(null);
+  const [houseNoErrMsg, setHouseNoErrMsg] = React.useState(null);
   const [addressErrMsg, setAddressErrMsg] = React.useState(null);
   const [cityErrMsg, setCityErrMsg] = React.useState(null);
   const [stateErrMsg, setStateErrMsg] = React.useState(null);
   const [pincodeErrMsg, setPincodeErrMsg] = React.useState(null);
 
-  React.useEffect(() => {
-    if (props.edit) {
-      axios
-        .get(`/api/v1/customer/shipping-address/${props.addressId}`)
-        .then((resp) => {
-          const address = resp.data.result.address;
-          setName(address.name);
-          setMobile(address.mobile);
-          setAddress(address.address);
-          setCity(address.city);
-          setState(address.state);
-          setPincode(address.pincode);
-          setMakeAsDefaultAddress(address.makeAsDefaultAddress);
-        })
-        .catch((error) => {
-          handleError(error);
-        });
-    }
-  }, [props.edit, props.addressId]);
-
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event &&
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-
-    setDrawerOpen(open);
-    props.onCloseModal();
-  };
+  const [errMsg, setErrMsg] = React.useState(null);
 
   const clear = () => {
     //clear error messages
     setNameErrMsg(null);
     setMobileErrMsg(null);
+    setHouseNoErrMsg(null);
     setAddressErrMsg(null);
     setCityErrMsg(null);
     setStateErrMsg(null);
@@ -158,39 +75,64 @@ export default function SectionAddressForm(props) {
     //clear form params
     setName("");
     setMobile("");
+    setHouseNoErrMsg("");
     setAddress("");
     setCity("");
     setState("");
     setPincode("");
-    setMakeAsDefaultAddress(false);
+
+    //clear common err msg
+    setErrMsg(null);
   };
 
   const validateName = (val) => {
-    if (!val || val.length < 3) {
-      setNameErrMsg("Invalid Name");
+    if (!val) {
+      setNameErrMsg("Please Enter Name");
       return false;
     }
     setNameErrMsg(null);
     return true;
   };
   const validateMobile = (val) => {
-    if (!val || val.length < 10) {
-      setMobileErrMsg("Invalid Mobile");
+    if (!val) {
+      setMobileErrMsg("Please Enter Mobile");
+      return false;
+    }
+    if (val.length < 10) {
+      setMobileErrMsg("Please Enter Valid Mobile No");
       return false;
     }
     setMobileErrMsg(null);
     return true;
   };
+  const validateHouseNo = (val) => {
+    if (!val) {
+      setHouseNoErrMsg("Please Enter Flat/House No./ Building");
+      return false;
+    }
+    setHouseNoErrMsg(null);
+    return true;
+  };
   const validateAddress = (val) => {
-    if (!val || val.length < 3) {
-      setAddressErrMsg("Required");
+    if (!val) {
+      setAddressErrMsg("Please Enter Address");
+      return false;
+    }
+    if (val.length < 7) {
+      setAddressErrMsg(
+        "Address details insufficient to attempt delivery. Please add more details."
+      );
       return false;
     }
     setAddressErrMsg(null);
     return true;
   };
   const validateCity = (val) => {
-    if (!val || val.length < 3) {
+    if (!val) {
+      setCityErrMsg("Please Enter City");
+      return false;
+    }
+    if (val.length < 3) {
       setCityErrMsg("Invalid City");
       return false;
     }
@@ -198,7 +140,11 @@ export default function SectionAddressForm(props) {
     return true;
   };
   const validateState = (val) => {
-    if (!val || val.length < 3) {
+    if (!val) {
+      setStateErrMsg("Please Enter State");
+      return false;
+    }
+    if (val.length < 3) {
       setStateErrMsg("Invalid State");
       return false;
     }
@@ -206,7 +152,11 @@ export default function SectionAddressForm(props) {
     return true;
   };
   const validatePincode = (val) => {
-    if (!val || val.length < 6 || isNaN(val)) {
+    if (!val) {
+      setPincodeErrMsg("Please Enter Pincode");
+      return false;
+    }
+    if (val.length < 6) {
       setPincodeErrMsg("Invalid Pincode");
       return false;
     }
@@ -216,8 +166,10 @@ export default function SectionAddressForm(props) {
 
   const submit = () => {
     let isValid = true;
+    setErrMsg(null);
     if (!validateName(name)) isValid = false;
     if (!validateMobile(mobile)) isValid = false;
+    if (!validateHouseNo(houseNo)) isValid = false;
     if (!validateAddress(address)) isValid = false;
     if (!validateCity(city)) isValid = false;
     if (!validateState(state)) isValid = false;
@@ -228,300 +180,281 @@ export default function SectionAddressForm(props) {
         .put(`/api/v1/customer/shipping-address/${props.addressId}`, {
           name,
           mobile,
+          houseNo,
           address,
           city,
           state,
           pincode,
-          houseNo,
-          defaultAddress: makeAsDefaultAddress,
         })
         .then((resp) => {
-          props.onSuccessUpdateAddress(resp.data.result);
-          clear();
+          props.onSuccess();
+          props.onClose();
         })
         .catch((error) => {
-          handleError(error);
+          setErrMsg(handleError(error));
         });
     } else {
       axios
         .post(`/api/v1/customer/shipping-address`, {
           name,
           mobile,
+          houseNo,
           address,
           city,
           state,
           pincode,
-          houseNo,
-          defaultAddress: makeAsDefaultAddress,
         })
         .then((resp) => {
-          props.onSuccessAddAddress(resp.data.result);
-          clear();
+          props.onSuccess();
+          props.onClose();
+        })
+        .catch((error) => {
+          setErrMsg(handleError(error));
+        });
+    }
+  };
+
+  React.useEffect(() => {
+    if (props.edit) {
+      axios
+        .get(`/api/v1/customer/shipping-address/${props.addressId}`)
+        .then((resp) => {
+          setName(resp.data.result.name);
+          setMobile(resp.data.result.mobile);
+          setHouseNo(resp.data.result.houseNo);
+          setAddress(resp.data.result.address);
+          setCity(resp.data.result.city);
+          setState(resp.data.result.state);
+          setPincode(resp.data.result.pincode);
         })
         .catch((error) => {
           handleError(error);
         });
     }
-  };
+  }, [props.edit, props.addressId]);
 
   return (
-    <div>
-      <SwipeableDrawer
-        anchor="right"
-        open={isDrawerOpen}
-        onClose={toggleDrawer(false)}
-        onOpen={toggleDrawer(true)}
-      >
-        <GridContainer style={{ width: 400, margin: 0 }}>
-          <GridItem>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginTop: 10,
-              }}
-            >
-              {props.edit ? (
-                <Typography variant="h6">
-                  <EditLocationRoundedIcon
-                    style={{ marginBottom: -5, marginRight: 5 }}
-                  />
-                  Edit Address
-                </Typography>
-              ) : (
-                <Typography variant="h6">
-                  <AddLocationRoundedIcon
-                    style={{ marginBottom: -5, marginRight: 5 }}
-                  />
-                  Add New Address
-                </Typography>
-              )}
-
-              <IconButton
-                aria-label="delete"
-                onClick={() => {
-                  clear();
-                  props.onCloseModal();
-                }}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-            </div>
+    <SwipeableDrawer anchor="right" open={true} onClose={() => props.onClose()}>
+      <GridContainer style={{ width: 400, margin: 20 }}>
+        {errMsg && (
+          <GridItem md={12} style={{ marginTop: 10, marginBottom: 30 }}>
+            <Alert severity="error">{errMsg}</Alert>
           </GridItem>
-          <GridItem md={12}>
-            <CustomInput
-              labelText="Name *"
-              formControlProps={{
-                fullWidth: true,
-              }}
-              autoFocus
-              inputProps={{
-                value: name,
-                onChange: (e) => {
-                  setName(e.target.value);
-                  validateName(e.target.value);
-                },
-                error: nameErrMsg ? true : false,
-              }}
-              helperText="test"
-              error={nameErrMsg ? true : false}
-            />
-            {nameErrMsg && (
-              <Danger>
-                <Typography variant="caption">{nameErrMsg}</Typography>
-              </Danger>
-            )}
-          </GridItem>
-
-          <GridItem md={12}>
-            <CustomInput
-              labelText="Mobile *"
-              formControlProps={{
-                fullWidth: true,
-              }}
-              inputProps={{
-                value: mobile,
-                onChange: (e) => {
-                  setMobile(e.target.value);
-                  validateMobile(e.target.value);
-                },
-                error: mobileErrMsg ? true : false,
-                minLength: 10,
-                maxLength: 10,
-              }}
-              helperText="test"
-              error={mobileErrMsg ? true : false}
-              startAdornment={
-                <InputAdornment position="start">+91 - </InputAdornment>
-              }
-              inputComponent={TextMaskCustom}
-            />
-            {mobileErrMsg && (
-              <Danger>
-                <Typography variant="caption">{mobileErrMsg}</Typography>
-              </Danger>
-            )}
-          </GridItem>
-
-          <GridItem md={12}>
-            <CustomInput
-              labelText="Address (Flat, House No., Building, Street, Area) *"
-              formControlProps={{
-                fullWidth: true,
-              }}
-              inputProps={{
-                value: address,
-                onChange: (e) => {
-                  setAddress(e.target.value);
-                  validateAddress(e.target.value);
-                },
-                error: addressErrMsg ? true : false,
-              }}
-              helperText="test"
-              error={addressErrMsg ? true : false}
-            />
-            {addressErrMsg && (
-              <Danger>
-                <Typography variant="caption">{addressErrMsg}</Typography>
-              </Danger>
-            )}
-          </GridItem>
-
-          <GridItem md={12}>
-            <CustomInput
-              labelText="Town/City *"
-              formControlProps={{
-                fullWidth: true,
-              }}
-              inputProps={{
-                value: city,
-                onChange: (e) => {
-                  setCity(e.target.value);
-                  validateCity(e.target.value);
-                },
-                error: cityErrMsg ? true : false,
-              }}
-              helperText="test"
-              error={cityErrMsg ? true : false}
-            />
-            {cityErrMsg && (
-              <Danger>
-                <Typography variant="caption">{cityErrMsg}</Typography>
-              </Danger>
-            )}
-          </GridItem>
-
-          <GridItem md={12}>
-            <CustomInput
-              labelText="State *"
-              formControlProps={{
-                fullWidth: true,
-              }}
-              inputProps={{
-                value: state,
-                onChange: (e) => {
-                  setState(e.target.value);
-                  validateState(e.target.value);
-                },
-                error: stateErrMsg ? true : false,
-              }}
-              helperText="test"
-              error={stateErrMsg ? true : false}
-            />
-            {stateErrMsg && (
-              <Danger>
-                <Typography variant="caption">{stateErrMsg}</Typography>
-              </Danger>
-            )}
-          </GridItem>
-
-          <GridItem md={12}>
-            <CustomInput
-              labelText="Pincode *"
-              formControlProps={{
-                fullWidth: true,
-              }}
-              inputProps={{
-                value: pincode,
-                onChange: (e) => {
-                  setPincode(e.target.value);
-                  validatePincode(e.target.value);
-                },
-                error: pincodeErrMsg ? true : false,
-                minLength: 6,
-                maxLength: 6,
-              }}
-              helperText="test"
-              error={pincodeErrMsg ? true : false}
-            />
-            {pincodeErrMsg && (
-              <Danger>
-                <Typography variant="caption">{pincodeErrMsg}</Typography>
-              </Danger>
-            )}
-          </GridItem>
-
-          <GridItem md={12} style={{ marginTop: 20 }}>
-            <div
-              className={
-                classes.checkboxAndRadio +
-                " " +
-                classes.checkboxAndRadioHorizontal
-              }
-            >
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    onClick={(e) => setMakeAsDefaultAddress(e.target.checked)}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                      checked: classes.checked,
-                      root: classes.checkRoot,
-                    }}
-                    checked={makeAsDefaultAddress}
-                  />
-                }
-                classes={{ label: classes.label }}
-                label="Make as default address"
-              />
-            </div>
-          </GridItem>
-        </GridContainer>
-        <div className={classes.bottomControls}>
-          <Button block onClick={() => submit()} color="warning">
-            <IconCheck />
-            Save
-          </Button>
-          {props.clear ? (
-            <Button block onClick={() => clear()}>
-              <IconClose />
-              Clear
-            </Button>
-          ) : (
-            <Button
-              block
-              onClick={() => {
-                clear();
-                props.onCloseModal();
-              }}
-            >
-              <IconClose />
-              Cancel
-            </Button>
+        )}
+        <GridItem md={12}>
+          <Typography variant="h6" style={{ marginBottom: 30 }}>
+            {props.edit ? "Edit Address" : "Add Address"}
+          </Typography>
+        </GridItem>
+        <GridItem md={12}>
+          <CustomInput
+            labelText="Name *"
+            formControlProps={{
+              fullWidth: true,
+            }}
+            inputProps={{
+              value: name,
+              onChange: (e) => {
+                setName(e.target.value);
+                validateName(e.target.value);
+              },
+              error: nameErrMsg ? true : false,
+            }}
+            helperText="test"
+            error={nameErrMsg ? true : false}
+          />
+          {nameErrMsg && (
+            <Danger>
+              <Typography variant="caption">{nameErrMsg}</Typography>
+            </Danger>
           )}
-        </div>
-      </SwipeableDrawer>
-    </div>
+        </GridItem>
+
+        <GridItem md={12}>
+          <CustomInput
+            labelText="House No./ Flat / Building *"
+            formControlProps={{
+              fullWidth: true,
+            }}
+            inputProps={{
+              value: houseNo,
+              onChange: (e) => {
+                setHouseNo(e.target.value);
+                validateHouseNo(e.target.value);
+              },
+              error: houseNoErrMsg ? true : false,
+            }}
+            helperText="test"
+            error={houseNoErrMsg ? true : false}
+          />
+          {houseNoErrMsg && (
+            <Danger>
+              <Typography variant="caption">{houseNoErrMsg}</Typography>
+            </Danger>
+          )}
+        </GridItem>
+
+        <GridItem md={12}>
+          <CustomInput
+            labelText="Address (Street, Area, Colony) *"
+            formControlProps={{
+              fullWidth: true,
+            }}
+            inputProps={{
+              value: address,
+              onChange: (e) => {
+                setAddress(e.target.value);
+                validateAddress(e.target.value);
+              },
+              error: addressErrMsg ? true : false,
+            }}
+            helperText="test"
+            error={addressErrMsg ? true : false}
+          />
+          {addressErrMsg && (
+            <Danger>
+              <Typography variant="caption">{addressErrMsg}</Typography>
+            </Danger>
+          )}
+        </GridItem>
+
+        <GridItem md={12}>
+          <CustomInput
+            labelText="Pincode *"
+            formControlProps={{
+              fullWidth: true,
+            }}
+            inputProps={{
+              value: pincode,
+              onChange: (e) => {
+                setPincode(e.target.value);
+                validatePincode(e.target.value);
+              },
+              type: "number",
+              error: pincodeErrMsg ? true : false,
+            }}
+            helperText="test"
+            error={pincodeErrMsg ? true : false}
+          />
+          {pincodeErrMsg && (
+            <Danger>
+              <Typography variant="caption">{pincodeErrMsg}</Typography>
+            </Danger>
+          )}
+        </GridItem>
+
+        <GridItem md={12}>
+          <CustomInput
+            labelText="Town/City *"
+            formControlProps={{
+              fullWidth: true,
+            }}
+            inputProps={{
+              value: city,
+              onChange: (e) => {
+                setCity(e.target.value);
+                validateCity(e.target.value);
+              },
+              error: cityErrMsg ? true : false,
+            }}
+            helperText="test"
+            error={cityErrMsg ? true : false}
+          />
+          {cityErrMsg && (
+            <Danger>
+              <Typography variant="caption">{cityErrMsg}</Typography>
+            </Danger>
+          )}
+        </GridItem>
+
+        <GridItem md={12}>
+          <CustomInput
+            labelText="State *"
+            formControlProps={{
+              fullWidth: true,
+            }}
+            inputProps={{
+              value: state,
+              onChange: (e) => {
+                setState(e.target.value);
+                validateState(e.target.value);
+              },
+              error: stateErrMsg ? true : false,
+            }}
+            helperText="test"
+            error={stateErrMsg ? true : false}
+          />
+          {stateErrMsg && (
+            <Danger>
+              <Typography variant="caption">{stateErrMsg}</Typography>
+            </Danger>
+          )}
+        </GridItem>
+
+        <GridItem md={12}>
+          <CustomInput
+            labelText="Mobile *"
+            formControlProps={{
+              fullWidth: true,
+            }}
+            inputProps={{
+              value: mobile,
+              onChange: (e) => {
+                setMobile(e.target.value);
+                validateMobile(e.target.value);
+              },
+              type: "number",
+              error: mobileErrMsg ? true : false,
+            }}
+            helperText="test"
+            error={mobileErrMsg ? true : false}
+          />
+          {mobileErrMsg && (
+            <Danger>
+              <Typography variant="caption">{mobileErrMsg}</Typography>
+            </Danger>
+          )}
+        </GridItem>
+
+        <GridItem md>
+          <div style={{ flexGrow: 1, textAlign: "center" }}>
+            <Button
+              size="sm"
+              onClick={() => submit()}
+              style={{ margin: 15 }}
+              color="primary"
+            >
+              <IconCheck />{" "}
+              <Typography variant="button" size="sm" style={{ color: "#FFF" }}>
+                Save
+              </Typography>
+            </Button>
+
+            <Button
+              onClick={() => {
+                //clear();
+                props.onClose();
+              }}
+              size="sm"
+            >
+              <IconClose />
+              <Typography variant="button" size="sm" style={{ color: "#FFF" }}>
+                Cancel
+              </Typography>
+            </Button>
+          </div>
+        </GridItem>
+      </GridContainer>
+    </SwipeableDrawer>
   );
 }
 
 SectionAddressForm.propTypes = {
   edit: PropTypes.bool,
   addressId: PropTypes.number,
-  onSuccessAddAddress: PropTypes.func,
-  onSuccessUpdateAddress: PropTypes.func,
-  cancel: PropTypes.func,
-  clear: PropTypes.bool,
+  onSuccess: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  // onSuccessAddAddress: PropTypes.func,
+  // onSuccessUpdateAddress: PropTypes.func,
+  // cancel: PropTypes.func
 };
