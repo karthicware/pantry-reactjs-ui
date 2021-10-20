@@ -10,6 +10,8 @@ import axios from "axios";
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
+import MuiLink from "@material-ui/core/Link";
+import Grid from "@material-ui/core/Grid";
 import Avatar from "@material-ui/core/Avatar";
 import MuiButton from "@material-ui/core/Button";
 import Fade from "@material-ui/core/Fade";
@@ -21,6 +23,7 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import FormLabel from "@material-ui/core/FormLabel";
+import { Alert, AlertTitle } from "@material-ui/lab";
 
 // @material-ui/icons
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -46,7 +49,6 @@ import CardBody from "components/Card/CardBody.js";
 import Muted from "components/Typography/Muted.js";
 import Backdrop from "components/Backdrop/CustomBackdrop";
 import AppHeader from "components/AppHeader/AppHeader.js";
-import OfferTag from "components/OfferTag";
 
 import {
   roseColor,
@@ -177,6 +179,20 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 10,
     backgroundColor: successColor[0],
   },
+  offerTagRoot: {
+    width: 60,
+    height: "18px",
+    fontSize: 12,
+    fontWeight: 600,
+    position: "absolute",
+    zIndex: 99,
+    backgroundColor: successColor[0],
+    color: "#FFF",
+  },
+  offerTag: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
 }));
 
 function ShoppingCartPage({ deptList }) {
@@ -184,6 +200,7 @@ function ShoppingCartPage({ deptList }) {
   const [blocking, setBlocking] = React.useState(false);
   const [expanded, setExpanded] = React.useState("panel1");
 
+  const [outOfStockItems, setOutOfStockItems] = React.useState([]);
   const [cartItems, setCartItems] = React.useState([]);
   const [noOfItems, setNoOfItems] = React.useState(0);
   const [bagTotal, setBagTotal] = React.useState(0);
@@ -205,18 +222,22 @@ function ShoppingCartPage({ deptList }) {
       .get(`/api/v1/cart/`)
       .then((resp) => {
         setBlocking(false);
-        console.log(
-          `resp.data.result.cartItems=${JSON.stringify(
-            resp.data.result.cartItems
-          )}`
-        );
-        setCartItems(resp.data.result.cartItems);
-        setNoOfItems(resp.data.result.noOfItems);
-        setBagTotal(resp.data.result.bagTotal);
-        setBagDiscount(resp.data.result.bagDiscount);
-        setSubTotal(resp.data.result.subTotal);
-        setDeliveryCharges(resp.data.result.deliveryCharges);
-        setFinalAmount(resp.data.result.finalAmount);
+        const result = resp.data.result;
+        const error = resp.data.error;
+        setCartItems(result.cartItems);
+        setNoOfItems(result.noOfItems);
+        setBagTotal(result.bagTotal);
+        setBagDiscount(result.bagDiscount);
+        setSubTotal(result.subTotal);
+        setDeliveryCharges(result.deliveryCharges);
+        setFinalAmount(result.finalAmount);
+        if (error) {
+          if (error.attributes["OUT_OF_STOCK"]) {
+            setOutOfStockItems(error.attributes["OUT_OF_STOCK"]);
+          }
+        } else {
+          setOutOfStockItems([]);
+        }
       })
       .catch((error) => {
         setBlocking(false);
@@ -232,19 +253,20 @@ function ShoppingCartPage({ deptList }) {
     return function cleanup() {};
   }, []);
 
-  /* const removeFromCart = (skuCode) => {
+  const removeAllUnAvailableItemsFromCart = () => {
     setBlocking(true);
     axios
-      .delete(`/api/v1/cart/${skuCode}`)
+      .delete("/api/v1/cart/all-unavailable")
       .then((resp) => {
-        setBlocking(false);
         loadCartData();
       })
       .catch((error) => {
-        setBlocking(false);
         console.log(error);
+      })
+      .then(() => {
+        setBlocking(false);
       });
-  }; */
+  };
 
   const moveToWishlist = (prodCode) => {
     /*  setBlocking(true);
@@ -274,6 +296,39 @@ function ShoppingCartPage({ deptList }) {
       });
   };
 
+  const renderImportantMessages = () => {
+    return (
+      <Alert severity="warning">
+        <AlertTitle>Important messages for items in your Cart:</AlertTitle>
+        <Typography variant="body2" style={{ marginBottom: 10 }}>
+          Some item(s) in your cart are out of stock. Please remove them to
+          proceed.
+        </Typography>
+        {outOfStockItems.map((ele) => (
+          <li key={ele.skuCode}>
+            <Link
+              href={`/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]`}
+              as={`/p/${ele.deptSeoUrl}/${ele.prodSeoUrl}/${ele.prodId}`}
+            >
+              <a>
+                <MuiLink>{ele.prodName}</MuiLink>
+              </a>
+            </Link>
+          </li>
+        ))}
+        <MuiButton
+          color="secondary"
+          size="small"
+          style={{ marginTop: 20 }}
+          variant="outlined"
+          onClick={() => removeAllUnAvailableItemsFromCart()}
+        >
+          REMOVE ITEM(S)
+        </MuiButton>
+      </Alert>
+    );
+  };
+
   const renderCartItems = () => {
     return (
       <Card plain style={{ margin: 0 }}>
@@ -283,6 +338,13 @@ function ShoppingCartPage({ deptList }) {
               <Paper elevation={0}>
                 <GridContainer className={classes.rowContainer} spacing={0}>
                   <GridItem md={3}>
+                    <Chip
+                      label={rowData.discPerc + "% OFF"}
+                      classes={{
+                        root: classes.offerTagRoot,
+                        label: classes.offerTag,
+                      }}
+                    />
                     <div
                       className={classes.imgContainer}
                       style={{ margin: "auto" }}
@@ -312,9 +374,6 @@ function ShoppingCartPage({ deptList }) {
                         <Typography variant="subtitle1">
                           {rowData.unitDesc}
                         </Typography>
-                      </div>
-                      <div>
-                        <OfferTag discPerc={rowData.discPerc} />
                       </div>
                     </Box>
                     <Box
@@ -427,9 +486,9 @@ function ShoppingCartPage({ deptList }) {
     );
   };
 
-  const renderPaymentDetails = () => {
+  const renderBillDetails = () => {
     return (
-      <Card>
+      <Card style={{ marginTop: 0 }}>
         <CardBody>
           <GridContainer>
             <GridItem>
@@ -441,7 +500,7 @@ function ShoppingCartPage({ deptList }) {
                   textTransform: "capitalize",
                 }}
               >
-                Payment Details
+                Bill Details
               </Typography>
               <GridContainer className={classes.priceDetailsContainer}>
                 {/* Bag total */}
@@ -496,9 +555,18 @@ function ShoppingCartPage({ deptList }) {
                   <Typography variant="body2">Shipping Charges (+)</Typography>
                 </GridItem>
                 <GridItem md={5} style={{ textAlign: "right" }}>
-                  <Typography variant="body2">
-                    &#8377; {deliveryCharges}
-                  </Typography>
+                  {deliveryCharges === 0 ? (
+                    <Typography
+                      variant="body2"
+                      style={{ color: successColor[0] }}
+                    >
+                      FREE
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2">
+                      &#8377; {deliveryCharges}
+                    </Typography>
+                  )}
                 </GridItem>
 
                 {/* Total */}
@@ -531,7 +599,8 @@ function ShoppingCartPage({ deptList }) {
               {expanded === "panel1" && (
                 <Button
                   block
-                  color="primary"
+                  color={outOfStockItems.length > 0 ? "default" : "primary"}
+                  disabled={outOfStockItems.length > 0}
                   onClick={() => setExpanded("panel2")}
                 >
                   <Typography
@@ -571,15 +640,15 @@ function ShoppingCartPage({ deptList }) {
               </Typography>
               <GridContainer>
                 <GridItem>
-                <AddressText
-                  name={a.name}
-                  houseNo={a.houseNo}
-                  address={a.address}
-                  city={a.city}
-                  state={a.state}
-                  pincode={a.pincode}
-                  mobile={a.mobile}
-                />
+                  <AddressText
+                    name={a.name}
+                    houseNo={a.houseNo}
+                    address={a.address}
+                    city={a.city}
+                    state={a.state}
+                    pincode={a.pincode}
+                    mobile={a.mobile}
+                  />
                 </GridItem>
               </GridContainer>
             </GridItem>
@@ -643,10 +712,22 @@ function ShoppingCartPage({ deptList }) {
                     <Typography variant="h6">Order Summary</Typography>
                   </div>
                 </AccordionSummary>
-                <AccordionDetails>{renderCartItems()}</AccordionDetails>
+                <AccordionDetails>
+                  <Grid container>
+                    {outOfStockItems.length > 0 && (
+                      <Grid item md={12}>
+                        {renderImportantMessages()}
+                      </Grid>
+                    )}
+                    <Grid item md={12}>
+                      {renderCartItems()}
+                    </Grid>
+                  </Grid>
+                </AccordionDetails>
               </Accordion>
               <Accordion
                 expanded={expanded === "panel2"}
+                disabled={outOfStockItems.length > 0}
                 onChange={handleChange("panel2")}
               >
                 <AccordionSummary
@@ -683,6 +764,7 @@ function ShoppingCartPage({ deptList }) {
               </Accordion>
               <Accordion
                 expanded={expanded === "panel3" && deliveryAddress}
+                disabled={outOfStockItems.length > 0}
                 onChange={handleChange("panel3")}
               >
                 <AccordionSummary
@@ -709,12 +791,6 @@ function ShoppingCartPage({ deptList }) {
                   )}
                 </AccordionDetails>
               </Accordion>
-            </GridItem>
-            <GridItem md={4}>
-              {renderPaymentDetails()}
-              {deliveryAddress && renderAddressDetails()}
-            </GridItem>
-            <GridItem md={8}>
               <Card plain>
                 <Typography className={classes.continueShopping}>
                   <Link href="/">
@@ -732,25 +808,16 @@ function ShoppingCartPage({ deptList }) {
                 </Typography>
               </Card>
             </GridItem>
+            <GridItem md={4}>
+              {renderBillDetails()}
+              {deliveryAddress && renderAddressDetails()}
+            </GridItem>
           </GridContainer>
         </div>
       </div>
     </div>
   );
 }
-
-/*  <MuiButton
-                              style={{
-                                color: "#666",
-                                textTransform: "capitalize",
-                                fontWeight: 400,
-                                textAlign: "right",
-                              }}
-                              onClick={() => moveToWishlist(rowData.prodCode)}
-                            >
-                              <FavoriteBorderOutlinedIcon />
-                              &nbsp; Move To Favourites
-                            </MuiButton> */
 
 ShoppingCartPage.propTypes = {
   deptList: PropTypes.array.isRequired,

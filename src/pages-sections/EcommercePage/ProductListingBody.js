@@ -637,7 +637,7 @@ export default function SectionProductListing({
               )
             }
           >
-            ADD <AddRoundedIcon style={{ fontSize: 12 }} />
+            <AddRoundedIcon style={{ fontSize: 12 }} /> ADD
           </CustomButton>
         );
       }

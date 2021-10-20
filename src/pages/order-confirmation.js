@@ -55,7 +55,7 @@ import Backdrop from "components/Backdrop/CustomBackdrop";
 import {
   roseColor,
   grayColor,
-  warningColor,
+  primaryColor,
   dangerColor,
   successColor,
   title,
@@ -219,7 +219,7 @@ function OrderConfirmation() {
               </Typography>
             </Grid>
             <Grid item>
-              <Typography variant="h6" style={{ color: warningColor[0] }}>
+              <Typography variant="h6" style={{ color: primaryColor[0] }}>
                 Hello +91-{mobile},
               </Typography>
               <Typography variant="body2">
@@ -275,7 +275,7 @@ function OrderConfirmation() {
                     <Grid item>
                       <Typography
                         variant="h6"
-                        style={{ color: warningColor[0] }}
+                        style={{ color: primaryColor[0] }}
                       >
                         Order Details
                       </Typography>

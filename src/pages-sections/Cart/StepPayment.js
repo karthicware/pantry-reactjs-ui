@@ -222,10 +222,6 @@ export default function StepPayment(props) {
             <GridContainer>
               <GridItem>
                 <Typography variant="subtitle2">Cash on Delivery</Typography>
-                <Typography variant="caption">
-                  For safe, contactless, and hassle free delivery, pay using
-                  card/wallet/netbanking
-                </Typography>
               </GridItem>
               <GridItem>
                 <Button
