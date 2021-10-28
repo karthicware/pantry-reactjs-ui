@@ -44,17 +44,14 @@ import Select from "@material-ui/core/Select";
 import Typography from "@material-ui/core/Typography";
 
 import Backdrop from "components/Backdrop/CustomBackdrop";
-import {
-  container,
-  successColor,
-  grayColor,
-} from "assets/jss/material-kit-pro-react.js";
+import { successColor, grayColor } from "assets/jss/material-kit-pro-react.js";
 
 //styles
 import featuresStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/featuresStyle.js";
 import productsStyle from "assets/jss/material-kit-pro-react/views/ecommerceSections/productsStyle.js";
 import imagesStyles from "assets/jss/material-kit-pro-react/imagesStyles.js";
 import { primaryColor } from "assets/jss/material-kit-pro-react.js";
+import { callParent } from "utils/util.js";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -213,7 +210,6 @@ export default function SectionProductListing({
   const [sortBy, setSortBy] = React.useState(null);
   const [openVariantSelectBox, setOpenVariantSelectBox] = React.useState(null);
   const [blocking, setBlocking] = React.useState(false);
-  //const [value, setValue] = React.useState(0);
 
   //snackbar
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -644,24 +640,25 @@ export default function SectionProductListing({
                     padding: 10,
                   }}
                 >
-                  <Box>
-                    <Link
-                      as={`/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`}
-                      href={"/p/[deptNameSlug]/[prodNameSlug]/[pidSlug]"}
-                    >
-                      <a>
-                        <LazyLoad once height={100}>
-                          <img
-                            src={p.variants[p.activeVariantIdx].defaultImgLg}
-                            alt="Card-img-cap"
-                            style={{
-                              width: "100%",
-                              cursor: "pointer",
-                            }}
-                          />
-                        </LazyLoad>
-                      </a>
-                    </Link>
+                  <Box
+                    onClick={() => {
+                      callParent({
+                        screenName: "ProductSpec",
+                        pageUrl: `http://pantry.com.s3-website.ap-south-1.amazonaws.com/mobile/p/${deptDetail.deptSeoUrl}/${p.prodSeoUrl}/${p.prodId}`,
+                        title: "",
+                      });
+                    }}
+                  >
+                    <LazyLoad once height={100}>
+                      <img
+                        src={p.variants[p.activeVariantIdx].defaultImgLg}
+                        alt="Card-img-cap"
+                        style={{
+                          width: "100%",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </LazyLoad>
                   </Box>
                 </Grid>
                 <Grid
